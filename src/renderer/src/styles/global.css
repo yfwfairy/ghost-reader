@@ -1,0 +1,132 @@
+:root {
+  --bg: #101010;
+  --panel: #171717;
+  --panel-hover: #202020;
+  --border: rgba(255, 255, 255, 0.08);
+  --text: #f4f4f4;
+  --muted: #9b9b9b;
+  --accent: #7ec8ff;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  width: 100%;
+  min-height: 100%;
+  background: transparent;
+  color: var(--text);
+  font-family: 'SF Pro Text', 'PingFang SC', sans-serif;
+}
+
+body {
+  background: radial-gradient(circle at top, #1d1d1d 0%, #0f0f0f 55%, #090909 100%);
+}
+
+button {
+  font: inherit;
+}
+
+.bookshelf-page {
+  min-height: 100vh;
+  padding: 32px;
+  box-sizing: border-box;
+}
+
+.bookshelf-page--drag {
+  outline: 2px dashed var(--accent);
+  outline-offset: -12px;
+}
+
+.bookshelf-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.bookshelf-header h1,
+.bookshelf-header__eyebrow,
+.bookshelf-status,
+.book-grid-empty p {
+  margin: 0;
+}
+
+.bookshelf-header__eyebrow {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 12px;
+}
+
+.bookshelf-header__action,
+.book-grid-empty button,
+.book-card button {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--text);
+  cursor: pointer;
+  padding: 10px 16px;
+}
+
+.bookshelf-main {
+  display: flex;
+}
+
+.bookshelf-status,
+.book-grid-empty {
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: rgba(23, 23, 23, 0.88);
+  padding: 32px;
+}
+
+.book-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.book-card {
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: rgba(23, 23, 23, 0.92);
+  padding: 18px;
+  cursor: pointer;
+}
+
+.book-card:hover {
+  background: var(--panel-hover);
+}
+
+.book-card__cover {
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.book-card__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.book-card__meta {
+  display: grid;
+  gap: 8px;
+}
+
+.reader-placeholder {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
