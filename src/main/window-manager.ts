@@ -1,9 +1,11 @@
 import { BrowserWindow, globalShortcut, screen } from 'electron'
 import { DEFAULT_APP_CONFIG } from '@shared/constants'
 import { configStore } from './store'
-import { buildOpacityFrames, snapToRightEdge } from './window-geometry'
+import { buildOpacityFrames } from './window-geometry'
 import {
   attachReaderBoundsPersistence,
+  createOpacityFadeRunner,
+  resolvePersistedReaderBounds,
   resolveBookshelfWindowLoad,
   resolveReaderWindowLoad,
 } from './window-manager-helpers'
@@ -14,7 +16,7 @@ export class WindowManager {
   private bookshelfWindow: BrowserWindow | null = null
   private readerWindow: BrowserWindow | null = null
   private readerMode: ReaderMode = 'hidden'
-  private fadeTimer: NodeJS.Timeout | null = null
+  private fadeRunner = createOpacityFadeRunner({ setTimeout, clearTimeout })
 
   createBookshelfWindow() {
     this.bookshelfWindow = new BrowserWindow({
@@ -84,17 +86,9 @@ export class WindowManager {
     const config = configStore.get()
     const target = mode === 'reading' ? config.readingOpacity : config.hiddenOpacity
     const current = this.readerWindow.getOpacity()
-
-    if (this.fadeTimer) {
-      clearTimeout(this.fadeTimer)
-      this.fadeTimer = null
-    }
-
-    let delay = 0
-    for (const frame of buildOpacityFrames(current, target, 20)) {
-      delay += 15
-      this.fadeTimer = setTimeout(() => this.readerWindow?.setOpacity(frame), delay)
-    }
+    this.fadeRunner.start(buildOpacityFrames(current, target, 20), (frame) => {
+      this.readerWindow?.setOpacity(frame)
+    })
 
     this.readerWindow.setIgnoreMouseEvents(mode === 'hidden', { forward: mode === 'hidden' })
     this.readerMode = mode
@@ -110,8 +104,9 @@ export class WindowManager {
 
   persistReaderBounds() {
     if (!this.readerWindow) return
-    const workArea = screen.getPrimaryDisplay().workArea
-    const next = snapToRightEdge(this.readerWindow.getBounds(), workArea)
+    const currentBounds = this.readerWindow.getBounds()
+    const workArea = screen.getDisplayMatching(currentBounds).workArea
+    const next = resolvePersistedReaderBounds(currentBounds, workArea)
     configStore.set({ readerBounds: next })
   }
 }
