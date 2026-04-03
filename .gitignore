@@ -1,1 +1,11 @@
 .worktrees/
+node_modules/
+out/
+.typecheck/
+electron.vite.config.js
+electron.vite.config.d.ts
+src/**/*.js
+src/**/*.d.ts
+tests/**/*.js
+tests/**/*.d.ts
+*.tsbuildinfo
