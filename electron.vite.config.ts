@@ -22,9 +22,5 @@ export default defineConfig({
         '@shared': resolve(__dirname, 'src/shared'),
       },
     },
-    test: {
-      environment: 'jsdom',
-      globals: true,
-    },
   },
 })
