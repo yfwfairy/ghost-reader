@@ -237,7 +237,7 @@ button {
   color: var(--text-secondary);
 }
 
-.reader-shell {
+.reader-window {
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -246,28 +246,51 @@ button {
   background:
     radial-gradient(circle at top right, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 20%),
     linear-gradient(180deg, #0d0d0d 0%, #070707 100%);
+  transition: opacity 180ms ease;
 }
 
-.reader-shell__panel {
+.reader-window--hidden {
+  opacity: 0.74;
+}
+
+.reader-window--reading {
+  opacity: 1;
+}
+
+.reader-window__panel {
   width: min(420px, 100%);
   border-radius: 30px;
   overflow: hidden;
   background: linear-gradient(180deg, rgba(27, 27, 27, 0.68), rgba(15, 15, 15, 0.68));
   border: 1px solid var(--border-strong);
   box-shadow: var(--shadow-sheet), var(--surface-highlight);
+  position: relative;
 }
 
-.reader-shell__drag-rail {
+.reader-window__drag-rail {
   height: 18px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0));
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  -webkit-app-region: drag;
 }
 
-.reader-shell__content {
+.reader-window__activation-strip {
+  position: absolute;
+  left: 0;
+  top: 18px;
+  bottom: 0;
+  width: 12px;
+  border: 0;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.08);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.reader-window__content {
   padding: 24px 28px 30px;
 }
 
-.reader-shell__eyebrow,
+.reader-empty__eyebrow,
 .settings-panel__eyebrow {
   margin: 0 0 10px;
   color: var(--text-tertiary);
@@ -276,30 +299,41 @@ button {
   font-size: 12px;
 }
 
-.reader-shell__title {
+.reader-empty__title {
   font-size: 32px;
   letter-spacing: -0.04em;
 }
 
-.reader-shell__subtitle,
+.reader-empty__subtitle,
 .settings-panel__summary {
   margin: 10px 0 0;
   color: var(--text-secondary);
   font-size: 14px;
 }
 
-.reader-shell__excerpt {
-  margin-top: 24px;
-  display: grid;
-  gap: 14px;
-  color: rgba(232, 232, 232, 0.9);
-  font-family: 'Iowan Old Style', 'Georgia', 'Times New Roman', serif;
-  font-size: 22px;
-  line-height: 1.75;
+.reader-empty__message {
+  margin: 24px 0 0;
+  color: var(--text-secondary);
 }
 
-.reader-shell__excerpt p {
-  margin: 0;
+.txt-renderer,
+.epub-renderer {
+  height: 66vh;
+  overflow: auto;
+  padding-right: 6px;
+}
+
+.txt-renderer {
+  color: rgba(232, 232, 232, 0.9);
+  font-family: 'Iowan Old Style', 'Georgia', 'Times New Roman', serif;
+}
+
+.txt-renderer p {
+  margin: 0 0 18px;
+}
+
+.epub-renderer {
+  color: rgba(232, 232, 232, 0.9);
 }
 
 .settings-backdrop {
