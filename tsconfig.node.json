@@ -4,6 +4,7 @@
     "tsBuildInfoFile": "./.typecheck/tsconfig.node.tsbuildinfo",
     "outDir": "./.typecheck/node",
     "target": "ES2022",
+    "lib": ["ES2022"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "strict": true,
