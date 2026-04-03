@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { DEFAULT_APP_CONFIG, SUPPORTED_BOOK_FORMATS } from '../../src/shared/constants'
+import {
+  DEFAULT_APP_CONFIG,
+  DEFAULT_WINDOW_SIZE,
+  SUPPORTED_BOOK_FORMATS,
+} from '../../src/shared/constants'
 
 describe('shared constants', () => {
   it('exposes the default reader config', () => {
@@ -15,5 +19,10 @@ describe('shared constants', () => {
 
   it('only allows txt and epub imports', () => {
     expect(SUPPORTED_BOOK_FORMATS).toEqual(['.txt', '.epub'])
+  })
+
+  it('exposes default window dimensions', () => {
+    expect(DEFAULT_WINDOW_SIZE.width).toBe(1100)
+    expect(DEFAULT_WINDOW_SIZE.height).toBe(800)
   })
 })

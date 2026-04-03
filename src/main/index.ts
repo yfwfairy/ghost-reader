@@ -1,10 +1,11 @@
 import { app, BrowserWindow } from 'electron'
 import { join } from 'node:path'
+import { DEFAULT_WINDOW_SIZE } from '../shared/constants'
 
 function createWindow() {
   const window = new BrowserWindow({
-    width: 1100,
-    height: 800,
+    width: DEFAULT_WINDOW_SIZE.width,
+    height: DEFAULT_WINDOW_SIZE.height,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
     },
