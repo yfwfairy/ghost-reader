@@ -25,6 +25,8 @@ describe('SettingsPanel', () => {
       />,
     )
 
+    expect(screen.getByText('Hidden Surface')).toBeInTheDocument()
+    expect(screen.getByText('Reading Surface')).toBeInTheDocument()
     fireEvent.change(screen.getByLabelText('Font Size'), { target: { value: '20' } })
     fireEvent.click(screen.getByText('Save'))
 

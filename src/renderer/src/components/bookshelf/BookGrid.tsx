@@ -12,7 +12,11 @@ export function BookGrid({ books, onOpen, onRemove, onImport }: BookGridProps) {
   if (books.length === 0) {
     return (
       <div className="book-grid-empty">
-        <p>Your library is empty.</p>
+        <p className="book-grid-empty__eyebrow">Library Empty</p>
+        <h2>Drop TXT / EPUB to start your shelf.</h2>
+        <p className="book-grid-empty__copy">
+          Import a book to build a calm reading surface before the full reader experience arrives.
+        </p>
         <button onClick={() => void onImport()}>Import Books</button>
       </div>
     )

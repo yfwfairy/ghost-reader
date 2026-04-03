@@ -42,14 +42,16 @@ export function BookshelfPage() {
         }
       }}
     >
-      <BookshelfHeader onImport={handleImport} />
-      <main className="bookshelf-main">
-        {loading ? (
-          <p className="bookshelf-status">Loading library...</p>
-        ) : (
-          <BookGrid books={books} onOpen={handleOpen} onRemove={removeBook} onImport={handleImport} />
-        )}
-      </main>
+      <div className="bookshelf-page__frame">
+        <BookshelfHeader onImport={handleImport} />
+        <main className="bookshelf-main">
+          {loading ? (
+            <p className="bookshelf-status">Loading library...</p>
+          ) : (
+            <BookGrid books={books} onOpen={handleOpen} onRemove={removeBook} onImport={handleImport} />
+          )}
+        </main>
+      </div>
     </div>
   )
 }

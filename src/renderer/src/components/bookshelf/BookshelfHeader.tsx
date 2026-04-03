@@ -13,9 +13,10 @@ export function BookshelfHeader({ onImport }: BookshelfHeaderProps) {
   return (
     <>
       <header className="bookshelf-header">
-        <div>
+        <div className="bookshelf-header__intro">
           <p className="bookshelf-header__eyebrow">Ghost Reader</p>
           <h1>Bookshelf</h1>
+          <p className="bookshelf-header__summary">Quiet shelf for imported books.</p>
         </div>
         <div className="bookshelf-header__actions">
           <button className="bookshelf-header__action" onClick={() => void onImport()}>

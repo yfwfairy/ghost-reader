@@ -13,16 +13,22 @@ export function BookCard({ book, onOpen, onRemove }: BookCardProps) {
         {book.coverDataUrl ? <img src={book.coverDataUrl} alt={book.title} /> : <span>{book.title}</span>}
       </div>
       <div className="book-card__meta">
-        <strong>{book.title}</strong>
-        <span>{book.author}</span>
-        <button
-          onClick={(event) => {
-            event.stopPropagation()
-            void onRemove(book.id)
-          }}
-        >
-          Remove
-        </button>
+        <div className="book-card__text">
+          <strong>{book.title}</strong>
+          <span>{book.author}</span>
+        </div>
+        <div className="book-card__footer">
+          <span className="book-card__format">{book.format.toUpperCase()}</span>
+          <button
+            className="book-card__remove"
+            onClick={(event) => {
+              event.stopPropagation()
+              void onRemove(book.id)
+            }}
+          >
+            Remove
+          </button>
+        </div>
       </div>
     </article>
   )

@@ -24,35 +24,68 @@ export function SettingsPanel({ config, onSave, onClose }: SettingsPanelProps) {
       }}
     >
       <section className="settings-panel">
-        <h2>Reader Settings</h2>
-        <label className="settings-field">
-          <span>Font Size</span>
-          <input
-            aria-label="Font Size"
-            type="number"
-            value={draft.fontSize}
-            onChange={(event) => {
-              setDraft({ ...draft, fontSize: Number(event.target.value) })
-            }}
-          />
-        </label>
-        <label className="settings-field">
-          <span>Reading Opacity</span>
-          <input
-            aria-label="Reading Opacity"
-            type="range"
-            min="0.5"
-            max="1"
-            step="0.05"
-            value={draft.readingOpacity}
-            onChange={(event) => {
-              setDraft({ ...draft, readingOpacity: Number(event.target.value) })
-            }}
-          />
-        </label>
+        <div className="settings-panel__header">
+          <div>
+            <p className="settings-panel__eyebrow">Ghost Reader</p>
+            <h2>Reader Settings</h2>
+            <p className="settings-panel__summary">Tune the reading surface without breaking its calmness.</p>
+          </div>
+          <button className="settings-panel__close" onClick={onClose} aria-label="Close settings">
+            ×
+          </button>
+        </div>
+
+        <div className="settings-preview-grid">
+          <div className="settings-preview-card">
+            <p className="settings-preview-card__label">Hidden Surface</p>
+            <div className="settings-preview-card__swatch settings-preview-card__swatch--hidden" />
+          </div>
+          <div className="settings-preview-card">
+            <p className="settings-preview-card__label">Reading Surface</p>
+            <div className="settings-preview-card__swatch settings-preview-card__swatch--reading" />
+          </div>
+        </div>
+
+        <div className="settings-panel__section">
+          <label className="settings-field">
+            <span>Font Size</span>
+            <div className="settings-field__control">
+              <input
+                aria-label="Font Size"
+                type="number"
+                value={draft.fontSize}
+                onChange={(event) => {
+                  setDraft({ ...draft, fontSize: Number(event.target.value) })
+                }}
+              />
+              <strong>{draft.fontSize}px</strong>
+            </div>
+          </label>
+          <label className="settings-field">
+            <span>Reading Opacity</span>
+            <div className="settings-field__control settings-field__control--range">
+              <input
+                aria-label="Reading Opacity"
+                type="range"
+                min="0.5"
+                max="1"
+                step="0.05"
+                value={draft.readingOpacity}
+                onChange={(event) => {
+                  setDraft({ ...draft, readingOpacity: Number(event.target.value) })
+                }}
+              />
+              <strong>{draft.readingOpacity.toFixed(2)}</strong>
+            </div>
+          </label>
+        </div>
         <div className="settings-actions">
-          <button onClick={onClose}>Cancel</button>
-          <button onClick={() => void onSave(draft)}>Save</button>
+          <button className="settings-actions__secondary" onClick={onClose}>
+            Cancel
+          </button>
+          <button className="settings-actions__primary" onClick={() => void onSave(draft)}>
+            Save
+          </button>
         </div>
       </section>
     </div>

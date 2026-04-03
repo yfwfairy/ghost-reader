@@ -30,5 +30,7 @@ describe('BookshelfPage', () => {
 
     render(<BookshelfPage />)
     expect(await screen.findByText('Import Books')).toBeInTheDocument()
+    expect(screen.getByText('Quiet shelf for imported books.')).toBeInTheDocument()
+    expect(screen.getByText('Drop TXT / EPUB to start your shelf.')).toBeInTheDocument()
   })
 })
