@@ -10,7 +10,7 @@ describe('App reader shell', () => {
 
   it('keeps a visible reader shell while reader data is still loading', () => {
     window.history.replaceState({}, '', '/?mode=reader')
-    const setReaderMode = vi.fn()
+    const closeReader = vi.fn()
     Object.defineProperty(window, 'api', {
       configurable: true,
       value: {
@@ -20,7 +20,8 @@ describe('App reader shell', () => {
         getProgress: vi.fn(),
         readTxtFile: vi.fn(),
         saveProgress: vi.fn(),
-        setReaderMode,
+        setReaderMode: vi.fn(),
+        closeReader,
       },
     })
 
@@ -30,6 +31,6 @@ describe('App reader shell', () => {
     expect(screen.getByText('Preparing reader...')).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Close reader' }))
-    expect(setReaderMode).toHaveBeenCalledWith('hidden')
+    expect(closeReader).toHaveBeenCalledTimes(1)
   })
 })

@@ -96,6 +96,16 @@ export class WindowManager {
     this.readerWindow.showInactive()
   }
 
+  closeReader() {
+    if (!this.readerWindow) return
+    const config = configStore.get()
+    this.fadeRunner.stop()
+    this.readerWindow.setIgnoreMouseEvents(true, { forward: true })
+    this.readerWindow.setOpacity(config.hiddenOpacity ?? DEFAULT_APP_CONFIG.hiddenOpacity)
+    this.readerMode = 'hidden'
+    this.readerWindow.hide()
+  }
+
   registerShortcut() {
     const { activationShortcut } = configStore.get()
     globalShortcut.register(activationShortcut, () => {

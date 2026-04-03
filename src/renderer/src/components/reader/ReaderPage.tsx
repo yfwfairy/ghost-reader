@@ -17,6 +17,16 @@ export function ReaderPage() {
   const readerState = useReaderState({ fadeDelayMs: activeConfig.fadeDelayMs })
 
   useEffect(() => {
+    document.documentElement.dataset.appMode = 'reader'
+    document.body.dataset.appMode = 'reader'
+
+    return () => {
+      delete document.documentElement.dataset.appMode
+      delete document.body.dataset.appMode
+    }
+  }, [])
+
+  useEffect(() => {
     if (loading) {
       setBookLoading(true)
       setBook(null)
@@ -107,7 +117,7 @@ export function ReaderPage() {
   return (
     <ReaderLayout
       mode={readerState.mode}
-      onHide={readerState.hideReader}
+      onClose={() => void window.api.closeReader()}
       onMouseEnter={() => readerState.handleMouseEnter()}
       onMouseLeave={() => readerState.handleMouseLeave()}
     >

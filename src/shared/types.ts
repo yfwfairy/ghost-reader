@@ -50,4 +50,5 @@ export interface GhostReaderApi {
   openFileDialog: () => Promise<string[]>
   openReader: (bookId: string) => Promise<void>
   setReaderMode: (mode: ReaderMode) => Promise<void>
+  closeReader: () => Promise<void>
 }

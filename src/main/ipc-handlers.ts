@@ -12,6 +12,7 @@ import {
 type WindowManagerBridge = {
   openReader: (bookId: string) => void
   setReaderMode: (mode: ReaderMode) => void
+  closeReader: () => void
   broadcastConfig: () => void
 }
 
@@ -71,4 +72,5 @@ export function registerIpcHandlers(windowManager: WindowManagerBridge) {
 
   registerHandler('reader:open', (_event, bookId: string) => windowManager.openReader(bookId))
   registerHandler('reader:set-mode', (_event, mode: ReaderMode) => windowManager.setReaderMode(mode))
+  registerHandler('reader:close', () => windowManager.closeReader())
 }

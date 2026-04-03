@@ -22,6 +22,7 @@ const api: GhostReaderApi = {
   openFileDialog: () => ipcRenderer.invoke('file:open-dialog'),
   openReader: (bookId) => ipcRenderer.invoke('reader:open', bookId),
   setReaderMode: (mode) => ipcRenderer.invoke('reader:set-mode', mode),
+  closeReader: () => ipcRenderer.invoke('reader:close'),
 }
 
 contextBridge.exposeInMainWorld('api', api)

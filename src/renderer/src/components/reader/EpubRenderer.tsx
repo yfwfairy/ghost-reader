@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useEffectEvent, useRef } from 'react'
 import ePub from 'epubjs'
 import type { ReadingProgress } from '@shared/types'
 
@@ -18,6 +18,7 @@ export function EpubRenderer({
   onProgressUpdate,
 }: EpubRendererProps) {
   const mountRef = useRef<HTMLDivElement | null>(null)
+  const handleProgressUpdate = useEffectEvent(onProgressUpdate)
 
   useEffect(() => {
     if (!mountRef.current) {
@@ -44,7 +45,7 @@ export function EpubRenderer({
 
     void rendition.display(savedCfi)
     rendition.on('relocated', (location: { start: { cfi: string; percentage: number } }) => {
-      onProgressUpdate({
+      handleProgressUpdate({
         epubCfi: location.start.cfi,
         percentage: Math.round(location.start.percentage * 100),
         updatedAt: Date.now(),
@@ -55,7 +56,7 @@ export function EpubRenderer({
       rendition.destroy()
       book.destroy()
     }
-  }, [filePath, fontSize, lineHeight, onProgressUpdate, savedCfi])
+  }, [filePath, fontSize, lineHeight, savedCfi])
 
   return <div ref={mountRef} className="epub-renderer" />
 }

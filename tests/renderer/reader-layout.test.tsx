@@ -12,7 +12,7 @@ describe('ReaderLayout', () => {
     render(
       <ReaderLayout
         mode="hidden"
-        onHide={onHide}
+        onClose={onHide}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
       >
