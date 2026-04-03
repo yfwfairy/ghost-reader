@@ -8,6 +8,8 @@ type StoreShape = {
   progress: ReadingProgress[]
 }
 
+let store: Store<StoreShape> | null = null
+
 export function applyConfigPatch(current: AppConfig, patch: Partial<AppConfig>): AppConfig {
   return { ...current, ...patch }
 }
@@ -35,30 +37,42 @@ export function removeBookAndProgress(
   }
 }
 
-const store = new Store<StoreShape>({
-  name: 'ghost-reader',
-  defaults: {
-    config: { ...DEFAULT_APP_CONFIG, readerBounds: null },
-    books: [],
-    progress: [],
-  },
-})
+function cloneValue<T>(value: T): T {
+  return structuredClone(value)
+}
+
+function getStore() {
+  if (store) {
+    return store
+  }
+
+  store = new Store<StoreShape>({
+    name: 'ghost-reader',
+    defaults: {
+      config: { ...DEFAULT_APP_CONFIG, readerBounds: null },
+      books: [],
+      progress: [],
+    },
+  })
+
+  return store
+}
 
 export const configStore = {
-  get: () => store.get('config'),
+  get: () => cloneValue(getStore().get('config')),
   set: (patch: Partial<AppConfig>) => {
-    const next = applyConfigPatch(store.get('config'), patch)
-    store.set('config', next)
+    const next = applyConfigPatch(getStore().get('config'), patch)
+    getStore().set('config', next)
     return next
   },
 }
 
 export const libraryStore = {
-  get: () => store.get('books'),
-  set: (books: BookRecord[]) => store.set('books', books),
+  get: () => cloneValue(getStore().get('books')),
+  set: (books: BookRecord[]) => getStore().set('books', books),
 }
 
 export const progressStore = {
-  getAll: () => store.get('progress'),
-  setAll: (rows: ReadingProgress[]) => store.set('progress', rows),
+  getAll: () => cloneValue(getStore().get('progress')),
+  setAll: (rows: ReadingProgress[]) => getStore().set('progress', rows),
 }

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { DEFAULT_APP_CONFIG } from '../../src/shared/constants'
 import { applyConfigPatch, removeBookAndProgress, upsertBook } from '../../src/main/store'
 import type { BookRecord, ReadingProgress } from '../../src/shared/types'
@@ -77,5 +77,100 @@ describe('store helpers', () => {
     const cleaned = removeBookAndProgress(books, progress, 'book-1')
     expect(cleaned.books).toEqual([])
     expect(cleaned.progress).toEqual([])
+  })
+})
+
+describe('store module loading', () => {
+  it('can import and use pure helpers without constructing persistence eagerly', async () => {
+    vi.resetModules()
+    vi.doMock('electron-store', () => ({
+      default: class ThrowingStore {
+        constructor() {
+          throw new Error('store should not construct during helper-only import')
+        }
+      },
+    }))
+
+    const module = await import('../../src/main/store')
+
+    const merged = module.applyConfigPatch(DEFAULT_APP_CONFIG, { fontSize: 19 })
+    expect(merged.fontSize).toBe(19)
+
+    vi.doUnmock('electron-store')
+    vi.resetModules()
+  })
+})
+
+describe('store wrappers', () => {
+  it('returns defensive copies from all getters', async () => {
+    vi.resetModules()
+
+    vi.doMock('electron-store', () => ({
+      default: class InMemoryStore<T extends Record<string, unknown>> {
+        private state: T
+
+        constructor(options: { defaults: T }) {
+          this.state = options.defaults
+        }
+
+        get<K extends keyof T>(key: K): T[K] {
+          return this.state[key]
+        }
+
+        set<K extends keyof T>(key: K, value: T[K]) {
+          this.state[key] = value
+        }
+      },
+    }))
+
+    const module = await import('../../src/main/store')
+
+    module.configStore.set({
+      readerBounds: { x: 10, y: 20, width: 400, height: 300 },
+    })
+
+    const firstConfig = module.configStore.get()
+    firstConfig.fontSize = 99
+    if (firstConfig.readerBounds) {
+      firstConfig.readerBounds.x = -1
+    }
+
+    const secondConfig = module.configStore.get()
+    expect(secondConfig.fontSize).toBe(16)
+    expect(secondConfig.readerBounds?.x).toBe(10)
+
+    module.libraryStore.set([
+      {
+        id: 'book-1',
+        title: 'Book',
+        author: 'Unknown',
+        format: 'txt',
+        filePath: '/tmp/book.txt',
+        importedAt: 1,
+        updatedAt: 1,
+      },
+    ])
+
+    const firstBooks = module.libraryStore.get()
+    firstBooks[0].title = 'Changed outside store'
+    const secondBooks = module.libraryStore.get()
+    expect(secondBooks[0].title).toBe('Book')
+
+    module.progressStore.setAll([
+      {
+        bookId: 'book-1',
+        percentage: 12,
+        updatedAt: 1,
+        txtScrollTop: 50,
+      },
+    ])
+
+    const firstProgress = module.progressStore.getAll()
+    firstProgress[0].percentage = 88
+    const secondProgress = module.progressStore.getAll()
+    expect(secondProgress[0].percentage).toBe(12)
+
+    vi.doUnmock('electron-store')
+    vi.resetModules()
   })
 })
