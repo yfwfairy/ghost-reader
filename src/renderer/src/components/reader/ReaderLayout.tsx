@@ -3,7 +3,6 @@ import type { ReaderMode } from '@shared/types'
 
 type ReaderLayoutProps = PropsWithChildren<{
   mode: ReaderMode
-  onActivate: () => void
   onHide: () => void
   onMouseEnter: MouseEventHandler<HTMLElement>
   onMouseLeave: MouseEventHandler<HTMLElement>
@@ -11,7 +10,6 @@ type ReaderLayoutProps = PropsWithChildren<{
 
 export function ReaderLayout({
   mode,
-  onActivate,
   onHide,
   onMouseEnter,
   onMouseLeave,
@@ -25,16 +23,12 @@ export function ReaderLayout({
     >
       <div className="reader-window__panel">
         <div className="reader-window__drag-rail" />
-        <button className="reader-window__hide-button" onClick={onHide} aria-label="Hide reader">
-          Hide
-        </button>
-        {mode === 'hidden' ? (
-          <button
-            className="reader-window__activation-strip"
-            onDoubleClick={() => onActivate()}
-            aria-label="Activate reader"
-          />
-        ) : null}
+        <div className="reader-window__toolbar">
+          <p className="reader-window__mode">{mode === 'hidden' ? 'Hidden Lens' : 'Reading Lens'}</p>
+          <button className="reader-window__hide-button" onClick={onHide} aria-label="Close reader">
+            Close
+          </button>
+        </div>
         <div className="reader-window__content">{children}</div>
       </div>
     </section>

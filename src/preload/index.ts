@@ -4,6 +4,15 @@ import type { GhostReaderApi } from '@shared/types'
 const api: GhostReaderApi = {
   getConfig: () => ipcRenderer.invoke('config:get'),
   setConfig: (patch) => ipcRenderer.invoke('config:set', patch),
+  onConfigChanged: (listener) => {
+    const wrapped = (_event: Electron.IpcRendererEvent, config: Awaited<ReturnType<GhostReaderApi['getConfig']>>) => {
+      listener(config)
+    }
+    ipcRenderer.on('config:changed', wrapped)
+    return () => {
+      ipcRenderer.off('config:changed', wrapped)
+    }
+  },
   getAllBooks: () => ipcRenderer.invoke('library:list'),
   importBooks: (paths) => ipcRenderer.invoke('library:import', paths),
   removeBook: (bookId) => ipcRenderer.invoke('library:remove', bookId),

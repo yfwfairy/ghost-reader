@@ -107,7 +107,6 @@ export function ReaderPage() {
   return (
     <ReaderLayout
       mode={readerState.mode}
-      onActivate={readerState.enterReading}
       onHide={readerState.hideReader}
       onMouseEnter={() => readerState.handleMouseEnter()}
       onMouseLeave={() => readerState.handleMouseLeave()}

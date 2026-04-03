@@ -76,6 +76,7 @@ export class WindowManager {
 
   openReader(bookId: string) {
     configStore.set({ currentBookId: bookId })
+    this.broadcastConfig()
     if (!this.readerWindow) return
     this.readerWindow.showInactive()
     this.setReaderMode('reading')
@@ -108,5 +109,11 @@ export class WindowManager {
     const workArea = screen.getDisplayMatching(currentBounds).workArea
     const next = resolvePersistedReaderBounds(currentBounds, workArea)
     configStore.set({ readerBounds: next })
+  }
+
+  broadcastConfig() {
+    const config = configStore.get()
+    this.bookshelfWindow?.webContents.send('config:changed', config)
+    this.readerWindow?.webContents.send('config:changed', config)
   }
 }

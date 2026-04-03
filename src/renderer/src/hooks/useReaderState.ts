@@ -22,7 +22,9 @@ export function useReaderState(_options: UseReaderStateOptions) {
     hideReader()
   }
 
-  function handleMouseEnter() {}
+  function handleMouseEnter() {
+    enterReading()
+  }
 
   return {
     mode,

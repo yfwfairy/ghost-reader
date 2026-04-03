@@ -12,6 +12,7 @@ import {
 type WindowManagerBridge = {
   openReader: (bookId: string) => void
   setReaderMode: (mode: ReaderMode) => void
+  broadcastConfig: () => void
 }
 
 function registerHandler<Args extends unknown[], ReturnValue>(
@@ -24,7 +25,11 @@ function registerHandler<Args extends unknown[], ReturnValue>(
 
 export function registerIpcHandlers(windowManager: WindowManagerBridge) {
   registerHandler('config:get', () => configStore.get())
-  registerHandler('config:set', (_event, patch: Partial<AppConfig>) => configStore.set(patch))
+  registerHandler('config:set', (_event, patch: Partial<AppConfig>) => {
+    const next = configStore.set(patch)
+    windowManager.broadcastConfig()
+    return next
+  })
 
   registerHandler('library:list', () => libraryStore.get())
   registerHandler('library:import', async (_event, paths: string[]) => {

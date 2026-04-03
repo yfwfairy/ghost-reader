@@ -19,6 +19,7 @@ describe('BookshelfPage', () => {
           currentBookId: null,
           readerBounds: null,
         }),
+        onConfigChanged: vi.fn(() => vi.fn()),
         getAllBooks: vi.fn().mockResolvedValue([]),
         importBooks: vi.fn(),
         openFileDialog: vi.fn().mockResolvedValue([]),

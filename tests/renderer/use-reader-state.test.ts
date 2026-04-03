@@ -26,7 +26,7 @@ describe('useReaderState', () => {
     expect(window.api.setReaderMode).toHaveBeenLastCalledWith('hidden')
   })
 
-  it('does not reactivate reading mode when the mouse re-enters after hiding', () => {
+  it('reactivates reading mode when the mouse re-enters after hiding', () => {
     Object.defineProperty(window, 'api', {
       configurable: true,
       value: {
@@ -42,9 +42,10 @@ describe('useReaderState', () => {
       result.current.handleMouseEnter()
     })
 
-    expect(result.current.mode).toBe('hidden')
-    expect(window.api.setReaderMode).toHaveBeenCalledTimes(2)
+    expect(result.current.mode).toBe('reading')
+    expect(window.api.setReaderMode).toHaveBeenCalledTimes(3)
     expect(window.api.setReaderMode).toHaveBeenNthCalledWith(1, 'reading')
     expect(window.api.setReaderMode).toHaveBeenNthCalledWith(2, 'hidden')
+    expect(window.api.setReaderMode).toHaveBeenNthCalledWith(3, 'reading')
   })
 })

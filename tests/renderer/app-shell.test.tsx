@@ -15,6 +15,7 @@ describe('App reader shell', () => {
       configurable: true,
       value: {
         getConfig: vi.fn(() => new Promise(() => {})),
+        onConfigChanged: vi.fn(() => vi.fn()),
         getAllBooks: vi.fn().mockResolvedValue([]),
         getProgress: vi.fn(),
         readTxtFile: vi.fn(),
@@ -25,10 +26,10 @@ describe('App reader shell', () => {
 
     render(<App />)
 
-    expect(screen.getByText('Reading Lens')).toBeInTheDocument()
+    expect(screen.getAllByText('Reading Lens')).toHaveLength(2)
     expect(screen.getByText('Preparing reader...')).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Hide reader' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Close reader' }))
     expect(setReaderMode).toHaveBeenCalledWith('hidden')
   })
 })

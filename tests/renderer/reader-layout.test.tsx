@@ -4,26 +4,31 @@ import { describe, expect, it, vi } from 'vitest'
 import { ReaderLayout } from '../../src/renderer/src/components/reader/ReaderLayout'
 
 describe('ReaderLayout', () => {
-  it('requires a double click on the activation strip while hidden', () => {
-    const onActivate = vi.fn()
+  it('renders a visible hide control and forwards hover events', () => {
+    const onMouseEnter = vi.fn()
+    const onMouseLeave = vi.fn()
+    const onHide = vi.fn()
 
     render(
       <ReaderLayout
         mode="hidden"
-        onActivate={onActivate}
-        onHide={vi.fn()}
-        onMouseEnter={vi.fn()}
-        onMouseLeave={vi.fn()}
+        onHide={onHide}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
       >
         <div>reader body</div>
       </ReaderLayout>,
     )
 
-    const strip = screen.getByLabelText('Activate reader')
-    fireEvent.mouseEnter(strip)
-    expect(onActivate).not.toHaveBeenCalled()
+    const layout = screen.getByText('reader body').closest('section')
+    expect(layout).not.toBeNull()
 
-    fireEvent.doubleClick(strip)
-    expect(onActivate).toHaveBeenCalledTimes(1)
+    fireEvent.mouseEnter(layout!)
+    fireEvent.mouseLeave(layout!)
+    fireEvent.click(screen.getByRole('button', { name: 'Close reader' }))
+
+    expect(onMouseEnter).toHaveBeenCalledTimes(1)
+    expect(onMouseLeave).toHaveBeenCalledTimes(1)
+    expect(onHide).toHaveBeenCalledTimes(1)
   })
 })

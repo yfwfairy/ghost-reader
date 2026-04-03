@@ -6,7 +6,24 @@ export function useConfig() {
   const [config, setConfig] = useState<AppConfig | null>(null)
 
   useEffect(() => {
-    void window.api.getConfig().then(setConfig)
+    let active = true
+
+    void window.api.getConfig().then((next) => {
+      if (active) {
+        setConfig(next)
+      }
+    })
+
+    const unsubscribe = window.api.onConfigChanged((next) => {
+      if (active) {
+        setConfig(next)
+      }
+    })
+
+    return () => {
+      active = false
+      unsubscribe()
+    }
   }, [])
 
   async function updateConfig(patch: Partial<AppConfig>) {

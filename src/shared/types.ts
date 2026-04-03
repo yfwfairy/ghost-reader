@@ -40,6 +40,7 @@ export interface AppConfig {
 export interface GhostReaderApi {
   getConfig: () => Promise<AppConfig>
   setConfig: (patch: Partial<AppConfig>) => Promise<AppConfig>
+  onConfigChanged: (listener: (config: AppConfig) => void) => () => void
   getAllBooks: () => Promise<BookRecord[]>
   importBooks: (paths: string[]) => Promise<BookRecord[]>
   removeBook: (bookId: string) => Promise<void>
