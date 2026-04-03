@@ -1,4 +1,5 @@
 export type BookFormat = 'txt' | 'epub'
+export type ReaderMode = 'hidden' | 'reading'
 
 export interface BookRecord {
   id: string
@@ -47,5 +48,5 @@ export interface GhostReaderApi {
   saveProgress: (payload: ReadingProgress) => Promise<ReadingProgress>
   openFileDialog: () => Promise<string[]>
   openReader: (bookId: string) => Promise<void>
-  setReaderMode: (mode: 'hidden' | 'reading') => Promise<void>
+  setReaderMode: (mode: ReaderMode) => Promise<void>
 }

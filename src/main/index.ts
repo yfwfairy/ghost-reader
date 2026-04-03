@@ -1,4 +1,5 @@
 import { app, BrowserWindow } from 'electron'
+import { registerIpcHandlers } from './ipc-handlers'
 import { WindowManager } from './window-manager'
 
 const windowManager = new WindowManager()
@@ -7,6 +8,7 @@ app.whenReady().then(() => {
   windowManager.createBookshelfWindow()
   windowManager.createReaderWindow()
   windowManager.registerShortcut()
+  registerIpcHandlers(windowManager)
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length !== 0) return
