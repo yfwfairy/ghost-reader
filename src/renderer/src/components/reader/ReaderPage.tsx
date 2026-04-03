@@ -11,11 +11,22 @@ export function ReaderPage() {
   const [book, setBook] = useState<BookRecord | null>(null)
   const [progress, setProgress] = useState<ReadingProgress | null>(null)
   const [txtContent, setTxtContent] = useState('')
+  const [bookLoading, setBookLoading] = useState(true)
   const saveTimer = useRef<ReturnType<typeof window.setTimeout> | null>(null)
-  const readerState = useReaderState({ fadeDelayMs: config?.fadeDelayMs ?? fallbackConfig.fadeDelayMs })
+  const activeConfig = config ?? fallbackConfig
+  const readerState = useReaderState({ fadeDelayMs: activeConfig.fadeDelayMs })
 
   useEffect(() => {
-    if (loading || !config?.currentBookId) {
+    if (loading) {
+      setBookLoading(true)
+      setBook(null)
+      setProgress(null)
+      setTxtContent('')
+      return
+    }
+
+    if (!config?.currentBookId) {
+      setBookLoading(false)
       setBook(null)
       setProgress(null)
       setTxtContent('')
@@ -23,6 +34,7 @@ export function ReaderPage() {
     }
 
     let cancelled = false
+    setBookLoading(true)
 
     async function loadCurrentBook() {
       const books = await window.api.getAllBooks()
@@ -37,6 +49,7 @@ export function ReaderPage() {
       if (!currentBook) {
         setProgress(null)
         setTxtContent('')
+        setBookLoading(false)
         return
       }
 
@@ -51,9 +64,11 @@ export function ReaderPage() {
         const content = await window.api.readTxtFile(currentBook.filePath)
         if (!cancelled) {
           setTxtContent(content)
+          setBookLoading(false)
         }
       } else {
         setTxtContent('')
+        setBookLoading(false)
       }
     }
 
@@ -71,10 +86,6 @@ export function ReaderPage() {
       }
     }
   }, [])
-
-  if (loading || !config) {
-    return null
-  }
 
   function saveProgressLater(patch: Omit<ReadingProgress, 'bookId'>) {
     if (!book) {
@@ -97,10 +108,18 @@ export function ReaderPage() {
     <ReaderLayout
       mode={readerState.mode}
       onActivate={readerState.enterReading}
+      onHide={readerState.hideReader}
       onMouseEnter={() => readerState.handleMouseEnter()}
       onMouseLeave={() => readerState.handleMouseLeave()}
     >
-      {!book ? (
+      {loading || bookLoading ? (
+        <div className="reader-empty">
+          <p className="reader-empty__eyebrow">Reading</p>
+          <h1 className="reader-empty__title">Reading Lens</h1>
+          <p className="reader-empty__subtitle">A suspended reading surface for long-form focus.</p>
+          <p className="reader-empty__message">Preparing reader...</p>
+        </div>
+      ) : !book ? (
         <div className="reader-empty">
           <p className="reader-empty__eyebrow">Reading</p>
           <h1 className="reader-empty__title">Reading Lens</h1>
@@ -110,15 +129,15 @@ export function ReaderPage() {
       ) : book.format === 'txt' ? (
         <TxtRenderer
           content={txtContent}
-          config={{ fontSize: config.fontSize, lineHeight: config.lineHeight }}
+          config={{ fontSize: activeConfig.fontSize, lineHeight: activeConfig.lineHeight }}
           savedProgress={progress}
           onProgressUpdate={saveProgressLater}
         />
       ) : (
         <EpubRenderer
           filePath={book.filePath}
-          fontSize={config.fontSize}
-          lineHeight={config.lineHeight}
+          fontSize={activeConfig.fontSize}
+          lineHeight={activeConfig.lineHeight}
           savedCfi={progress?.epubCfi}
           onProgressUpdate={(patch) => {
             if (!book) {

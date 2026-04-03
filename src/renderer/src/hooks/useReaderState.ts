@@ -1,51 +1,33 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import type { ReaderMode } from '@shared/types'
 
 type UseReaderStateOptions = {
   fadeDelayMs: number
 }
 
-export function useReaderState({ fadeDelayMs }: UseReaderStateOptions) {
-  const [mode, setMode] = useState<ReaderMode>('hidden')
-  const leaveTimer = useRef<ReturnType<typeof window.setTimeout> | null>(null)
-
-  function clearLeaveTimer() {
-    if (leaveTimer.current === null) {
-      return
-    }
-
-    window.clearTimeout(leaveTimer.current)
-    leaveTimer.current = null
-  }
+export function useReaderState(_options: UseReaderStateOptions) {
+  const [mode, setMode] = useState<ReaderMode>('reading')
 
   function enterReading() {
-    clearLeaveTimer()
     setMode('reading')
     void window.api.setReaderMode('reading')
   }
 
+  function hideReader() {
+    setMode('hidden')
+    void window.api.setReaderMode('hidden')
+  }
+
   function handleMouseLeave() {
-    clearLeaveTimer()
-    leaveTimer.current = window.setTimeout(() => {
-      setMode('hidden')
-      void window.api.setReaderMode('hidden')
-      leaveTimer.current = null
-    }, fadeDelayMs)
+    hideReader()
   }
 
-  function handleMouseEnter() {
-    enterReading()
-  }
-
-  useEffect(() => {
-    return () => {
-      clearLeaveTimer()
-    }
-  }, [])
+  function handleMouseEnter() {}
 
   return {
     mode,
     enterReading,
+    hideReader,
     handleMouseEnter,
     handleMouseLeave,
   }

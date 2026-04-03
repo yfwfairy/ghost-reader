@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom/vitest'
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from '../../src/renderer/src/App'
 
@@ -8,33 +8,27 @@ describe('App reader shell', () => {
     window.history.replaceState({}, '', '/')
   })
 
-  it('renders a quiet reader shell in reader mode', async () => {
+  it('keeps a visible reader shell while reader data is still loading', () => {
     window.history.replaceState({}, '', '/?mode=reader')
+    const setReaderMode = vi.fn()
     Object.defineProperty(window, 'api', {
       configurable: true,
       value: {
-        getConfig: vi.fn().mockResolvedValue({
-          hiddenOpacity: 0.1,
-          readingOpacity: 0.85,
-          fadeDelayMs: 1000,
-          fadeDurationMs: 300,
-          fontSize: 16,
-          lineHeight: 1.8,
-          activationShortcut: 'CommandOrControl+Shift+R',
-          currentBookId: null,
-          readerBounds: null,
-        }),
+        getConfig: vi.fn(() => new Promise(() => {})),
         getAllBooks: vi.fn().mockResolvedValue([]),
         getProgress: vi.fn(),
         readTxtFile: vi.fn(),
         saveProgress: vi.fn(),
-        setReaderMode: vi.fn(),
+        setReaderMode,
       },
     })
 
     render(<App />)
 
-    expect(await screen.findByText('Reading Lens')).toBeInTheDocument()
-    expect(screen.getByText('A suspended reading surface for long-form focus.')).toBeInTheDocument()
+    expect(screen.getByText('Reading Lens')).toBeInTheDocument()
+    expect(screen.getByText('Preparing reader...')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Hide reader' }))
+    expect(setReaderMode).toHaveBeenCalledWith('hidden')
   })
 })

@@ -274,6 +274,19 @@ button {
   -webkit-app-region: drag;
 }
 
+.reader-window__hide-button {
+  position: absolute;
+  top: 26px;
+  right: 18px;
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-secondary);
+  padding: 6px 12px;
+  cursor: pointer;
+  -webkit-app-region: no-drag;
+}
+
 .reader-window__activation-strip {
   position: absolute;
   left: 0;
@@ -284,10 +297,11 @@ button {
   padding: 0;
   background: rgba(255, 255, 255, 0.08);
   border-right: 1px solid rgba(255, 255, 255, 0.06);
+  cursor: pointer;
 }
 
 .reader-window__content {
-  padding: 24px 28px 30px;
+  padding: 44px 28px 30px;
 }
 
 .reader-empty__eyebrow,
