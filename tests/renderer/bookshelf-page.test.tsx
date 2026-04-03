@@ -8,6 +8,17 @@ describe('BookshelfPage', () => {
     Object.defineProperty(window, 'api', {
       configurable: true,
       value: {
+        getConfig: vi.fn().mockResolvedValue({
+          hiddenOpacity: 0.1,
+          readingOpacity: 0.85,
+          fadeDelayMs: 1000,
+          fadeDurationMs: 300,
+          fontSize: 16,
+          lineHeight: 1.8,
+          activationShortcut: 'CommandOrControl+Shift+R',
+          currentBookId: null,
+          readerBounds: null,
+        }),
         getAllBooks: vi.fn().mockResolvedValue([]),
         importBooks: vi.fn(),
         openFileDialog: vi.fn().mockResolvedValue([]),

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { DEFAULT_APP_CONFIG } from '@shared/constants'
 import type { AppConfig } from '@shared/types'
 
 export function useConfig() {
@@ -16,6 +17,7 @@ export function useConfig() {
 
   return {
     config,
+    fallbackConfig: { ...DEFAULT_APP_CONFIG },
     loading: config === null,
     updateConfig,
   }
