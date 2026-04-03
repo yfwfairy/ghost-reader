@@ -10,7 +10,7 @@ describe('store helpers', () => {
     expect(merged.readingOpacity).toBe(0.85)
   })
 
-  it('upserts books by id', () => {
+  it('upserts books by id without reordering existing rows', () => {
     const next = upsertBook([], {
       id: 'book-1',
       title: 'Book',
@@ -23,6 +23,34 @@ describe('store helpers', () => {
 
     expect(next).toHaveLength(1)
     expect(next[0].id).toBe('book-1')
+
+    const replaced = upsertBook(
+      [
+        next[0],
+        {
+          id: 'book-2',
+          title: 'Second Book',
+          author: 'Unknown',
+          format: 'txt',
+          filePath: '/tmp/book-2.txt',
+          importedAt: 2,
+          updatedAt: 2,
+        },
+      ],
+      {
+        id: 'book-1',
+        title: 'Updated Book',
+        author: 'Unknown',
+        format: 'txt',
+        filePath: '/tmp/book.txt',
+        importedAt: 1,
+        updatedAt: 0,
+      },
+    )
+
+    expect(replaced).toHaveLength(2)
+    expect(replaced.map((book) => book.id)).toEqual(['book-1', 'book-2'])
+    expect(replaced[0].title).toBe('Updated Book')
   })
 
   it('removes both book and progress rows', () => {

@@ -13,8 +13,15 @@ export function applyConfigPatch(current: AppConfig, patch: Partial<AppConfig>):
 }
 
 export function upsertBook(current: BookRecord[], incoming: BookRecord): BookRecord[] {
-  const rest = current.filter((book) => book.id !== incoming.id)
-  return [...rest, incoming].sort((a, b) => b.updatedAt - a.updatedAt)
+  const existingIndex = current.findIndex((book) => book.id === incoming.id)
+
+  if (existingIndex === -1) {
+    return [...current, incoming]
+  }
+
+  const next = [...current]
+  next[existingIndex] = incoming
+  return next
 }
 
 export function removeBookAndProgress(
