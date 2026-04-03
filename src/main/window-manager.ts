@@ -1,30 +1,23 @@
-import { BrowserWindow, globalShortcut, screen } from 'electron'
-import { DEFAULT_APP_CONFIG } from '@shared/constants'
+import { BrowserWindow } from 'electron'
+import type { AppConfig } from '@shared/types'
 import { configStore } from './store'
-import { buildOpacityFrames } from './window-geometry'
-import {
-  attachReaderBoundsPersistence,
-  createOpacityFadeRunner,
-  resolvePersistedReaderBounds,
-  resolveBookshelfWindowLoad,
-  resolveReaderWindowLoad,
-} from './window-manager-helpers'
-
-export type ReaderMode = 'hidden' | 'reading'
+import { resolveBookshelfWindowLoad } from './window-manager-helpers'
 
 export class WindowManager {
   private bookshelfWindow: BrowserWindow | null = null
-  private readerWindow: BrowserWindow | null = null
-  private readerMode: ReaderMode = 'hidden'
-  private fadeRunner = createOpacityFadeRunner({ setTimeout, clearTimeout })
 
   createBookshelfWindow() {
+    const saved = configStore.get()
     this.bookshelfWindow = new BrowserWindow({
-      width: 1080,
-      height: 720,
-      minWidth: 900,
-      minHeight: 600,
+      width: 1180,
+      height: 780,
+      minWidth: 980,
+      minHeight: 640,
       title: 'Ghost Reader',
+      titleBarStyle: 'hiddenInset',
+      vibrancy: 'under-window',
+      visualEffectState: 'active',
+      alwaysOnTop: saved.alwaysOnTop,
       webPreferences: {
         preload: `${__dirname}/../preload/index.js`,
       },
@@ -40,90 +33,19 @@ export class WindowManager {
     void this.bookshelfWindow.loadFile(target.filePath, target.options)
   }
 
-  createReaderWindow() {
-    const saved = configStore.get()
-    this.readerWindow = new BrowserWindow({
-      ...(saved.readerBounds ?? { width: 360, height: 680 }),
-      x: saved.readerBounds?.x,
-      y: saved.readerBounds?.y,
-      transparent: true,
-      frame: false,
-      alwaysOnTop: true,
-      hasShadow: false,
-      skipTaskbar: true,
-      visibleOnAllWorkspaces: true,
-      backgroundColor: '#00000000',
-      show: false,
-      webPreferences: {
-        preload: `${__dirname}/../preload/index.js`,
-        webSecurity: false,
-      },
-    })
-
-    attachReaderBoundsPersistence(this.readerWindow, () => this.persistReaderBounds())
-
-    this.readerWindow.setIgnoreMouseEvents(true, { forward: true })
-    this.readerWindow.setOpacity(saved.hiddenOpacity ?? DEFAULT_APP_CONFIG.hiddenOpacity)
-
-    const target = resolveReaderWindowLoad(__dirname, process.env.ELECTRON_RENDERER_URL)
-    if (target.type === 'url') {
-      void this.readerWindow.loadURL(target.url)
-      return
+  setMainWindowAlwaysOnTop(value: boolean): AppConfig {
+    if (!this.bookshelfWindow) {
+      return configStore.set({ alwaysOnTop: value })
     }
 
-    void this.readerWindow.loadFile(target.filePath, target.options)
-  }
-
-  openReader(bookId: string) {
-    configStore.set({ currentBookId: bookId })
+    this.bookshelfWindow.setAlwaysOnTop(value)
+    const next = configStore.set({ alwaysOnTop: value })
     this.broadcastConfig()
-    if (!this.readerWindow) return
-    this.readerWindow.showInactive()
-    this.setReaderMode('reading')
-  }
-
-  setReaderMode(mode: ReaderMode) {
-    if (!this.readerWindow) return
-    const config = configStore.get()
-    const target = mode === 'reading' ? config.readingOpacity : config.hiddenOpacity
-    const current = this.readerWindow.getOpacity()
-    this.fadeRunner.start(buildOpacityFrames(current, target, 20), (frame) => {
-      this.readerWindow?.setOpacity(frame)
-    })
-
-    this.readerWindow.setIgnoreMouseEvents(mode === 'hidden', { forward: mode === 'hidden' })
-    this.readerMode = mode
-    this.readerWindow.showInactive()
-  }
-
-  closeReader() {
-    if (!this.readerWindow) return
-    const config = configStore.get()
-    this.fadeRunner.stop()
-    this.readerWindow.setIgnoreMouseEvents(true, { forward: true })
-    this.readerWindow.setOpacity(config.hiddenOpacity ?? DEFAULT_APP_CONFIG.hiddenOpacity)
-    this.readerMode = 'hidden'
-    this.readerWindow.hide()
-  }
-
-  registerShortcut() {
-    const { activationShortcut } = configStore.get()
-    globalShortcut.register(activationShortcut, () => {
-      this.setReaderMode(this.readerMode === 'hidden' ? 'reading' : 'hidden')
-    })
-  }
-
-  persistReaderBounds() {
-    if (!this.readerWindow) return
-    const currentBounds = this.readerWindow.getBounds()
-    const workArea = screen.getDisplayMatching(currentBounds).workArea
-    const next = resolvePersistedReaderBounds(currentBounds, workArea)
-    configStore.set({ readerBounds: next })
+    return next
   }
 
   broadcastConfig() {
     const config = configStore.get()
     this.bookshelfWindow?.webContents.send('config:changed', config)
-    this.readerWindow?.webContents.send('config:changed', config)
   }
 }

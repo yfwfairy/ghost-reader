@@ -37,24 +37,6 @@ export function resolveBookshelfWindowLoad(mainDirname: string, devServerUrl?: s
   }
 }
 
-export function resolveReaderWindowLoad(mainDirname: string, devServerUrl?: string): WindowLoadTarget {
-  if (devServerUrl) {
-    const url = new URL(devServerUrl)
-    url.searchParams.set('mode', 'reader')
-    return { type: 'url', url: url.toString() }
-  }
-
-  return {
-    type: 'file',
-    filePath: getRendererEntryFile(mainDirname),
-    options: {
-      query: {
-        mode: 'reader',
-      },
-    },
-  }
-}
-
 export function resolvePersistedReaderBounds(
   bounds: Bounds,
   workArea: Bounds,

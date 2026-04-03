@@ -10,6 +10,11 @@ describe('store helpers', () => {
     expect(merged.readingOpacity).toBe(0.85)
   })
 
+  it('persists always-on-top config patches', () => {
+    const merged = applyConfigPatch(DEFAULT_APP_CONFIG, { alwaysOnTop: true })
+    expect(merged.alwaysOnTop).toBe(true)
+  })
+
   it('upserts books by id without reordering existing rows', () => {
     const next = upsertBook([], {
       id: 'book-1',

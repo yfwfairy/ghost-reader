@@ -1,5 +1,5 @@
 import { dialog, ipcMain } from 'electron'
-import type { AppConfig, ReaderMode, ReadingProgress } from '@shared/types'
+import type { AppConfig, ReadingProgress } from '@shared/types'
 import { buildBookRecord, pickSupportedPaths, readTxtFile } from './file-service'
 import {
   configStore,
@@ -10,9 +10,7 @@ import {
 } from './store'
 
 type WindowManagerBridge = {
-  openReader: (bookId: string) => void
-  setReaderMode: (mode: ReaderMode) => void
-  closeReader: () => void
+  setMainWindowAlwaysOnTop: (value: boolean) => AppConfig
   broadcastConfig: () => void
 }
 
@@ -27,7 +25,18 @@ function registerHandler<Args extends unknown[], ReturnValue>(
 export function registerIpcHandlers(windowManager: WindowManagerBridge) {
   registerHandler('config:get', () => configStore.get())
   registerHandler('config:set', (_event, patch: Partial<AppConfig>) => {
-    const next = configStore.set(patch)
+    const { alwaysOnTop, ...rest } = patch
+    const hasNonWindowConfigPatch = Object.keys(rest).length > 0
+
+    let next = hasNonWindowConfigPatch
+      ? configStore.set(rest as Partial<AppConfig>)
+      : configStore.get()
+
+    if (alwaysOnTop !== undefined) {
+      next = windowManager.setMainWindowAlwaysOnTop(alwaysOnTop)
+      return next
+    }
+
     windowManager.broadcastConfig()
     return next
   })
@@ -70,7 +79,7 @@ export function registerIpcHandlers(windowManager: WindowManagerBridge) {
   })
   registerHandler('file:read-txt', (_event, filePath: string) => readTxtFile(filePath))
 
-  registerHandler('reader:open', (_event, bookId: string) => windowManager.openReader(bookId))
-  registerHandler('reader:set-mode', (_event, mode: ReaderMode) => windowManager.setReaderMode(mode))
-  registerHandler('reader:close', () => windowManager.closeReader())
+  registerHandler('window:set-always-on-top', (_event, value: boolean) =>
+    windowManager.setMainWindowAlwaysOnTop(value),
+  )
 }

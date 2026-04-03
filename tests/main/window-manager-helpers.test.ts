@@ -1,41 +1,24 @@
 import { describe, expect, it, vi } from 'vitest'
+import * as windowManagerHelpers from '../../src/main/window-manager-helpers'
 import {
   attachReaderBoundsPersistence,
   createOpacityFadeRunner,
   resolvePersistedReaderBounds,
   resolveBookshelfWindowLoad,
-  resolveReaderWindowLoad,
 } from '../../src/main/window-manager-helpers'
 
 describe('window manager helpers', () => {
-  it('resolves bookshelf load target for dev and production', () => {
-    const devTarget = resolveBookshelfWindowLoad('/tmp/out/main', 'http://localhost:5173/')
-    expect(devTarget).toEqual({ type: 'url', url: 'http://localhost:5173/' })
-
-    const prodTarget = resolveBookshelfWindowLoad('/tmp/out/main', undefined)
-    expect(prodTarget).toEqual({
+  it('loads the renderer without reader mode query in production', () => {
+    const target = resolveBookshelfWindowLoad('/tmp/out/main', undefined)
+    expect(target).toEqual({
       type: 'file',
       filePath: '/tmp/out/renderer/index.html',
       options: undefined,
     })
   })
 
-  it('resolves reader load target and preserves mode in dev and production', () => {
-    const devTarget = resolveReaderWindowLoad(
-      '/tmp/out/main',
-      'http://localhost:5173/?feature=enabled',
-    )
-    expect(devTarget).toEqual({
-      type: 'url',
-      url: 'http://localhost:5173/?feature=enabled&mode=reader',
-    })
-
-    const prodTarget = resolveReaderWindowLoad('/tmp/out/main', undefined)
-    expect(prodTarget).toEqual({
-      type: 'file',
-      filePath: '/tmp/out/renderer/index.html',
-      options: { query: { mode: 'reader' } },
-    })
+  it('no longer exposes reader-window load targeting', () => {
+    expect('resolveReaderWindowLoad' in windowManagerHelpers).toBe(false)
   })
 
   it('attaches persistence to move, resize, and close window events', () => {
