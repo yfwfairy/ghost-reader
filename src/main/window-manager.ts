@@ -2,6 +2,11 @@ import { BrowserWindow, globalShortcut, screen } from 'electron'
 import { DEFAULT_APP_CONFIG } from '@shared/constants'
 import { configStore } from './store'
 import { buildOpacityFrames, snapToRightEdge } from './window-geometry'
+import {
+  attachReaderBoundsPersistence,
+  resolveBookshelfWindowLoad,
+  resolveReaderWindowLoad,
+} from './window-manager-helpers'
 
 export type ReaderMode = 'hidden' | 'reading'
 
@@ -23,7 +28,14 @@ export class WindowManager {
       },
     })
 
-    void this.bookshelfWindow.loadURL(process.env.ELECTRON_RENDERER_URL ?? 'app://bookshelf')
+    const target = resolveBookshelfWindowLoad(__dirname, process.env.ELECTRON_RENDERER_URL)
+
+    if (target.type === 'url') {
+      void this.bookshelfWindow.loadURL(target.url)
+      return
+    }
+
+    void this.bookshelfWindow.loadFile(target.filePath, target.options)
   }
 
   createReaderWindow() {
@@ -46,9 +58,18 @@ export class WindowManager {
       },
     })
 
+    attachReaderBoundsPersistence(this.readerWindow, () => this.persistReaderBounds())
+
     this.readerWindow.setIgnoreMouseEvents(true, { forward: true })
     this.readerWindow.setOpacity(saved.hiddenOpacity ?? DEFAULT_APP_CONFIG.hiddenOpacity)
-    void this.readerWindow.loadURL(`${process.env.ELECTRON_RENDERER_URL}?mode=reader`)
+
+    const target = resolveReaderWindowLoad(__dirname, process.env.ELECTRON_RENDERER_URL)
+    if (target.type === 'url') {
+      void this.readerWindow.loadURL(target.url)
+      return
+    }
+
+    void this.readerWindow.loadFile(target.filePath, target.options)
   }
 
   openReader(bookId: string) {
