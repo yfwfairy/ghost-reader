@@ -9,7 +9,11 @@ function getDroppedPaths(fileList: FileList) {
     .filter((path): path is string => Boolean(path))
 }
 
-export function BookshelfPage() {
+type BookshelfPageProps = {
+  onOpenReader: () => void
+}
+
+export function BookshelfPage({ onOpenReader }: BookshelfPageProps) {
   const { books, loading, addBooks, removeBook } = useLibrary()
   const [dragActive, setDragActive] = useState(false)
 
@@ -22,7 +26,7 @@ export function BookshelfPage() {
 
   async function handleOpen(bookId: string) {
     await window.api.setConfig({ currentBookId: bookId })
-    await window.api.openReader(bookId)
+    onOpenReader()
   }
 
   return (

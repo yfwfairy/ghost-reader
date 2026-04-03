@@ -8,13 +8,6 @@ describe('useReaderState', () => {
   })
 
   it('returns to hidden mode immediately after the mouse leaves', () => {
-    Object.defineProperty(window, 'api', {
-      configurable: true,
-      value: {
-        setReaderMode: vi.fn(),
-      },
-    })
-
     const { result } = renderHook(() => useReaderState({ fadeDelayMs: 1000 }))
 
     act(() => {
@@ -23,17 +16,9 @@ describe('useReaderState', () => {
     })
 
     expect(result.current.mode).toBe('hidden')
-    expect(window.api.setReaderMode).toHaveBeenLastCalledWith('hidden')
   })
 
   it('reactivates reading mode when the mouse re-enters after hiding', () => {
-    Object.defineProperty(window, 'api', {
-      configurable: true,
-      value: {
-        setReaderMode: vi.fn(),
-      },
-    })
-
     const { result } = renderHook(() => useReaderState({ fadeDelayMs: 1000 }))
 
     act(() => {
@@ -43,9 +28,5 @@ describe('useReaderState', () => {
     })
 
     expect(result.current.mode).toBe('reading')
-    expect(window.api.setReaderMode).toHaveBeenCalledTimes(3)
-    expect(window.api.setReaderMode).toHaveBeenNthCalledWith(1, 'reading')
-    expect(window.api.setReaderMode).toHaveBeenNthCalledWith(2, 'hidden')
-    expect(window.api.setReaderMode).toHaveBeenNthCalledWith(3, 'reading')
   })
 })

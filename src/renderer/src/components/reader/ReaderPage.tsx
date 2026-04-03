@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import type { BookRecord, ReadingProgress } from '@shared/types'
 import { useConfig } from '../../hooks/useConfig'
-import { useReaderState } from '../../hooks/useReaderState'
 import { EpubRenderer } from './EpubRenderer'
 import { ReaderLayout } from './ReaderLayout'
 import { TxtRenderer } from './TxtRenderer'
 
-export function ReaderPage() {
+type ReaderPageProps = {
+  onBack: () => void
+}
+
+export function ReaderPage({ onBack }: ReaderPageProps) {
   const { config, fallbackConfig, loading } = useConfig()
   const [book, setBook] = useState<BookRecord | null>(null)
   const [progress, setProgress] = useState<ReadingProgress | null>(null)
@@ -14,7 +17,6 @@ export function ReaderPage() {
   const [bookLoading, setBookLoading] = useState(true)
   const saveTimer = useRef<ReturnType<typeof window.setTimeout> | null>(null)
   const activeConfig = config ?? fallbackConfig
-  const readerState = useReaderState({ fadeDelayMs: activeConfig.fadeDelayMs })
 
   useEffect(() => {
     document.documentElement.dataset.appMode = 'reader'
@@ -116,10 +118,11 @@ export function ReaderPage() {
 
   return (
     <ReaderLayout
-      mode={readerState.mode}
-      onClose={() => void window.api.closeReader()}
-      onMouseEnter={() => readerState.handleMouseEnter()}
-      onMouseLeave={() => readerState.handleMouseLeave()}
+      mode="reading"
+      onClose={async () => {
+        await window.api.setConfig({ currentBookId: null })
+        onBack()
+      }}
     >
       {loading || bookLoading ? (
         <div className="reader-empty">

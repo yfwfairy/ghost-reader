@@ -174,3 +174,7 @@ describe('store wrappers', () => {
     vi.resetModules()
   })
 })
+
+it('defaults always-on-top to false in single-window mode', () => {
+  expect(DEFAULT_APP_CONFIG.alwaysOnTop).toBe(false)
+})

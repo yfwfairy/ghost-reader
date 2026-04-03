@@ -29,6 +29,7 @@ export interface AppConfig {
   lineHeight: number
   activationShortcut: string
   currentBookId: string | null
+  alwaysOnTop: boolean
   readerBounds: {
     x: number
     y: number
@@ -48,7 +49,5 @@ export interface GhostReaderApi {
   getProgress: (bookId: string) => Promise<ReadingProgress | null>
   saveProgress: (payload: ReadingProgress) => Promise<ReadingProgress>
   openFileDialog: () => Promise<string[]>
-  openReader: (bookId: string) => Promise<void>
-  setReaderMode: (mode: ReaderMode) => Promise<void>
-  closeReader: () => Promise<void>
+  setAlwaysOnTop: (value: boolean) => Promise<AppConfig>
 }

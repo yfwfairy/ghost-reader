@@ -14,5 +14,6 @@ export const DEFAULT_APP_CONFIG = {
   lineHeight: 1.8,
   activationShortcut: 'CommandOrControl+Shift+R',
   currentBookId: null,
+  alwaysOnTop: false,
   readerBounds: null,
 } as const

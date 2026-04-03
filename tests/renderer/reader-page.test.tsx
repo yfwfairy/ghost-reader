@@ -13,6 +13,7 @@ const baseConfig: AppConfig = {
   lineHeight: 1.9,
   activationShortcut: 'CommandOrControl+Shift+R',
   currentBookId: null,
+  alwaysOnTop: false,
   readerBounds: null,
 }
 
@@ -46,12 +47,11 @@ describe('ReaderPage', () => {
         openFileDialog: vi.fn(),
         importBooks: vi.fn(),
         removeBook: vi.fn(),
-        openReader: vi.fn(),
-        setReaderMode: vi.fn(),
+        setAlwaysOnTop: vi.fn(),
       },
     })
 
-    render(<ReaderPage />)
+    render(<ReaderPage onBack={vi.fn()} />)
 
     expect(await screen.findByText('No book selected.')).toBeInTheDocument()
     expect(handleConfigChange).not.toBeNull()

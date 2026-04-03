@@ -17,6 +17,7 @@ describe('BookshelfPage', () => {
           lineHeight: 1.8,
           activationShortcut: 'CommandOrControl+Shift+R',
           currentBookId: null,
+          alwaysOnTop: false,
           readerBounds: null,
         }),
         onConfigChanged: vi.fn(() => vi.fn()),
@@ -24,12 +25,12 @@ describe('BookshelfPage', () => {
         importBooks: vi.fn(),
         openFileDialog: vi.fn().mockResolvedValue([]),
         setConfig: vi.fn(),
-        openReader: vi.fn(),
         removeBook: vi.fn(),
+        setAlwaysOnTop: vi.fn(),
       },
     })
 
-    render(<BookshelfPage />)
+    render(<BookshelfPage onOpenReader={vi.fn()} />)
     expect(await screen.findByText('Import Books')).toBeInTheDocument()
     expect(screen.getByText('Quiet shelf for imported books.')).toBeInTheDocument()
     expect(screen.getByText('Drop TXT / EPUB to start your shelf.')).toBeInTheDocument()

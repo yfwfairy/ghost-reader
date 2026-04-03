@@ -10,12 +10,10 @@ export function useReaderState(_options: UseReaderStateOptions) {
 
   function enterReading() {
     setMode('reading')
-    void window.api.setReaderMode('reading')
   }
 
   function hideReader() {
     setMode('hidden')
-    void window.api.setReaderMode('hidden')
   }
 
   function handleMouseLeave() {
