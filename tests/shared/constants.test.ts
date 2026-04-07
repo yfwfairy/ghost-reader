@@ -7,14 +7,15 @@ import {
 
 describe('shared constants', () => {
   it('exposes the default reader config', () => {
-    expect(DEFAULT_APP_CONFIG.hiddenOpacity).toBe(0.1)
-    expect(DEFAULT_APP_CONFIG.readingOpacity).toBe(0.85)
-    expect(DEFAULT_APP_CONFIG.fadeDelayMs).toBe(1000)
-    expect(DEFAULT_APP_CONFIG.fadeDurationMs).toBe(300)
     expect(DEFAULT_APP_CONFIG.fontSize).toBe(16)
     expect(DEFAULT_APP_CONFIG.lineHeight).toBe(1.8)
-    expect(DEFAULT_APP_CONFIG.activationShortcut).toBe('CommandOrControl+Shift+R')
+    expect(DEFAULT_APP_CONFIG.alwaysOnTop).toBe(false)
     expect(DEFAULT_APP_CONFIG.currentBookId).toBeNull()
+    expect(DEFAULT_APP_CONFIG).not.toHaveProperty('hiddenOpacity')
+    expect(DEFAULT_APP_CONFIG).not.toHaveProperty('readingOpacity')
+    expect(DEFAULT_APP_CONFIG).not.toHaveProperty('fadeDelayMs')
+    expect(DEFAULT_APP_CONFIG).not.toHaveProperty('fadeDurationMs')
+    expect(DEFAULT_APP_CONFIG).not.toHaveProperty('activationShortcut')
   })
 
   it('only allows txt and epub imports', () => {

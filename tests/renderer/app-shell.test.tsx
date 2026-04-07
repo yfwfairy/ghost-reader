@@ -6,16 +6,10 @@ import App from '../../src/renderer/src/App'
 describe('App single-window shell', () => {
   function setupApi(initialBookId: string | null) {
     let config = {
-      hiddenOpacity: 0.1,
-      readingOpacity: 0.85,
-      fadeDelayMs: 1000,
-      fadeDurationMs: 300,
       fontSize: 16,
       lineHeight: 1.8,
-      activationShortcut: 'CommandOrControl+Shift+R',
       currentBookId: initialBookId,
       alwaysOnTop: false,
-      readerBounds: null,
     }
 
     Object.defineProperty(window, 'api', {
@@ -51,16 +45,10 @@ describe('App single-window shell', () => {
 
   function setupDeferredConfigApi(initialBookId: string | null) {
     let config = {
-      hiddenOpacity: 0.1,
-      readingOpacity: 0.85,
-      fadeDelayMs: 1000,
-      fadeDurationMs: 300,
       fontSize: 16,
       lineHeight: 1.8,
-      activationShortcut: 'CommandOrControl+Shift+R',
       currentBookId: initialBookId,
       alwaysOnTop: false,
-      readerBounds: null,
     }
     let handleConfigChange: ((next: typeof config) => void) | null = null
 
@@ -159,16 +147,10 @@ describe('App single-window shell', () => {
 
     act(() => {
       emitConfig({
-        hiddenOpacity: 0.1,
-        readingOpacity: 0.85,
-        fadeDelayMs: 1000,
-        fadeDurationMs: 300,
         fontSize: 16,
         lineHeight: 1.8,
-        activationShortcut: 'CommandOrControl+Shift+R',
         currentBookId: 'book-1',
         alwaysOnTop: false,
-        readerBounds: null,
       })
     })
 
@@ -185,16 +167,10 @@ describe('App single-window shell', () => {
 
     act(() => {
       emitConfig({
-        hiddenOpacity: 0.1,
-        readingOpacity: 0.85,
-        fadeDelayMs: 1000,
-        fadeDurationMs: 300,
         fontSize: 16,
         lineHeight: 1.8,
-        activationShortcut: 'CommandOrControl+Shift+R',
         currentBookId: 'book-1',
         alwaysOnTop: false,
-        readerBounds: null,
       })
     })
 
@@ -216,28 +192,16 @@ describe('App single-window shell', () => {
 
   it('waits for persisted always-on-top before enabling pin and can unpin from the app shell', async () => {
     let resolveConfig: ((value: {
-      hiddenOpacity: number
-      readingOpacity: number
-      fadeDelayMs: number
-      fadeDurationMs: number
       fontSize: number
       lineHeight: number
-      activationShortcut: string
       currentBookId: null
       alwaysOnTop: boolean
-      readerBounds: null
     }) => void) | null = null
     const setAlwaysOnTop = vi.fn().mockImplementation(async (value: boolean) => ({
-      hiddenOpacity: 0.1,
-      readingOpacity: 0.85,
-      fadeDelayMs: 1000,
-      fadeDurationMs: 300,
       fontSize: 16,
       lineHeight: 1.8,
-      activationShortcut: 'CommandOrControl+Shift+R',
       currentBookId: null,
       alwaysOnTop: value,
-      readerBounds: null,
     }))
 
     Object.defineProperty(window, 'api', {
@@ -270,16 +234,10 @@ describe('App single-window shell', () => {
     expect(setAlwaysOnTop).not.toHaveBeenCalled()
 
     resolveConfig?.({
-      hiddenOpacity: 0.1,
-      readingOpacity: 0.85,
-      fadeDelayMs: 1000,
-      fadeDurationMs: 300,
       fontSize: 16,
       lineHeight: 1.8,
-      activationShortcut: 'CommandOrControl+Shift+R',
       currentBookId: null,
       alwaysOnTop: true,
-      readerBounds: null,
     })
 
     const unpinButton = await screen.findByRole('button', { name: 'Unpin window' })

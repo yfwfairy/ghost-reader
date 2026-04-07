@@ -1,4 +1,5 @@
 import { BrowserWindow } from 'electron'
+import { DEFAULT_WINDOW_SIZE } from '@shared/constants'
 import type { AppConfig } from '@shared/types'
 import { configStore } from './store'
 import { resolveBookshelfWindowLoad } from './window-manager-helpers'
@@ -9,8 +10,8 @@ export class WindowManager {
   createBookshelfWindow() {
     const saved = configStore.get()
     this.bookshelfWindow = new BrowserWindow({
-      width: 1180,
-      height: 780,
+      width: DEFAULT_WINDOW_SIZE.width,
+      height: DEFAULT_WINDOW_SIZE.height,
       minWidth: 980,
       minHeight: 640,
       title: 'Ghost Reader',

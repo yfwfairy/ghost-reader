@@ -49,7 +49,7 @@ function getStore() {
   store = new Store<StoreShape>({
     name: 'ghost-reader',
     defaults: {
-      config: { ...DEFAULT_APP_CONFIG, readerBounds: null },
+      config: { ...DEFAULT_APP_CONFIG },
       books: [],
       progress: [],
     },

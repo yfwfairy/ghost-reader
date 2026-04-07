@@ -28,22 +28,11 @@ export function SettingsPanel({ config, onSave, onClose }: SettingsPanelProps) {
           <div>
             <p className="settings-panel__eyebrow">Ghost Reader</p>
             <h2>Reader Settings</h2>
-            <p className="settings-panel__summary">Tune the reading surface without breaking its calmness.</p>
+            <p className="settings-panel__summary">Tune the reader typography without breaking its calmness.</p>
           </div>
           <button className="settings-panel__close" onClick={onClose} aria-label="Close settings">
             ×
           </button>
-        </div>
-
-        <div className="settings-preview-grid">
-          <div className="settings-preview-card">
-            <p className="settings-preview-card__label">Hidden Surface</p>
-            <div className="settings-preview-card__swatch settings-preview-card__swatch--hidden" />
-          </div>
-          <div className="settings-preview-card">
-            <p className="settings-preview-card__label">Reading Surface</p>
-            <div className="settings-preview-card__swatch settings-preview-card__swatch--reading" />
-          </div>
         </div>
 
         <div className="settings-panel__section">
@@ -62,20 +51,20 @@ export function SettingsPanel({ config, onSave, onClose }: SettingsPanelProps) {
             </div>
           </label>
           <label className="settings-field">
-            <span>Reading Opacity</span>
+            <span>Line Height</span>
             <div className="settings-field__control settings-field__control--range">
               <input
-                aria-label="Reading Opacity"
+                aria-label="Line Height"
                 type="range"
-                min="0.5"
-                max="1"
-                step="0.05"
-                value={draft.readingOpacity}
+                min="1.2"
+                max="2.4"
+                step="0.1"
+                value={draft.lineHeight}
                 onChange={(event) => {
-                  setDraft({ ...draft, readingOpacity: Number(event.target.value) })
+                  setDraft({ ...draft, lineHeight: Number(event.target.value) })
                 }}
               />
-              <strong>{draft.readingOpacity.toFixed(2)}</strong>
+              <strong>{draft.lineHeight.toFixed(1)}</strong>
             </div>
           </label>
         </div>

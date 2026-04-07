@@ -1,5 +1,4 @@
 export type BookFormat = 'txt' | 'epub'
-export type ReaderMode = 'hidden' | 'reading'
 
 export interface BookRecord {
   id: string
@@ -21,21 +20,10 @@ export interface ReadingProgress {
 }
 
 export interface AppConfig {
-  hiddenOpacity: number
-  readingOpacity: number
-  fadeDelayMs: number
-  fadeDurationMs: number
   fontSize: number
   lineHeight: number
-  activationShortcut: string
   currentBookId: string | null
   alwaysOnTop: boolean
-  readerBounds: {
-    x: number
-    y: number
-    width: number
-    height: number
-  } | null
 }
 
 export interface GhostReaderApi {

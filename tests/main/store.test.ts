@@ -7,7 +7,7 @@ describe('store helpers', () => {
   it('merges config patches on top of defaults', () => {
     const merged = applyConfigPatch(DEFAULT_APP_CONFIG, { fontSize: 20 })
     expect(merged.fontSize).toBe(20)
-    expect(merged.readingOpacity).toBe(0.85)
+    expect(merged.lineHeight).toBe(1.8)
   })
 
   it('persists always-on-top config patches', () => {
@@ -130,19 +130,15 @@ describe('store wrappers', () => {
 
     const module = await import('../../src/main/store')
 
-    module.configStore.set({
-      readerBounds: { x: 10, y: 20, width: 400, height: 300 },
-    })
+    module.configStore.set({ alwaysOnTop: true })
 
     const firstConfig = module.configStore.get()
     firstConfig.fontSize = 99
-    if (firstConfig.readerBounds) {
-      firstConfig.readerBounds.x = -1
-    }
+    firstConfig.alwaysOnTop = false
 
     const secondConfig = module.configStore.get()
     expect(secondConfig.fontSize).toBe(16)
-    expect(secondConfig.readerBounds?.x).toBe(10)
+    expect(secondConfig.alwaysOnTop).toBe(true)
 
     module.libraryStore.set([
       {

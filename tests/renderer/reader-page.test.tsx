@@ -5,16 +5,10 @@ import type { AppConfig } from '../../src/shared/types'
 import { ReaderPage } from '../../src/renderer/src/components/reader/ReaderPage'
 
 const baseConfig: AppConfig = {
-  hiddenOpacity: 0.12,
-  readingOpacity: 0.9,
-  fadeDelayMs: 300,
-  fadeDurationMs: 180,
   fontSize: 18,
   lineHeight: 1.9,
-  activationShortcut: 'CommandOrControl+Shift+R',
   currentBookId: null,
   alwaysOnTop: false,
-  readerBounds: null,
 }
 
 describe('ReaderPage', () => {

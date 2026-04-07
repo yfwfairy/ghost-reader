@@ -466,42 +466,11 @@ button {
   color: var(--text-secondary);
 }
 
-.settings-preview-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.settings-preview-card,
 .settings-panel__section {
   border-radius: 20px;
   background: var(--bg-panel-soft);
   border: 1px solid var(--border-soft);
   box-shadow: var(--surface-highlight);
-}
-
-.settings-preview-card {
-  padding: 14px;
-}
-
-.settings-preview-card__label {
-  margin: 0 0 10px;
-  color: var(--text-secondary);
-  font-size: 12px;
-}
-
-.settings-preview-card__swatch {
-  height: 80px;
-  border-radius: 16px;
-  border: 1px solid var(--border-soft);
-}
-
-.settings-preview-card__swatch--hidden {
-  background: rgba(255, 255, 255, 0.03);
-}
-
-.settings-preview-card__swatch--reading {
-  background: linear-gradient(180deg, rgba(44, 44, 44, 0.76), rgba(20, 20, 20, 0.76));
 }
 
 .settings-panel__section {

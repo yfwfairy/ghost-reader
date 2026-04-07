@@ -5,16 +5,10 @@ import { BookshelfPage } from '../../src/renderer/src/components/bookshelf/Books
 import type { AppConfig, BookRecord } from '../../src/shared/types'
 
 const baseConfig: AppConfig = {
-  hiddenOpacity: 0.1,
-  readingOpacity: 0.85,
-  fadeDelayMs: 1000,
-  fadeDurationMs: 300,
   fontSize: 16,
   lineHeight: 1.8,
-  activationShortcut: 'CommandOrControl+Shift+R',
   currentBookId: null,
   alwaysOnTop: false,
-  readerBounds: null,
 }
 
 function setupApi(options?: { config?: Partial<AppConfig>; books?: BookRecord[] }) {
