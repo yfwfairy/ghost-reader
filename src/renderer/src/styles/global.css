@@ -290,80 +290,125 @@ button {
   color: var(--text-secondary);
 }
 
-.reader-window {
+.reader-page {
+  min-height: 100vh;
   height: 100vh;
-  display: flex;
-  align-items: stretch;
-  justify-content: center;
   box-sizing: border-box;
-  overflow: hidden;
-  padding: 24px;
-  background: transparent;
-  transition: opacity 180ms ease;
-}
-
-.reader-window--hidden {
-  opacity: 0.74;
-}
-
-.reader-window--reading {
-  opacity: 1;
-}
-
-.reader-window__panel {
-  width: min(420px, 100%);
-  height: 100%;
-  max-height: calc(100vh - 48px);
   display: flex;
   flex-direction: column;
-  border-radius: 30px;
+}
+
+.reader-page__shell {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
-  background: linear-gradient(180deg, rgba(27, 27, 27, 0.68), rgba(15, 15, 15, 0.68));
-  border: 1px solid var(--border-strong);
-  box-shadow: var(--shadow-sheet), var(--surface-highlight);
-  position: relative;
+  background: transparent;
 }
 
-.reader-window__drag-rail {
-  height: 18px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0));
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  -webkit-app-region: drag;
-}
-
-.reader-window__toolbar {
+.reader-page__topbar {
+  min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 14px 18px 0;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border-soft);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
   -webkit-app-region: drag;
+  user-select: none;
 }
 
-.reader-window__mode {
+.reader-page__frame-title {
   margin: 0;
   color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
   font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
 
-.reader-window__hide-button {
+.reader-page__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.reader-page__pin {
   border: 1px solid var(--border-soft);
   border-radius: 999px;
+  min-width: 64px;
   background: rgba(255, 255, 255, 0.04);
-  color: var(--text-primary);
-  padding: 8px 14px;
+  color: var(--text-secondary);
   cursor: pointer;
-  -webkit-app-region: no-drag;
+  padding: 6px 12px;
   box-shadow: var(--surface-highlight);
 }
 
-.reader-window__content {
+.reader-page__pin--active {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--fill-inverse);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.reader-page__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 24px 24px;
+}
+
+.reader-page__toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.reader-page__back {
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  background: var(--bg-panel-soft);
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 10px 16px;
+  box-shadow: var(--surface-highlight);
+}
+
+.reader-page__heading {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.reader-page__title,
+.reader-page__meta {
+  margin: 0;
+}
+
+.reader-page__title {
+  font-size: 22px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.reader-page__meta {
+  color: var(--text-secondary);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+}
+
+.reader-page__content {
   flex: 1;
   min-height: 0;
   overflow: hidden;
-  padding: 20px 28px 30px;
+  border: 1px solid var(--border-soft);
+  border-radius: 24px;
+  background: linear-gradient(180deg, var(--bg-panel), rgba(14, 14, 14, 0.88));
+  padding: 22px 24px 24px;
+  box-shadow: var(--shadow-card), var(--surface-highlight);
 }
 
 .reader-empty__eyebrow,
@@ -545,4 +590,27 @@ button {
   background: var(--fill-active);
   color: var(--fill-inverse);
   border-color: rgba(255, 255, 255, 0.18);
+}
+
+@media (max-width: 900px) {
+  .bookshelf-page {
+    padding: 12px;
+  }
+
+  .reader-page {
+    padding: 0;
+  }
+
+  .reader-page__body {
+    padding: 14px;
+  }
+
+  .reader-page__toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .reader-page__content {
+    padding: 16px;
+  }
 }

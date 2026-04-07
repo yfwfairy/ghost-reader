@@ -69,14 +69,14 @@ describe('App single-window shell', () => {
     expect(await screen.findByText('第一段')).toBeInTheDocument()
   })
 
-  it('navigates back to bookshelf from reader close action', async () => {
+  it('navigates back to bookshelf from reader back action', async () => {
     setupApi('book-1')
 
     render(<App />)
 
     expect(await screen.findByText('第一段')).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Close reader' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Back to bookshelf' }))
 
     expect(await screen.findByText('Bookshelf')).toBeInTheDocument()
   })

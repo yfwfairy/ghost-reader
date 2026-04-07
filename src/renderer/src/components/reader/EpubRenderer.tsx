@@ -18,6 +18,8 @@ export function EpubRenderer({
   onProgressUpdate,
 }: EpubRendererProps) {
   const mountRef = useRef<HTMLDivElement | null>(null)
+  const renditionRef = useRef<ReturnType<ReturnType<typeof ePub>['renderTo']> | null>(null)
+  const lastDisplayedCfiRef = useRef<string | undefined>(undefined)
   const handleProgressUpdate = useEffectEvent(onProgressUpdate)
 
   useEffect(() => {
@@ -33,6 +35,7 @@ export function EpubRenderer({
       flow: 'scrolled-doc',
       spread: 'none',
     })
+    renditionRef.current = rendition
 
     rendition.themes.default({
       body: {
@@ -43,6 +46,7 @@ export function EpubRenderer({
       },
     })
 
+    lastDisplayedCfiRef.current = savedCfi
     void rendition.display(savedCfi)
     rendition.on('relocated', (location: { start: { cfi: string; percentage: number } }) => {
       handleProgressUpdate({
@@ -53,10 +57,21 @@ export function EpubRenderer({
     })
 
     return () => {
+      renditionRef.current = null
+      lastDisplayedCfiRef.current = undefined
       rendition.destroy()
       book.destroy()
     }
-  }, [filePath, fontSize, lineHeight, savedCfi])
+  }, [filePath, fontSize, lineHeight])
+
+  useEffect(() => {
+    if (!renditionRef.current || lastDisplayedCfiRef.current === savedCfi) {
+      return
+    }
+
+    lastDisplayedCfiRef.current = savedCfi
+    void renditionRef.current.display(savedCfi)
+  }, [savedCfi])
 
   return <div ref={mountRef} className="epub-renderer" />
 }
