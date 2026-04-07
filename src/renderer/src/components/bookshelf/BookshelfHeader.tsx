@@ -14,7 +14,6 @@ export function BookshelfHeader({ onImport }: BookshelfHeaderProps) {
     <>
       <header className="bookshelf-header">
         <div className="bookshelf-header__intro">
-          <p className="bookshelf-header__eyebrow">Ghost Reader</p>
           <h1>Bookshelf</h1>
           <p className="bookshelf-header__summary">Quiet shelf for imported books.</p>
         </div>

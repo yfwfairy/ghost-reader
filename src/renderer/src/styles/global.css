@@ -48,23 +48,76 @@ button {
 
 .bookshelf-page {
   min-height: 100vh;
-  padding: 32px;
+  padding: 22px;
   box-sizing: border-box;
+  display: flex;
 }
 
 .bookshelf-page--drag {
   outline: 1px dashed rgba(255, 255, 255, 0.22);
-  outline-offset: -14px;
+  outline-offset: -10px;
 }
 
-.bookshelf-page__frame {
-  max-width: 1280px;
+.app-frame {
+  width: min(1320px, 100%);
   margin: 0 auto;
-  border-radius: 32px;
-  padding: 28px;
-  background: linear-gradient(180deg, rgba(18, 18, 18, 0.74), rgba(10, 10, 10, 0.74));
+  border-radius: 28px;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(17, 17, 17, 0.76), rgba(9, 9, 9, 0.76));
   border: 1px solid var(--border-soft);
   box-shadow: var(--shadow-sheet), var(--surface-highlight);
+}
+
+.app-frame__titlebar {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border-soft);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
+  -webkit-app-region: drag;
+  user-select: none;
+}
+
+.app-frame__title {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.app-frame__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.no-drag {
+  -webkit-app-region: no-drag;
+}
+
+.app-frame__pin {
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  min-width: 64px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 6px 12px;
+  box-shadow: var(--surface-highlight);
+}
+
+.app-frame__pin--active {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--fill-inverse);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.app-frame__content {
+  padding: 24px;
 }
 
 .bookshelf-header {
@@ -72,12 +125,12 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  margin-bottom: 32px;
+  margin-bottom: 28px;
 }
 
 .bookshelf-header__intro {
   display: grid;
-  gap: 8px;
+  gap: 6px;
 }
 
 .bookshelf-header__actions {
@@ -86,7 +139,6 @@ button {
 }
 
 .bookshelf-header h1,
-.bookshelf-header__eyebrow,
 .bookshelf-status,
 .book-grid-empty p,
 .settings-panel h2,
@@ -94,15 +146,8 @@ button {
   margin: 0;
 }
 
-.bookshelf-header__eyebrow {
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  font-size: 12px;
-}
-
 .bookshelf-header h1 {
-  font-size: 34px;
+  font-size: 32px;
   letter-spacing: -0.03em;
 }
 
