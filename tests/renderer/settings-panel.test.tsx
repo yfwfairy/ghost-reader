@@ -18,6 +18,7 @@ describe('SettingsPanel', () => {
           lineHeight: 1.8,
           activationShortcut: 'CommandOrControl+Shift+R',
           currentBookId: null,
+          alwaysOnTop: false,
           readerBounds: null,
         }}
         onSave={updateConfig}

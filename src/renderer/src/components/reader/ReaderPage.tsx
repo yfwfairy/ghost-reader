@@ -7,9 +7,10 @@ import { TxtRenderer } from './TxtRenderer'
 
 type ReaderPageProps = {
   onBack: () => void
+  onTitleChange?: (title: string) => void
 }
 
-export function ReaderPage({ onBack }: ReaderPageProps) {
+export function ReaderPage({ onBack, onTitleChange }: ReaderPageProps) {
   const { config, fallbackConfig, loading } = useConfig()
   const [book, setBook] = useState<BookRecord | null>(null)
   const [progress, setProgress] = useState<ReadingProgress | null>(null)
@@ -164,14 +165,6 @@ export function ReaderPage({ onBack }: ReaderPageProps) {
     await backNavigation
   }
 
-  async function handleToggleAlwaysOnTop() {
-    if (config === null) {
-      return
-    }
-
-    await window.api.setAlwaysOnTop(!config.alwaysOnTop)
-  }
-
   const readerTitle = book?.title ?? 'Reader'
   const readerMeta = book
     ? `${book.author || 'Unknown author'} · ${book.format.toUpperCase()}`
@@ -179,13 +172,14 @@ export function ReaderPage({ onBack }: ReaderPageProps) {
       ? 'Loading selected book'
       : 'No book selected'
 
+  useEffect(() => {
+    onTitleChange?.(book?.title ?? 'Reading')
+  }, [book?.title, onTitleChange])
+
   return (
     <ReaderLayout
-      frameTitle={book?.title ?? 'Ghost Reader'}
       title={readerTitle}
       meta={readerMeta}
-      alwaysOnTop={config ? config.alwaysOnTop : null}
-      onToggleAlwaysOnTop={handleToggleAlwaysOnTop}
       backDisabled={isNavigatingBack}
       onBack={handleBackToBookshelf}
     >

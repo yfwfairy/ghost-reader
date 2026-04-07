@@ -47,10 +47,12 @@ button {
 }
 
 .bookshelf-page {
-  min-height: 100vh;
-  padding: 22px;
+  min-height: 0;
+  padding: 0;
   box-sizing: border-box;
   display: flex;
+  flex: 1;
+  flex-direction: column;
 }
 
 .bookshelf-page--drag {
@@ -61,11 +63,14 @@ button {
 .app-frame {
   width: min(1320px, 100%);
   margin: 0 auto;
+  min-height: calc(100vh - 44px);
   border-radius: 28px;
   overflow: hidden;
   background: linear-gradient(180deg, rgba(17, 17, 17, 0.76), rgba(9, 9, 9, 0.76));
   border: 1px solid var(--border-soft);
   box-shadow: var(--shadow-sheet), var(--surface-highlight);
+  display: flex;
+  flex-direction: column;
 }
 
 .app-frame__titlebar {
@@ -118,6 +123,10 @@ button {
 
 .app-frame__content {
   padding: 24px;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .bookshelf-header {
@@ -173,6 +182,8 @@ button {
 
 .bookshelf-main {
   display: flex;
+  flex: 1;
+  min-height: 0;
 }
 
 .bookshelf-status,
@@ -291,64 +302,23 @@ button {
 }
 
 .reader-page {
-  min-height: 100vh;
-  height: 100vh;
+  min-height: 0;
+  height: auto;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  flex: 1;
 }
 
 .reader-page__shell {
   width: 100%;
-  height: 100%;
+  height: auto;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   background: transparent;
-}
-
-.reader-page__topbar {
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 8px 14px;
-  border-bottom: 1px solid var(--border-soft);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
-  -webkit-app-region: drag;
-  user-select: none;
-}
-
-.reader-page__frame-title {
-  margin: 0;
-  color: var(--text-tertiary);
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.reader-page__actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.reader-page__pin {
-  border: 1px solid var(--border-soft);
-  border-radius: 999px;
-  min-width: 64px;
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text-secondary);
-  cursor: pointer;
-  padding: 6px 12px;
-  box-shadow: var(--surface-highlight);
-}
-
-.reader-page__pin--active {
-  background: rgba(255, 255, 255, 0.15);
-  color: var(--fill-inverse);
-  border-color: rgba(255, 255, 255, 0.2);
+  flex: 1;
+  min-height: 0;
 }
 
 .reader-page__body {

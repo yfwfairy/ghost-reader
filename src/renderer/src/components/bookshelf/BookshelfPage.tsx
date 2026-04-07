@@ -1,7 +1,5 @@
 import { useState } from 'react'
-import { useConfig } from '../../hooks/useConfig'
 import { useLibrary } from '../../hooks/useLibrary'
-import { AppFrame } from '../chrome/AppFrame'
 import { BookGrid } from './BookGrid'
 import { BookshelfHeader } from './BookshelfHeader'
 
@@ -17,7 +15,6 @@ type BookshelfPageProps = {
 
 export function BookshelfPage({ onOpenReader }: BookshelfPageProps) {
   const { books, loading, addBooks, removeBook } = useLibrary()
-  const { config } = useConfig()
   const [dragActive, setDragActive] = useState(false)
 
   async function handleImport() {
@@ -30,14 +27,6 @@ export function BookshelfPage({ onOpenReader }: BookshelfPageProps) {
   async function handleOpen(bookId: string) {
     await window.api.setConfig({ currentBookId: bookId })
     onOpenReader()
-  }
-
-  async function handleToggleAlwaysOnTop() {
-    if (config === null) {
-      return
-    }
-
-    await window.api.setAlwaysOnTop(!config.alwaysOnTop)
   }
 
   return (
@@ -57,20 +46,14 @@ export function BookshelfPage({ onOpenReader }: BookshelfPageProps) {
         }
       }}
     >
-      <AppFrame
-        title="Ghost Reader"
-        alwaysOnTop={config ? config.alwaysOnTop : null}
-        onToggleAlwaysOnTop={handleToggleAlwaysOnTop}
-      >
-        <BookshelfHeader onImport={handleImport} />
-        <main className="bookshelf-main">
-          {loading ? (
-            <p className="bookshelf-status">Loading library...</p>
-          ) : (
-            <BookGrid books={books} onOpen={handleOpen} onRemove={removeBook} onImport={handleImport} />
-          )}
-        </main>
-      </AppFrame>
+      <BookshelfHeader onImport={handleImport} />
+      <main className="bookshelf-main">
+        {loading ? (
+          <p className="bookshelf-status">Loading library...</p>
+        ) : (
+          <BookGrid books={books} onOpen={handleOpen} onRemove={removeBook} onImport={handleImport} />
+        )}
+      </main>
     </div>
   )
 }

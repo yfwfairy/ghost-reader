@@ -54,10 +54,11 @@ describe('BookshelfPage', () => {
     setupApi()
 
     render(<BookshelfPage onOpenReader={vi.fn()} />)
-    expect(await screen.findByText('Ghost Reader')).toBeInTheDocument()
+
+    expect(await screen.findByText('Drop TXT / EPUB to start your shelf.')).toBeInTheDocument()
+    expect(document.querySelector('.app-frame')).not.toBeInTheDocument()
     expect(screen.getByText('Bookshelf')).toBeInTheDocument()
     expect(screen.getByText('Quiet shelf for imported books.')).toBeInTheDocument()
-    expect(screen.getByText('Drop TXT / EPUB to start your shelf.')).toBeInTheDocument()
   })
 
   it('opens settings from the bookshelf content header', async () => {
@@ -97,59 +98,4 @@ describe('BookshelfPage', () => {
     expect(setConfig.mock.invocationCallOrder[0]).toBeLessThan(onOpenReader.mock.invocationCallOrder[0])
   })
 
-  it('toggles always-on-top from the immersive top bar pin button', async () => {
-    const { setAlwaysOnTop } = setupApi({ config: { alwaysOnTop: false } })
-
-    render(<BookshelfPage onOpenReader={vi.fn()} />)
-
-    fireEvent.click(await screen.findByRole('button', { name: 'Pin window' }))
-
-    await waitFor(() => {
-      expect(setAlwaysOnTop).toHaveBeenCalledWith(true)
-    })
-  })
-
-  it('resolves persisted always-on-top before enabling the pin control and toggles to false', async () => {
-    let resolveConfig: ((value: AppConfig) => void) | null = null
-    const setAlwaysOnTop = vi.fn().mockImplementation(async (value: boolean) => ({ ...baseConfig, alwaysOnTop: value }))
-
-    Object.defineProperty(window, 'api', {
-      configurable: true,
-      value: {
-        getConfig: vi.fn(
-          () =>
-            new Promise<AppConfig>((resolve) => {
-              resolveConfig = resolve
-            }),
-        ),
-        onConfigChanged: vi.fn(() => vi.fn()),
-        setConfig: vi.fn(),
-        getAllBooks: vi.fn().mockResolvedValue([]),
-        importBooks: vi.fn().mockResolvedValue([]),
-        removeBook: vi.fn(),
-        openFileDialog: vi.fn().mockResolvedValue([]),
-        setAlwaysOnTop,
-        getProgress: vi.fn(),
-        readTxtFile: vi.fn(),
-        saveProgress: vi.fn(),
-      },
-    })
-
-    render(<BookshelfPage onOpenReader={vi.fn()} />)
-
-    const loadingPin = await screen.findByRole('button', { name: 'Loading pin state' })
-    expect(loadingPin).toBeDisabled()
-    fireEvent.click(loadingPin)
-    expect(setAlwaysOnTop).not.toHaveBeenCalled()
-
-    resolveConfig?.({ ...baseConfig, alwaysOnTop: true })
-
-    const unpinButton = await screen.findByRole('button', { name: 'Unpin window' })
-    expect(unpinButton).toBeEnabled()
-    fireEvent.click(unpinButton)
-
-    await waitFor(() => {
-      expect(setAlwaysOnTop).toHaveBeenCalledWith(false)
-    })
-  })
 })
