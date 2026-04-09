@@ -38,5 +38,24 @@ export function useBookshelfData() {
     .filter((book) => book.progress !== null)
     .sort((left, right) => (right.progress?.updatedAt ?? 0) - (left.progress?.updatedAt ?? 0))
 
-  return { libraryBooks, recentBooks, loading }
+  async function addBooks(paths: string[]) {
+    const imported = await window.api.importBooks(paths)
+    const importedWithProgress = await Promise.all(
+      imported.map(async (book) => ({
+        ...book,
+        progress: await window.api.getProgress(book.id),
+      })),
+    )
+    setLibraryBooks((current) => [
+      ...importedWithProgress,
+      ...current.filter((book) => !importedWithProgress.some((incoming) => incoming.id === book.id)),
+    ])
+  }
+
+  async function removeBook(bookId: string) {
+    await window.api.removeBook(bookId)
+    setLibraryBooks((current) => current.filter((book) => book.id !== bookId))
+  }
+
+  return { libraryBooks, recentBooks, loading, addBooks, removeBook }
 }

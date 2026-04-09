@@ -117,4 +117,27 @@ describe('BookshelfPage', () => {
     expect(onChangeView).toHaveBeenNthCalledWith(2, 'library')
   })
 
+  it('renders newly imported books immediately without remounting', async () => {
+    setupApi({ books: [] })
+    window.api.openFileDialog = vi.fn().mockResolvedValue(['/tmp/imported.txt'])
+    window.api.importBooks = vi.fn().mockResolvedValue([
+      {
+        id: 'book-new',
+        title: 'Imported Book',
+        author: 'Ghost',
+        format: 'txt',
+        filePath: '/tmp/imported.txt',
+        importedAt: 1,
+        updatedAt: 1,
+      },
+    ])
+    window.api.getProgress = vi.fn().mockResolvedValue(null)
+
+    render(<BookshelfPage activeView="library" onChangeView={vi.fn()} onOpenReader={vi.fn()} />)
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Import Books' }))
+
+    expect((await screen.findAllByText('Imported Book')).length).toBeGreaterThan(0)
+  })
+
 })
