@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { BookRecord } from '@shared/types'
 
+/** @deprecated Use useBookshelfData for bookshelf state and mutations. */
 export function useLibrary() {
   const [books, setBooks] = useState<BookRecord[]>([])
   const [loading, setLoading] = useState(true)

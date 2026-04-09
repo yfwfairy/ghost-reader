@@ -9,24 +9,48 @@ export function useBookshelfData() {
   const [libraryBooks, setLibraryBooks] = useState<BookshelfBook[]>([])
   const [loading, setLoading] = useState(true)
 
+  async function getProgressOrNull(bookId: string) {
+    try {
+      return await window.api.getProgress(bookId)
+    } catch {
+      return null
+    }
+  }
+
+  async function addProgress(books: BookRecord[]) {
+    return Promise.all(
+      books.map(async (book) => ({
+        ...book,
+        progress: await getProgressOrNull(book.id),
+      })),
+    )
+  }
+
   useEffect(() => {
     let active = true
 
     void (async () => {
-      const books = await window.api.getAllBooks()
-      const booksWithProgress = await Promise.all(
-        books.map(async (book) => ({
-          ...book,
-          progress: await window.api.getProgress(book.id),
-        })),
-      )
+      try {
+        const books = await window.api.getAllBooks()
+        const booksWithProgress = await addProgress(books)
+        if (!active) {
+          return
+        }
 
-      if (!active) {
-        return
+        setLibraryBooks((current) => [
+          ...current,
+          ...booksWithProgress.filter((book) => !current.some((existing) => existing.id === book.id)),
+        ])
+      } catch {
+        if (!active) {
+          return
+        }
+        setLibraryBooks([])
+      } finally {
+        if (active) {
+          setLoading(false)
+        }
       }
-
-      setLibraryBooks(booksWithProgress)
-      setLoading(false)
     })()
 
     return () => {
@@ -40,12 +64,7 @@ export function useBookshelfData() {
 
   async function addBooks(paths: string[]) {
     const imported = await window.api.importBooks(paths)
-    const importedWithProgress = await Promise.all(
-      imported.map(async (book) => ({
-        ...book,
-        progress: await window.api.getProgress(book.id),
-      })),
-    )
+    const importedWithProgress = await addProgress(imported)
     setLibraryBooks((current) => [
       ...importedWithProgress,
       ...current.filter((book) => !importedWithProgress.some((incoming) => incoming.id === book.id)),

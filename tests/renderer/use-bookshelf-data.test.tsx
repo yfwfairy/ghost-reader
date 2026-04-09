@@ -65,4 +65,75 @@ describe('useBookshelfData', () => {
 
     expect(result.current.libraryBooks.map((book) => book.id)).toEqual(['b'])
   })
+
+  it('keeps imported books when import happens before initial hydration resolves', async () => {
+    let resolveBooks: ((books: Array<{ id: string; title: string; author: string; format: 'txt'; filePath: string; importedAt: number; updatedAt: number }>) => void) | null = null
+
+    Object.defineProperty(window, 'api', {
+      configurable: true,
+      value: {
+        getAllBooks: vi.fn().mockImplementation(
+          () =>
+            new Promise((resolve) => {
+              resolveBooks = resolve
+            }),
+        ),
+        getProgress: vi
+          .fn()
+          .mockImplementation(async (bookId: string) => {
+            if (bookId === 'b') {
+              throw new Error('progress unavailable')
+            }
+            return { bookId, percentage: 0.4, updatedAt: 4 }
+          }),
+        importBooks: vi.fn().mockResolvedValue([
+          { id: 'b', title: 'Beta', author: 'B', format: 'txt', filePath: '/b', importedAt: 2, updatedAt: 2 },
+        ]),
+        removeBook: vi.fn().mockResolvedValue(undefined),
+      },
+    })
+
+    const { result } = renderHook(() => useBookshelfData())
+
+    await act(async () => {
+      await result.current.addBooks(['/b'])
+    })
+
+    expect(result.current.libraryBooks.map((book) => book.id)).toEqual(['b'])
+    expect(result.current.libraryBooks[0]?.progress).toBeNull()
+
+    await act(async () => {
+      resolveBooks?.([
+        { id: 'a', title: 'Alpha', author: 'A', format: 'txt', filePath: '/a', importedAt: 1, updatedAt: 1 },
+      ])
+      await Promise.resolve()
+    })
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false)
+    })
+
+    expect(result.current.libraryBooks.map((book) => book.id)).toEqual(['b', 'a'])
+  })
+
+  it('sets loading false with empty data when initial getAllBooks fails', async () => {
+    Object.defineProperty(window, 'api', {
+      configurable: true,
+      value: {
+        getAllBooks: vi.fn().mockRejectedValue(new Error('db unavailable')),
+        getProgress: vi.fn(),
+        importBooks: vi.fn().mockResolvedValue([]),
+        removeBook: vi.fn().mockResolvedValue(undefined),
+      },
+    })
+
+    const { result } = renderHook(() => useBookshelfData())
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false)
+    })
+
+    expect(result.current.libraryBooks).toEqual([])
+    expect(result.current.recentBooks).toEqual([])
+  })
 })
