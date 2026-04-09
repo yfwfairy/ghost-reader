@@ -104,4 +104,17 @@ describe('BookshelfPage', () => {
     expect(screen.getByRole('button', { name: 'Open library view' })).toHaveAttribute('aria-pressed', 'true')
   })
 
+  it('calls onChangeView when shell navigation buttons are clicked', async () => {
+    setupApi()
+    const onChangeView = vi.fn()
+
+    render(<BookshelfPage activeView="library" onChangeView={onChangeView} onOpenReader={vi.fn()} />)
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Open recent view' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Open library view' }))
+
+    expect(onChangeView).toHaveBeenNthCalledWith(1, 'recent')
+    expect(onChangeView).toHaveBeenNthCalledWith(2, 'library')
+  })
+
 })

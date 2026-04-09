@@ -165,6 +165,24 @@ describe('App single-window shell', () => {
     expect(screen.queryByText('Bookshelf')).not.toBeInTheDocument()
   })
 
+  it('keeps the recent view selected after entering reader and returning back', async () => {
+    setupApi(null)
+
+    render(<App />)
+
+    const recentButton = await screen.findByRole('button', { name: 'Open recent view' })
+    fireEvent.click(recentButton)
+    expect(recentButton).toHaveAttribute('aria-pressed', 'true')
+
+    fireEvent.click((await screen.findAllByText('Example Book'))[0])
+    expect(await screen.findByText('第一段')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Back to bookshelf' }))
+
+    expect(await screen.findByRole('button', { name: 'Open recent view' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: 'Open library view' })).toHaveAttribute('aria-pressed', 'false')
+  })
+
   it('stays on the bookshelf after manual back when the same selected book is broadcast again', async () => {
     const { emitConfig } = setupDeferredConfigApi('book-1')
 
