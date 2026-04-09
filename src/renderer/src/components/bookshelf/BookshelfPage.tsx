@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useLibrary } from '../../hooks/useLibrary'
+import { useBookshelfData } from '../../hooks/useBookshelfData'
 import { BookGrid } from './BookGrid'
 import { BookshelfHeader } from './BookshelfHeader'
 
@@ -16,13 +16,13 @@ type BookshelfPageProps = {
 }
 
 export function BookshelfPage({ activeView, onChangeView, onOpenReader }: BookshelfPageProps) {
-  const { books, loading, addBooks, removeBook } = useLibrary()
+  const { libraryBooks, recentBooks, loading } = useBookshelfData()
   const [dragActive, setDragActive] = useState(false)
 
   async function handleImport() {
     const paths = await window.api.openFileDialog()
     if (paths.length > 0) {
-      await addBooks(paths)
+      await window.api.importBooks(paths)
     }
   }
 
@@ -44,7 +44,7 @@ export function BookshelfPage({ activeView, onChangeView, onOpenReader }: Booksh
         setDragActive(false)
         const paths = getDroppedPaths(event.dataTransfer.files)
         if (paths.length > 0) {
-          await addBooks(paths)
+          await window.api.importBooks(paths)
         }
       }}
     >
@@ -53,7 +53,14 @@ export function BookshelfPage({ activeView, onChangeView, onOpenReader }: Booksh
         {loading ? (
           <p className="bookshelf-status">Loading library...</p>
         ) : (
-          <BookGrid books={books} onOpen={handleOpen} onRemove={removeBook} onImport={handleImport} />
+          <BookGrid
+            books={activeView === 'recent' ? recentBooks : libraryBooks}
+            onOpen={handleOpen}
+            onRemove={async (bookId) => {
+              await window.api.removeBook(bookId)
+            }}
+            onImport={handleImport}
+          />
         )}
       </main>
     </div>
