@@ -1,10 +1,13 @@
-import { useState } from 'react'
-import { useConfig } from '../../hooks/useConfig'
-import { SettingsPanel } from '../settings/SettingsPanel'
-
 type SidebarNavProps = {
   activeView: 'recent' | 'library'
   onChangeView: (view: 'recent' | 'library') => void
+  onOpenSettings: () => void
+  style?: React.CSSProperties
+}
+
+const navIcons: Record<string, string> = {
+  Recent: 'history',
+  Library: 'library_books',
 }
 
 type SidebarNavItemProps = {
@@ -22,40 +25,27 @@ function SidebarNavItem({ label, active, onClick }: SidebarNavItemProps) {
       aria-pressed={active}
       onClick={onClick}
     >
-      {label}
+      <span className="material-symbols-outlined" aria-hidden="true">{navIcons[label]}</span>
+      <span>{label.toUpperCase()}</span>
     </button>
   )
 }
 
-export function SidebarNav({ activeView, onChangeView }: SidebarNavProps) {
-  const [settingsOpen, setSettingsOpen] = useState(false)
-  const { config, fallbackConfig, updateConfig } = useConfig()
-
+export function SidebarNav({ activeView, onChangeView, onOpenSettings, style }: SidebarNavProps) {
   return (
-    <>
-      <aside className="sidebar-nav">
-        <div className="sidebar-nav__brand">
-          <h1>Ghost Reader</h1>
-          <p>Nocturnal Monolith</p>
-        </div>
-        <nav className="sidebar-nav__menu">
-          <SidebarNavItem label="Recent" active={activeView === 'recent'} onClick={() => onChangeView('recent')} />
-          <SidebarNavItem label="Library" active={activeView === 'library'} onClick={() => onChangeView('library')} />
-        </nav>
-        <button className="sidebar-nav__settings" type="button" onClick={() => setSettingsOpen(true)}>
-          Settings
-        </button>
-      </aside>
-      {settingsOpen ? (
-        <SettingsPanel
-          config={config ?? fallbackConfig}
-          onClose={() => setSettingsOpen(false)}
-          onSave={async (patch) => {
-            await updateConfig(patch)
-            setSettingsOpen(false)
-          }}
-        />
-      ) : null}
-    </>
+    <aside className="sidebar-nav" style={style}>
+      <div className="sidebar-nav__brand">
+        <h1>Ghost Reader</h1>
+        <p>Nocturnal Monolith</p>
+      </div>
+      <nav className="sidebar-nav__menu">
+        <SidebarNavItem label="Recent" active={activeView === 'recent'} onClick={() => onChangeView('recent')} />
+        <SidebarNavItem label="Library" active={activeView === 'library'} onClick={() => onChangeView('library')} />
+      </nav>
+      <button className="sidebar-nav__settings" type="button" onClick={onOpenSettings}>
+        <span className="material-symbols-outlined" aria-hidden="true">settings</span>
+        <span>Settings</span>
+      </button>
+    </aside>
   )
 }

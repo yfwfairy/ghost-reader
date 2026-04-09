@@ -4,15 +4,16 @@ type AppFrameProps = {
   title: string
   alwaysOnTop: boolean | null
   onToggleAlwaysOnTop: () => void | Promise<void>
+  chromeless?: boolean
   children: ReactNode
 }
 
-export function AppFrame({ title, alwaysOnTop, onToggleAlwaysOnTop, children }: AppFrameProps) {
+export function AppFrame({ title, alwaysOnTop, onToggleAlwaysOnTop, chromeless = false, children }: AppFrameProps) {
   const pinLoading = alwaysOnTop === null
   const pinAriaLabel = pinLoading ? 'Loading pin state' : alwaysOnTop ? 'Unpin window' : 'Pin window'
 
   return (
-    <section className="app-frame">
+    <section className={`app-frame ${chromeless ? 'app-frame--chromeless' : ''}`}>
       <header className="app-frame__titlebar">
         <p className="app-frame__title">{title}</p>
         <div className="app-frame__actions no-drag">

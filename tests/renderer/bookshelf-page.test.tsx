@@ -2,7 +2,7 @@ import '@testing-library/jest-dom/vitest'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { BookshelfPage } from '../../src/renderer/src/components/bookshelf/BookshelfPage'
-import type { AppConfig, BookRecord } from '../../src/shared/types'
+import type { AppConfig, BookRecord, ReadingProgress } from '../../src/shared/types'
 
 const baseConfig: AppConfig = {
   fontSize: 16,
@@ -11,9 +11,14 @@ const baseConfig: AppConfig = {
   alwaysOnTop: false,
 }
 
-function setupApi(options?: { config?: Partial<AppConfig>; books?: BookRecord[] }) {
+function setupApi(options?: {
+  config?: Partial<AppConfig>
+  books?: BookRecord[]
+  progressByBookId?: Record<string, ReadingProgress | null>
+}) {
   let config = { ...baseConfig, ...(options?.config ?? {}) }
   const books = options?.books ?? []
+  const progressByBookId = options?.progressByBookId ?? {}
   const setConfig = vi.fn().mockImplementation(async (patch: Partial<AppConfig>) => {
     config = { ...config, ...patch }
     return config
@@ -34,7 +39,9 @@ function setupApi(options?: { config?: Partial<AppConfig>; books?: BookRecord[] 
       removeBook: vi.fn(),
       openFileDialog: vi.fn().mockResolvedValue([]),
       setAlwaysOnTop,
-      getProgress: vi.fn(),
+      getProgress: vi
+        .fn()
+        .mockImplementation(async (bookId: string) => progressByBookId[bookId] ?? null),
       readTxtFile: vi.fn(),
       saveProgress: vi.fn(),
     },
@@ -78,28 +85,84 @@ describe('BookshelfPage', () => {
     expect(addTile.compareDocumentPosition(firstBookTitle) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
   })
 
-  it('renders a neutral placeholder shell for recent view instead of recent books', async () => {
+  it('renders only progress-backed recent books ordered by latest reading activity', async () => {
     setupApi({
       books: [
         {
           id: 'book-1',
-          title: 'Example Book',
+          title: 'Recently Opened',
           author: 'Ghost',
           format: 'txt',
           filePath: '/tmp/example.txt',
           importedAt: 1,
           updatedAt: 1,
         },
+        {
+          id: 'book-2',
+          title: 'Not Started',
+          author: 'Ghost',
+          format: 'txt',
+          filePath: '/tmp/nostart.txt',
+          importedAt: 2,
+          updatedAt: 2,
+        },
+        {
+          id: 'book-3',
+          title: 'Most Recent',
+          author: 'Ghost',
+          format: 'txt',
+          filePath: '/tmp/recent.txt',
+          importedAt: 3,
+          updatedAt: 3,
+        },
       ],
+      progressByBookId: {
+        'book-1': { bookId: 'book-1', percentage: 0.4, updatedAt: 1700000000000 },
+        'book-2': null,
+        'book-3': { bookId: 'book-3', percentage: 0.7, updatedAt: 1800000000000 },
+      },
     })
 
     render(<BookshelfPage activeView="recent" onChangeView={vi.fn()} onOpenReader={vi.fn()} />)
 
-    expect(await screen.findByText('Recent view is coming soon.')).toBeInTheDocument()
-    expect(screen.queryByText('Example Book')).not.toBeInTheDocument()
+    const openButtons = await screen.findAllByRole('button', { name: /Open .* in reader/ })
+
+    expect(openButtons).toHaveLength(2)
+    expect(openButtons[0]).toHaveAccessibleName('Open Most Recent in reader')
+    expect(openButtons[1]).toHaveAccessibleName('Open Recently Opened in reader')
+    expect(screen.queryByText('Not Started')).not.toBeInTheDocument()
   })
 
-  it('opens settings from the bookshelf content header', async () => {
+  it('shows recent empty state with a single library action', async () => {
+    const onChangeView = vi.fn()
+    setupApi({
+      books: [
+        {
+          id: 'book-1',
+          title: 'Imported Only',
+          author: 'Ghost',
+          format: 'txt',
+          filePath: '/tmp/imported-only.txt',
+          importedAt: 1,
+          updatedAt: 1,
+        },
+      ],
+      progressByBookId: {
+        'book-1': null,
+      },
+    })
+
+    render(<BookshelfPage activeView="recent" onChangeView={onChangeView} onOpenReader={vi.fn()} />)
+
+    expect(await screen.findByText('The void remains silent.')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Open .* in reader/ })).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /Browse Library/i }))
+
+    expect(onChangeView).toHaveBeenCalledWith('library')
+  })
+
+  it('opens settings from the sidebar rail', async () => {
     setupApi()
 
     render(<BookshelfPage activeView="library" onChangeView={vi.fn()} onOpenReader={vi.fn()} />)

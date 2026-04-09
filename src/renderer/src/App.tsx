@@ -43,6 +43,7 @@ export default function App() {
       title={page === 'home' ? 'Ghost Reader' : readerTitle}
       alwaysOnTop={config ? config.alwaysOnTop : null}
       onToggleAlwaysOnTop={() => void window.api.setAlwaysOnTop(!activeConfig.alwaysOnTop)}
+      chromeless={page === 'home'}
     >
       {page === 'home' ? (
         <BookshelfPage

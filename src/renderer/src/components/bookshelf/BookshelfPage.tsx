@@ -1,6 +1,9 @@
-import { useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
+import { useConfig } from '../../hooks/useConfig'
+import { SettingsPanel } from '../settings/SettingsPanel'
 import { useBookshelfData } from '../../hooks/useBookshelfData'
 import { LibraryView } from './LibraryView'
+import { RecentView } from './RecentView'
 import { SidebarNav } from './SidebarNav'
 
 function getDroppedPaths(fileList: FileList) {
@@ -9,6 +12,10 @@ function getDroppedPaths(fileList: FileList) {
     .filter((path): path is string => Boolean(path))
 }
 
+const SIDEBAR_MIN = 220
+const SIDEBAR_MAX = 420
+const SIDEBAR_DEFAULT = 288
+
 type BookshelfPageProps = {
   activeView: 'recent' | 'library'
   onChangeView: (view: 'recent' | 'library') => void
@@ -16,8 +23,36 @@ type BookshelfPageProps = {
 }
 
 export function BookshelfPage({ activeView, onChangeView, onOpenReader }: BookshelfPageProps) {
-  const { libraryBooks, loading, addBooks, removeBook } = useBookshelfData()
+  const { libraryBooks, recentBooks, loading, addBooks, removeBook } = useBookshelfData()
+  const { config, fallbackConfig, updateConfig } = useConfig()
   const [dragActive, setDragActive] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT)
+  const resizing = useRef(false)
+
+  const handleResizeStart = useCallback((event: React.MouseEvent) => {
+    event.preventDefault()
+    resizing.current = true
+
+    const onMove = (moveEvent: MouseEvent) => {
+      if (!resizing.current) return
+      const next = Math.min(SIDEBAR_MAX, Math.max(SIDEBAR_MIN, moveEvent.clientX))
+      setSidebarWidth(next)
+    }
+
+    const onUp = () => {
+      resizing.current = false
+      document.removeEventListener('mousemove', onMove)
+      document.removeEventListener('mouseup', onUp)
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+    }
+
+    document.body.style.cursor = 'col-resize'
+    document.body.style.userSelect = 'none'
+    document.addEventListener('mousemove', onMove)
+    document.addEventListener('mouseup', onUp)
+  }, [])
 
   async function handleImport() {
     const paths = await window.api.openFileDialog()
@@ -48,15 +83,24 @@ export function BookshelfPage({ activeView, onChangeView, onOpenReader }: Booksh
         }
       }}
     >
-      <SidebarNav activeView={activeView} onChangeView={onChangeView} />
+      <SidebarNav
+        activeView={activeView}
+        onChangeView={onChangeView}
+        onOpenSettings={() => setSettingsOpen(true)}
+        style={{ width: sidebarWidth }}
+      />
+      <div
+        className="sidebar-resize-handle"
+        onMouseDown={handleResizeStart}
+        role="separator"
+        aria-orientation="vertical"
+      />
       <main className="bookshelf-content">
+        <div className="bookshelf-content__drag-bar" />
         {loading ? (
           <p className="bookshelf-status">Loading library...</p>
         ) : activeView === 'recent' ? (
-          <section className="bookshelf-placeholder">
-            <h2>Recent view is coming soon.</h2>
-            <p>The library shell is ready. Recent reading cards arrive in Task 4.</p>
-          </section>
+          <RecentView books={recentBooks} onOpen={handleOpen} onOpenLibrary={() => onChangeView('library')} />
         ) : (
           <LibraryView
             books={libraryBooks}
@@ -66,6 +110,16 @@ export function BookshelfPage({ activeView, onChangeView, onOpenReader }: Booksh
           />
         )}
       </main>
+      {settingsOpen ? (
+        <SettingsPanel
+          config={config ?? fallbackConfig}
+          onClose={() => setSettingsOpen(false)}
+          onSave={async (patch) => {
+            await updateConfig(patch)
+            setSettingsOpen(false)
+          }}
+        />
+      ) : null}
     </div>
   )
 }

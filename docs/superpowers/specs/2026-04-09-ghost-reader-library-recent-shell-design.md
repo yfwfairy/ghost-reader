@@ -1,195 +1,195 @@
-# Ghost Reader Library + Recent Shell Design
+# Ghost Reader Library + Recent 主界面设计
 
-## 1. Summary
+## 1. 摘要
 
-This spec defines the next Ghost Reader desktop shell for the main window. The app will keep a single persistent left navigation rail and switch the right content area between two bookshelf-facing views:
+这份 spec 定义 Ghost Reader 主窗口下一阶段的桌面端主界面结构。应用将保留一个固定的左侧导航栏，并在右侧内容区切换两个以书架为核心的视图：
 
-- `Library`: grid layout for all imported local books
-- `Recent`: horizontal large-card layout for recently opened books that already have reading progress
+- `Library`：以网格布局显示所有本地导入书籍
+- `Recent`：以横向大卡片布局显示最近阅读且已有阅读进度的书籍
 
-The visual baseline must follow the user's Stitch designs, specifically:
+视觉基线必须遵循用户在 Stitch 中确认的以下设计稿：
 
 - `Library with Leading Import Button`
 - `Recent Encounters - Selected State`
 
-The implementation target is not "inspired by" these screens. It should restore their visual system as closely as the current app architecture allows, including hover states, press states, blur, gradients, spacing, border opacity, depth, and motion timing.
+实现目标不是“参考这些界面风格”，而是尽可能在当前应用架构允许的范围内还原它们的视觉系统，包括悬停态、按下态、模糊、渐变、间距、边框透明度、层次深度和动效时序。
 
-## 2. Goals
+## 2. 目标
 
-- Turn the current bookshelf home into a two-tab desktop shell with a persistent left rail.
-- Preserve the existing single-window reader flow.
-- Match the approved Stitch visual language as closely as possible.
-- Keep the information architecture simple: `Recent`, `Library`, `Settings`.
-- Use real local Ghost Reader data only. Do not invent user profiles, cloud data, social status, or store content.
+- 将当前书架首页重构为带固定左侧导航栏的双标签主界面。
+- 保留现有单窗口阅读器流程。
+- 尽可能贴近已确认的 Stitch 视觉语言。
+- 保持信息架构简洁，只保留 `Recent`、`Library`、`Settings`。
+- 只使用 Ghost Reader 本地真实数据，不引入虚构的用户信息、云端信息、社交状态或商店内容。
 
-## 3. Non-Goals
+## 3. 非目标
 
-- Do not add login, account, or profile UI.
-- Do not add a store page.
-- Do not add bottom summary modules from the Stitch `Recent` draft.
-- Do not redesign the reader page in this task beyond keeping navigation compatible.
-- Do not add fake search or fake filtering behavior in this iteration.
+- 不新增登录、账户或用户资料 UI。
+- 不新增商店页面。
+- 不实现 Stitch `Recent` 草稿底部的两个摘要模块。
+- 本任务不重做阅读器页面，只保证阅读器与新主界面的导航衔接正常。
+- 本轮不增加假的搜索功能或假的筛选功能。
 
-## 4. Information Architecture
+## 4. 信息架构
 
-### 4.1 Main Window Shell
+### 4.1 主窗口壳层
 
-The main window shell will have two persistent regions:
+主窗口将保持两个固定区域：
 
-- Left rail: navigation and settings entry
-- Right panel: active content view
+- 左侧：导航栏与设置入口
+- 右侧：当前激活的内容视图
 
-The shell must remain stable when switching between `Recent` and `Library`. Only the right panel changes.
+在 `Recent` 与 `Library` 之间切换时，整个主窗口壳层必须保持稳定，只切换右侧内容区。
 
-### 4.2 Left Rail
+### 4.2 左侧导航栏
 
-The left rail will include:
+左侧导航栏包含：
 
-- Brand area for Ghost Reader
-- `Recent` navigation item
-- `Library` navigation item
-- `Settings` entry pinned toward the bottom
+- Ghost Reader 品牌区
+- `Recent` 导航项
+- `Library` 导航项
+- 固定在底部附近的 `Settings` 入口
 
-The left rail must not include:
+左侧导航栏不能包含：
 
-- User avatar
-- User name
-- Login state
+- 用户头像
+- 用户名
+- 登录状态
 - `Store`
-- A sidebar import button
+- 侧边栏导入按钮
 
-The active navigation item must visually match the Stitch-selected state treatment: elevated glass surface, stronger contrast, and a clearly active icon/text state.
+激活中的导航项需要尽量匹配 Stitch 中选中态的处理方式：带玻璃感的高亮容器、更强的对比度，以及明确可感知的激活图标与文字状态。
 
-## 5. Library View
+## 5. Library 视图
 
-### 5.1 Purpose
+### 5.1 目的
 
-`Library` is the complete local bookshelf. It shows every imported local book regardless of reading status.
+`Library` 是完整的本地书架，用来展示所有已导入的本地图书，不区分是否开始阅读。
 
-### 5.2 Layout
+### 5.2 布局
 
-The right panel should mirror the structure of `Library with Leading Import Button`:
+右侧内容区应尽量还原 `Library with Leading Import Button` 的结构：
 
-- Large page title
-- Short subtitle
-- Right-aligned search field shell for visual parity
-- Bookshelf grid below the header
+- 大标题
+- 简短副标题
+- 右上角搜索框外观壳层，用于保持视觉一致性
+- 标题区域下方的书架网格
 
-The first tile in the grid is a dedicated `Add to Library` card. It is part of the grid, not a sidebar action and not a separate hero button above the grid.
+网格中的第一张卡片是专门的 `Add to Library` 卡片。它属于书架网格本身，而不是侧边栏按钮，也不是独立于网格上方的主按钮。
 
-### 5.3 Library Grid Content
+### 5.3 Library 网格内容
 
-The grid contains:
+网格内容顺序如下：
 
-1. `Add to Library` card in the first slot
-2. One card for each imported book after that
+1. 第一项为 `Add to Library` 卡片
+2. 后续项为所有已导入书籍卡片
 
-Each real book card shows:
+每张真实书籍卡片应展示：
 
-- Cover
-- Title
-- Author
-- Reading progress line when progress exists
-- Delete affordance
+- 封面
+- 书名
+- 作者
+- 若存在则显示阅读进度线
+- 删除入口
 
-Format metadata may remain available, but should not visually dominate the Stitch card hierarchy.
+格式信息可以保留，但不能破坏 Stitch 设计中的卡片视觉层级。
 
-### 5.4 Empty State
+### 5.4 空状态
 
-When the library is empty:
+当书库为空时：
 
-- Keep the page header visible
-- Keep the grid container visible
-- Show the `Add to Library` card as the primary actionable item
-- Do not replace the full page with a separate empty-state panel
+- 保留页面标题区
+- 保留书架网格容器
+- 只显示 `Add to Library` 卡片作为主要动作入口
+- 不要把整个页面替换成独立的空状态大面板
 
-### 5.5 Interaction Rules
+### 5.5 交互规则
 
-- Clicking the `Add to Library` card opens the existing import flow
-- Dragging files over the library region should still activate import affordance styling
-- Clicking a book opens the reader
-- Deleting a book stays available from the card chrome
+- 点击 `Add to Library` 卡片时，调用现有导入流程
+- 将文件拖拽到 Library 区域时，仍然保留导入高亮反馈
+- 点击书籍卡片进入阅读器
+- 删除图书入口继续保留在卡片交互层中
 
-## 6. Recent View
+## 6. Recent 视图
 
-### 6.1 Purpose
+### 6.1 目的
 
-`Recent` is a focused view for books that the reader has already opened and progressed through.
+`Recent` 是一个聚焦视图，用于展示用户已经打开并产生阅读进度的书籍。
 
-### 6.2 Inclusion Rule
+### 6.2 纳入规则
 
-Only books with a saved reading progress record are allowed in `Recent`.
+只有存在阅读进度记录的书籍，才允许进入 `Recent`。
 
-Books without reading progress never appear in `Recent`, even if they were imported recently.
+没有阅读进度的书，即使是最近刚导入，也不能出现在 `Recent` 中。
 
-### 6.3 Sorting Rule
+### 6.3 排序规则
 
-`Recent` is sorted by the last opened/last reading activity time in descending order.
+`Recent` 按最后一次打开或最后一次阅读活动时间倒序排列。
 
-For this iteration, the app will use `ReadingProgress.updatedAt` as the source of truth for recent ordering.
+在本轮实现中，`ReadingProgress.updatedAt` 作为最近阅读排序的唯一数据来源。
 
-### 6.4 Layout
+### 6.4 布局
 
-The right panel should mirror the core structure of `Recent Encounters - Selected State`, but simplified to match Ghost Reader scope:
+右侧内容区应以 `Recent Encounters - Selected State` 为结构基线，但按 Ghost Reader 当前范围做简化：
 
-- Large page title
-- Short supporting subtitle
-- No extra bottom analytics or archive modules
-- A vertical list of large horizontal cards
+- 大标题
+- 简短辅助说明
+- 不显示底部两个额外模块
+- 主体内容为纵向排列的横向大卡片列表
 
-Each recent card shows:
+每张 Recent 卡片需要展示：
 
-- Cover on the left
-- Title
-- Author
-- Reading percentage
-- Last reading/opened time
-- Progress bar
+- 左侧封面
+- 书名
+- 作者
+- 阅读百分比
+- 最后阅读 / 打开时间
+- 阅读进度条
 
-### 6.5 Empty State
+### 6.5 空状态
 
-When there are no recent books:
+当没有任何 recent 书籍时：
 
-- Keep the page header visible
-- Show a centered glass placeholder panel in the content area
-- Explain that no recent reading trail exists yet
-- Provide a single action that takes the user to `Library`
+- 保留页面标题区
+- 在内容区域中央显示一块玻璃感占位面板
+- 明确说明当前还没有最近阅读轨迹
+- 提供一个单一动作按钮，引导用户前往 `Library`
 
-Do not render fake recent cards.
+不要渲染假的 recent 卡片。
 
-## 7. Stitch Fidelity Rules
+## 7. Stitch 还原要求
 
-The UI implementation must follow the Stitch visual system closely, not loosely.
+本次 UI 实现必须尽量严格遵循 Stitch 的视觉系统，而不是只保留一个大致方向。
 
-### 7.1 Must-Match Visual Areas
+### 7.1 必须尽量对齐的视觉区域
 
-- Sidebar width and spatial rhythm
-- Card proportions and cover emphasis
-- Rounded corners
-- Blur-based glass surfaces
-- Border softness and opacity
-- Gradient usage
-- Text hierarchy
-- Hover lighting and slight scale-up
-- Active navigation treatment
-- Button press feedback
-- Shadow softness
-- Neutral dark palette
+- 侧边栏宽度与空间节奏
+- 卡片比例与封面权重
+- 圆角体系
+- 基于模糊的玻璃感表面
+- 边框的柔和度与透明度
+- 渐变使用方式
+- 文本层级
+- 悬停时的亮度变化与轻微放大
+- 导航激活态
+- 按钮点击反馈
+- 柔和阴影
+- 深色中性色调体系
 
-### 7.2 Styling Rules
+### 7.2 样式约束
 
-- No bright accent recoloring outside the approved monochrome system
-- No replacement with generic app-shell styling
-- No fallback to flat cards if the blur treatment is technically possible
-- No extra controls that are not present in the approved direction
+- 不允许引入未经确认的鲜艳强调色
+- 不允许退回到普通通用 app-shell 风格
+- 只要技术上可行，就不能把玻璃模糊卡片简化成纯平卡片
+- 不要添加设计稿中未确认的多余控件
 
-If an effect from Stitch cannot be reproduced exactly in CSS/Electron, choose the closest visually equivalent effect instead of replacing it with a default utility-style control.
+如果 Stitch 中某个效果无法在 CSS / Electron 中完全等价实现，应优先选择视觉上最接近的方案，而不是直接退回到默认系统样式。
 
-## 8. Data Mapping
+## 8. 数据映射
 
-### 8.1 Existing Data
+### 8.1 现有数据
 
-The current data model already provides enough information for this scope:
+当前数据模型已经足够支持这一轮改造：
 
 - `BookRecord`
   - `id`
@@ -204,53 +204,53 @@ The current data model already provides enough information for this scope:
   - `percentage`
   - `updatedAt`
 
-### 8.2 View Mapping
+### 8.2 视图映射方式
 
-`Library`:
+`Library`：
 
-- Uses all imported books
-- May enrich cards with progress if present
+- 使用全部已导入书籍
+- 若存在阅读进度，则可在卡片中补充进度信息
 
-`Recent`:
+`Recent`：
 
-- Joins books with progress records
-- Filters to records with saved progress only
-- Sorts by `ReadingProgress.updatedAt DESC`
+- 对书籍与进度记录做关联
+- 只保留已有进度记录的书籍
+- 按 `ReadingProgress.updatedAt DESC` 排序
 
-No schema change is required for this task.
+本任务不需要新增数据表结构。
 
-## 9. Navigation and Reader Flow
+## 9. 导航与阅读器流程
 
-- The shell starts on `Library` unless the current app state routes directly into the reader.
-- Clicking `Recent` or `Library` updates only the right content view.
-- Clicking a book from either view opens the existing reader page.
-- Leaving the reader returns to the same shell system rather than a detached older bookshelf layout.
+- 主界面默认进入 `Library`，除非当前应用状态直接要求进入阅读器
+- 点击 `Recent` 或 `Library` 时，只更新右侧内容区
+- 在任一视图中点击书籍，都会进入现有阅读器页面
+- 从阅读器返回时，应回到新的主界面壳层，而不是旧版独立书架布局
 
-## 10. Testing Strategy
+## 10. 测试策略
 
-Implementation must be covered by automated tests before production code changes are finalized.
+在生产代码修改完成前，必须有自动化测试覆盖这一轮行为变更。
 
-Tests should verify:
+测试应覆盖：
 
-- Left rail tab switching between `Recent` and `Library`
-- `Library` shows all imported books
-- `Library` keeps the grid-first import card
-- `Recent` only shows books with progress
-- `Recent` sorts by latest `ReadingProgress.updatedAt`
-- `Recent` empty state renders placeholder panel
-- `Library` empty state still renders the import card
-- Clicking books from either view opens the reader
+- 左侧导航在 `Recent` 与 `Library` 之间切换
+- `Library` 展示所有已导入书籍
+- `Library` 始终保留网格第一项导入卡片
+- `Recent` 只展示有阅读进度的书籍
+- `Recent` 按最新 `ReadingProgress.updatedAt` 排序
+- `Recent` 空状态渲染居中占位面板
+- `Library` 空状态仍然渲染导入卡片
+- 从 `Recent` 或 `Library` 点击书籍都能进入阅读器
 
-Visual fidelity itself will still need manual QA after implementation, especially for hover transitions, press states, spacing, blur, and depth.
+视觉还原本身仍需要实现后的人手验收，尤其要重点检查悬停动效、按下态、间距、模糊与层次深度。
 
-## 11. Acceptance Criteria
+## 11. 验收标准
 
-- The main window uses a persistent left rail with `Recent`, `Library`, and `Settings`
-- There is no profile area and no `Store`
-- `Library` matches the Stitch grid direction and uses an in-grid `Add to Library` card
-- `Recent` matches the Stitch horizontal-card direction and excludes books without progress
-- `Recent` sorts by most recent reading activity
-- `Recent` bottom mini-modules are removed
-- `Recent` empty state shows a centered placeholder panel
-- `Library` empty state still shows the import card in-grid
-- Styling is implemented to closely follow Stitch motion, gradients, blur, borders, and interaction states
+- 主窗口采用固定左侧导航栏，包含 `Recent`、`Library`、`Settings`
+- 不显示用户资料区，也不显示 `Store`
+- `Library` 在结构上贴合 Stitch 设计，并使用网格内 `Add to Library` 卡片
+- `Recent` 在结构上贴合 Stitch 横向大卡片设计，且不显示无进度书籍
+- `Recent` 按最近阅读活动时间排序
+- `Recent` 底部两个小模块被移除
+- `Recent` 空状态显示居中占位面板
+- `Library` 空状态下仍保留网格内导入卡片
+- 样式实现尽量贴近 Stitch 中的动效、渐变、模糊、边框和交互状态

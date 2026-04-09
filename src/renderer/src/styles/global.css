@@ -15,6 +15,9 @@
   --shadow-card: 0 16px 34px rgba(0, 0, 0, 0.26);
   --shadow-sheet: 0 24px 60px rgba(0, 0, 0, 0.34);
   --surface-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --font-headline: 'Manrope', sans-serif;
+  --font-body: 'Newsreader', serif;
+  --font-label: 'Manrope', sans-serif;
 }
 
 html,
@@ -24,9 +27,20 @@ body,
   width: 100%;
   height: 100%;
   min-height: 100%;
+  overflow: hidden;
   background: transparent;
   color: var(--text-primary);
-  font-family: 'SF Pro Text', 'SF Pro Display', 'PingFang SC', 'Helvetica Neue', sans-serif;
+  font-family: var(--font-label), 'SF Pro Text', 'SF Pro Display', 'PingFang SC', 'Helvetica Neue', sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* 搜索框和阅读器内允许文字选中 */
+.library-view__search input,
+.txt-renderer,
+.epub-renderer {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 body {
@@ -42,6 +56,18 @@ body[data-app-mode='reader'] #root {
   background: transparent;
 }
 
+/* 设计系统工具类 */
+.obsidian-glass {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.jelly-texture {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
+}
+
 button {
   font: inherit;
 }
@@ -51,8 +77,10 @@ button {
   flex: 1;
   min-height: 0;
   box-sizing: border-box;
-  gap: 20px;
-  padding: 20px;
+  gap: 0;
+  padding: 0;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .bookshelf-page--drag {
@@ -129,6 +157,34 @@ button {
   flex-direction: column;
 }
 
+/* 书架模式：无外框 */
+.app-frame--chromeless {
+  width: 100%;
+  height: 100vh;
+  min-height: 0;
+  border-radius: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.app-frame--chromeless .app-frame__titlebar {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.app-frame--chromeless .app-frame__content {
+  padding: 0;
+}
+
 .bookshelf-status,
 .settings-panel h2,
 .reader-shell__title {
@@ -136,10 +192,7 @@ button {
 }
 
 .settings-actions button,
-.settings-panel__close,
-.sidebar-nav__item,
-.sidebar-nav__settings,
-.library-book-card__remove {
+.settings-panel__close {
   border: 1px solid var(--border-soft);
   border-radius: 999px;
   background: var(--bg-panel-soft);
@@ -154,15 +207,26 @@ button {
 }
 
 .sidebar-nav {
-  width: 220px;
-  border: 1px solid var(--border-soft);
-  border-radius: 24px;
-  background: linear-gradient(180deg, rgba(18, 18, 18, 0.86), rgba(9, 9, 9, 0.86));
-  box-shadow: var(--shadow-card), var(--surface-highlight);
-  padding: 22px 18px;
+  border-radius: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-left: none;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), var(--surface-highlight);
+  padding: 52px 20px 32px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 48px;
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 20;
+  height: 100vh;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  -webkit-app-region: drag;
+  user-select: none;
 }
 
 .sidebar-nav__brand {
@@ -172,44 +236,139 @@ button {
 
 .sidebar-nav__brand h1 {
   margin: 0;
-  font-size: 18px;
-  letter-spacing: 0.04em;
+  font-family: var(--font-headline);
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: white;
 }
 
 .sidebar-nav__brand p {
   margin: 0;
-  color: var(--text-tertiary);
-  font-size: 11px;
-  letter-spacing: 0.14em;
+  color: rgba(120, 113, 108, 1);
+  font-family: var(--font-headline);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
 }
 
 .sidebar-nav__menu {
   display: grid;
-  gap: 10px;
+  gap: 24px;
 }
 
 .sidebar-nav__item,
 .sidebar-nav__settings {
+  -webkit-app-region: no-drag;
+  border: none;
+  border-radius: 16px;
+  background: transparent;
+  color: rgba(120, 113, 108, 1);
+  cursor: pointer;
   width: 100%;
   text-align: left;
-  padding: 10px 14px;
+  padding: 8px 8px 8px 8px;
+  margin-left: -8px;
+  font-family: var(--font-headline);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 300ms ease;
+}
+
+.sidebar-nav__item:hover,
+.sidebar-nav__settings:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-nav__item .material-symbols-outlined {
+  font-size: 20px;
+  opacity: 0.6;
+}
+
+.sidebar-nav__settings .material-symbols-outlined {
+  font-size: 20px;
+  opacity: 0.6;
 }
 
 .sidebar-nav__item--active {
-  border-color: rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.16);
-  color: var(--fill-inverse);
+  color: white;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.1);
+  border-right: 2px solid white;
+  border-radius: 16px 0 0 16px;
+  padding-right: 16px;
+}
+
+.sidebar-nav__item--active .material-symbols-outlined {
+  opacity: 1;
 }
 
 .sidebar-nav__settings {
   margin-top: auto;
 }
 
+.sidebar-resize-handle {
+  width: 8px;
+  margin-left: -4px;
+  flex-shrink: 0;
+  cursor: col-resize;
+  position: relative;
+  z-index: 21;
+  -webkit-app-region: no-drag;
+}
+
+
 .bookshelf-content {
   display: flex;
+  flex-direction: column;
   flex: 1;
   min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+/* 右侧内容区顶部拖拽条，绝对定位不占空间 */
+.bookshelf-content__drag-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 52px;
+  z-index: 10;
+  -webkit-app-region: drag;
+}
+
+/* 背景装饰光晕 */
+.bookshelf-page::after,
+.bookshelf-page::before {
+  content: '';
+  position: fixed;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  pointer-events: none;
+}
+
+.bookshelf-page::after {
+  bottom: -192px;
+  right: -192px;
+  width: 384px;
+  height: 384px;
+  filter: blur(120px);
+}
+
+.bookshelf-page::before {
+  top: 25%;
+  left: -96px;
+  width: 256px;
+  height: 256px;
+  filter: blur(100px);
 }
 
 .bookshelf-status {
@@ -242,127 +401,743 @@ button {
   color: var(--text-secondary);
 }
 
+.recent-view {
+  width: 100%;
+  min-width: 0;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 48px 64px;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.recent-view__header {
+  margin-bottom: 48px;
+  display: grid;
+  gap: 8px;
+}
+
+.recent-view__header h2,
+.recent-view__header p {
+  margin: 0;
+}
+
+.recent-view__header h2 {
+  font-family: var(--font-headline);
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: white;
+}
+
+.recent-view__header p {
+  font-family: var(--font-label);
+  color: rgba(120, 113, 108, 1);
+  font-size: 18px;
+}
+
+.recent-view__list {
+  display: grid;
+  gap: 24px;
+}
+
+.recent-book-card {
+  border-radius: 16px;
+  background: rgba(25, 26, 26, 0.4);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  background-image: linear-gradient(135deg, rgba(198, 198, 199, 0.08) 0%, rgba(69, 71, 71, 0.15) 100%);
+  box-shadow: inset 0 1px 1px 0 rgba(226, 222, 226, 0.1);
+  overflow: hidden;
+  transition: transform 500ms ease-out;
+}
+
+.recent-book-card:hover {
+  transform: scale(1.01);
+}
+
+.recent-book-card__open {
+  border: 0;
+  width: 100%;
+  color: inherit;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  flex-direction: row;
+}
+
+.recent-book-card__open:active {
+  transform: scale(0.995);
+}
+
+.recent-book-card__cover {
+  width: 180px;
+  flex-shrink: 0;
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(180deg, rgba(82, 82, 82, 0.66), rgba(42, 42, 42, 0.72));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.recent-book-card__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) brightness(0.75);
+  transition: filter 700ms ease, transform 700ms ease;
+}
+
+.recent-book-card:hover .recent-book-card__cover img {
+  filter: grayscale(0) brightness(1);
+  transform: scale(1.05);
+}
+
+/* 封面右侧渐变遮罩 */
+.recent-book-card__cover-fade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.4));
+  pointer-events: none;
+}
+
+.recent-book-card__body {
+  flex: 1;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.recent-book-card__title,
+.recent-book-card__author {
+  margin: 0;
+}
+
+.recent-book-card__title {
+  font-family: var(--font-headline);
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: white;
+  line-height: 1.2;
+}
+
+.recent-book-card__author {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 18px;
+  color: rgba(168, 162, 158, 1);
+  margin-top: 4px;
+}
+
+/* 进度区域推到卡片底部 */
+.recent-book-card__progress-section {
+  margin-top: auto;
+  padding-top: 20px;
+}
+
+/* 阅读进度和上次阅读时间纵向排列在进度条尾端上方 */
+.recent-book-card__stats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  color: rgba(120, 113, 108, 1);
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+.recent-book-card__stats span:first-child {
+  color: rgba(239, 248, 255, 1);
+}
+
+.recent-book-card__progress {
+  width: 100%;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(37, 38, 38, 1);
+  overflow: hidden;
+}
+
+.recent-book-card__progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: rgba(239, 248, 255, 1);
+  box-shadow: 0 0 12px rgba(239, 248, 255, 0.3);
+}
+
+/* 空状态：全屏布局 */
+.recent-view--empty {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 居中内容区 */
+.recent-view__empty-center {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 20px;
+  padding: 24px 48px;
+  overflow: hidden;
+}
+
+/* 水晶碎片插画 — 可自适应缩放 */
+.recent-view__crystal {
+  position: relative;
+  margin-bottom: 16px;
+  flex-shrink: 1;
+}
+
+.recent-view__crystal-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  transform: scale(1.5);
+  pointer-events: none;
+}
+
+.recent-view__crystal-glow:first-child {
+  background: rgba(198, 198, 199, 0.05);
+  filter: blur(100px);
+}
+
+.recent-view__crystal-glow--pulse {
+  background: rgba(239, 248, 255, 0.1);
+  filter: blur(40px);
+  animation: crystal-pulse 4s ease-in-out infinite;
+}
+
+@keyframes crystal-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+.recent-view__crystal-body {
+  position: relative;
+  width: min(200px, 30vh);
+  height: min(256px, 38vh);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.recent-view__crystal-layer {
+  position: absolute;
+  border-radius: 16px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.recent-view__crystal-layer--back {
+  inset: 0;
+  background: linear-gradient(to top right, rgba(255, 255, 255, 0.1), transparent);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transform: rotate(12deg);
+}
+
+.recent-view__crystal-layer--front {
+  inset: 16px;
+  background: linear-gradient(to bottom left, rgba(255, 255, 255, 0.05), transparent);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transform: rotate(-6deg);
+}
+
+.recent-view__crystal-icons {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.recent-view__crystal-icon-main {
+  font-size: 64px;
+  color: rgba(255, 255, 255, 0.9);
+  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.4));
+}
+
+.recent-view__crystal-divider {
+  width: 48px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(198, 198, 199, 0.5), transparent);
+}
+
+.recent-view__crystal-icon-sub {
+  font-size: 20px;
+  color: rgba(198, 198, 199, 0.4);
+}
+
+/* 浮动动画 */
+.crystal-float {
+  animation: crystal-floating 6s ease-in-out infinite;
+}
+
+@keyframes crystal-floating {
+  0% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(2deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+/* 空状态文案 */
+.recent-view__empty-title,
+.recent-view__empty-copy {
+  margin: 0;
+}
+
+.recent-view__empty-title {
+  font-family: var(--font-body);
+  font-size: clamp(28px, 5vh, 48px);
+  font-weight: 300;
+  font-style: italic;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--text-primary);
+  flex-shrink: 0;
+}
+
+.recent-view__empty-copy {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: clamp(14px, 2vh, 18px);
+  font-weight: 300;
+  color: rgba(172, 171, 170, 0.6);
+  max-width: 480px;
+  line-height: 1.6;
+  flex-shrink: 0;
+}
+
+/* CTA 按钮：obsidian glass 风格 */
+.recent-view__empty-action {
+  margin-top: 24px;
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 16px 40px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  transition: all 500ms ease;
+}
+
+.recent-view__empty-action .material-symbols-outlined {
+  font-size: 14px;
+  opacity: 0.5;
+  transition: all 500ms ease;
+}
+
+.recent-view__empty-action:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  letter-spacing: 0.35em;
+  color: white;
+}
+
+.recent-view__empty-action:hover .material-symbols-outlined {
+  opacity: 1;
+  transform: translateX(4px);
+}
+
+.recent-view__empty-action:active {
+  transform: scale(0.98);
+}
+
+/* 底部 Footer 始终固定底部 */
+.recent-view__empty-footer {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 20px;
+  font-family: var(--font-label);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: rgba(172, 171, 170, 0.3);
+  user-select: none;
+}
+
+.recent-view__empty-footer-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(198, 198, 199, 0.4);
+}
+
+.library-view {
+  width: 100%;
+  min-width: 0;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 48px 64px;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.library-view__header {
+  margin-bottom: 64px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.library-view__header-text {
+  display: grid;
+  gap: 8px;
+}
+
+.library-view__title {
+  margin: 0;
+  font-family: var(--font-headline);
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: white;
+}
+
+.library-view__subtitle {
+  margin: 0;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 20px;
+  color: rgba(120, 113, 108, 1);
+}
+
+.library-view__search {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 0;
+  cursor: pointer;
+  transition: all 400ms ease;
+  overflow: hidden;
+}
+
+.library-view__search:hover,
+.library-view__search:focus-within {
+  padding: 12px 24px;
+  gap: 12px;
+}
+
+.library-view__search .material-symbols-outlined {
+  color: rgba(87, 83, 78, 1);
+  font-size: 18px;
+  flex-shrink: 0;
+  transition: color 300ms ease;
+}
+
+.library-view__search:hover .material-symbols-outlined,
+.library-view__search:focus-within .material-symbols-outlined {
+  color: rgba(172, 171, 170, 1);
+}
+
+.library-view__search input {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--font-headline);
+  font-size: 14px;
+  color: rgba(214, 211, 209, 1);
+  width: 0;
+  min-width: 0;
+  padding: 0;
+  transition: width 400ms ease;
+}
+
+.library-view__search:hover input,
+.library-view__search:focus-within input {
+  width: 140px;
+}
+
+.library-view__search input::placeholder {
+  color: rgba(68, 64, 60, 1);
+}
+
 .library-view__grid {
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+
+@media (min-width: 1100px) {
+  .library-view__grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 1500px) {
+  .library-view__grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
 }
 
 .add-library-card {
+  width: 100%;
   aspect-ratio: 2 / 3;
-  border-radius: 2rem;
-  background: linear-gradient(180deg, rgba(24, 24, 24, 0.72), rgba(10, 10, 10, 0.92));
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(24px);
-  transition: transform 300ms ease-out, background 300ms ease-out, border-color 300ms ease-out;
-  box-shadow: var(--shadow-card), var(--surface-highlight);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  transition: all 700ms ease;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   color: var(--text-primary);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 16px;
   cursor: pointer;
 }
 
 .add-library-card:hover {
-  transform: scale(1.02);
-  border-color: rgba(255, 255, 255, 0.14);
+  transform: scale(1.03);
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .add-library-card__icon {
-  width: 72px;
-  height: 72px;
+  width: 64px;
+  height: 64px;
   border-radius: 999px;
   display: grid;
   place-content: center;
-  font-size: 44px;
-  line-height: 1;
-  color: var(--text-secondary);
-  background: rgba(255, 255, 255, 0.06);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.4);
+  transition: all 500ms ease;
+}
+
+.add-library-card:hover .add-library-card__icon {
+  color: white;
+  transform: scale(1.1);
+}
+
+.add-library-card__icon .material-symbols-outlined {
+  font-size: 32px;
 }
 
 .add-library-card__label {
-  font-size: 14px;
-  letter-spacing: 0.08em;
+  font-family: var(--font-headline);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.3);
+  transition: color 500ms ease;
+}
+
+.add-library-card:hover .add-library-card__label {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* 隐形占位，保持与书籍卡片高度对齐 */
+.add-library-card__placeholder {
+  visibility: hidden;
+  padding: 0 4px;
+}
+
+.add-library-card__placeholder strong,
+.add-library-card__placeholder span {
+  display: block;
 }
 
 .library-book-card {
-  border: 1px solid var(--border-soft);
-  border-radius: 24px;
-  background: linear-gradient(180deg, var(--bg-panel-strong), rgba(16, 16, 16, 0.92));
-  padding: 18px;
-  box-shadow: var(--shadow-card), var(--surface-highlight);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 20px;
+  transition: transform 500ms ease;
+}
+
+.library-book-card:hover {
+  transform: scale(1.03);
+}
+
+.library-book-card__cover {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  border-radius: 16px;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  color: rgba(255, 255, 255, 0.72);
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .library-book-card__open {
-  display: grid;
-  gap: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: 0;
   padding: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+.library-book-card__open img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 1000ms ease;
+}
+
+.library-book-card:hover .library-book-card__open img {
+  transform: scale(1.1);
+}
+
+/* 底部渐变遮罩 */
+.library-book-card__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, transparent 50%, transparent 100%);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* 删除按钮 — hover 时从右上角滑入 */
+.library-book-card__remove {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ee7d77;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: all 300ms ease;
+  padding: 0;
+}
+
+.library-book-card:hover .library-book-card__remove {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.library-book-card__remove:hover {
+  background: #ee7d77;
+  color: white;
+}
+
+.library-book-card__remove .material-symbols-outlined {
+  font-size: 20px;
+}
+
+.library-book-card__meta {
+  display: grid;
+  gap: 4px;
+  padding: 0 4px;
+  border: 0;
   background: transparent;
   color: inherit;
   text-align: left;
   cursor: pointer;
 }
 
-.library-book-card__cover {
-  aspect-ratio: 2 / 3;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 18px;
-  background: linear-gradient(180deg, rgba(78, 78, 78, 0.72), rgba(40, 40, 40, 0.72));
-  overflow: hidden;
-  color: rgba(255, 255, 255, 0.72);
-  text-align: center;
-  padding: 16px;
-}
-
-.library-book-card__cover img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.library-book-card__meta {
-  display: grid;
-  gap: 6px;
-}
-
 .library-book-card__meta strong {
-  font-size: 17px;
+  font-family: var(--font-headline);
+  font-size: 18px;
+  font-weight: 700;
   line-height: 1.3;
+  color: white;
 }
 
 .library-book-card__meta span {
-  color: var(--text-secondary);
-  font-size: 13px;
+  font-family: var(--font-body);
+  font-style: italic;
+  color: rgba(120, 113, 108, 1);
+  font-size: 14px;
+}
+
+/* 阅读进度条 */
+.library-book-card__progress {
+  margin-top: 16px;
+  width: 100%;
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.library-book-card__progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: white;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
 }
 
 .library-book-card__footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.library-book-card__format {
-  color: var(--text-tertiary);
-  letter-spacing: 0.14em;
-  font-size: 11px;
-  text-transform: uppercase;
-}
-
-.library-book-card__remove {
-  padding: 8px 12px;
-  color: var(--text-secondary);
+  display: none;
 }
 
 .reader-page {
@@ -604,6 +1379,10 @@ button {
   .sidebar-nav {
     width: 100%;
     gap: 12px;
+    border-radius: 0 0 24px 24px;
+    height: auto;
+    position: relative;
+    padding: 16px;
   }
 
   .sidebar-nav__menu {
@@ -612,6 +1391,27 @@ button {
 
   .reader-page {
     padding: 0;
+  }
+
+  .recent-view {
+    padding: 24px 16px;
+  }
+
+  .recent-view__header h2 {
+    font-size: 32px;
+  }
+
+  .recent-book-card__open {
+    flex-direction: column;
+  }
+
+  .recent-book-card__cover {
+    width: 100%;
+    height: 200px;
+  }
+
+  .recent-book-card__title {
+    font-size: 22px;
   }
 
   .reader-page__body {
@@ -625,5 +1425,20 @@ button {
 
   .reader-page__content {
     padding: 16px;
+  }
+
+  .library-view {
+    padding: 24px 16px;
+  }
+
+  .library-view__header {
+    margin-bottom: 32px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .library-view__title {
+    font-size: 32px;
   }
 }
