@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useBookshelfData } from '../../hooks/useBookshelfData'
-import { BookGrid } from './BookGrid'
-import { BookshelfHeader } from './BookshelfHeader'
+import { LibraryView } from './LibraryView'
+import { SidebarNav } from './SidebarNav'
 
 function getDroppedPaths(fileList: FileList) {
   return Array.from(fileList)
@@ -48,16 +48,17 @@ export function BookshelfPage({ activeView, onChangeView, onOpenReader }: Booksh
         }
       }}
     >
-      <BookshelfHeader activeView={activeView} onChangeView={onChangeView} onImport={handleImport} />
-      <main className="bookshelf-main">
+      <SidebarNav activeView={activeView} onChangeView={onChangeView} />
+      <main className="bookshelf-content">
         {loading ? (
           <p className="bookshelf-status">Loading library...</p>
         ) : (
-          <BookGrid
+          <LibraryView
             books={activeView === 'recent' ? recentBooks : libraryBooks}
             onOpen={handleOpen}
             onRemove={removeBook}
             onImport={handleImport}
+            showAddTile={activeView === 'library'}
           />
         )}
       </main>

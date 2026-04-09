@@ -44,15 +44,34 @@ function setupApi(options?: { config?: Partial<AppConfig>; books?: BookRecord[] 
 }
 
 describe('BookshelfPage', () => {
-  it('renders the empty state when there are no books', async () => {
-    setupApi()
+  it('renders the add-to-library tile as the first grid item even when the library is empty', async () => {
+    setupApi({ books: [] })
 
     render(<BookshelfPage activeView="library" onChangeView={vi.fn()} onOpenReader={vi.fn()} />)
 
-    expect(await screen.findByText('Drop TXT / EPUB to start your shelf.')).toBeInTheDocument()
-    expect(document.querySelector('.app-frame')).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Open library view' })).toHaveAttribute('aria-pressed', 'true')
-    expect(screen.getByRole('button', { name: 'Open recent view' })).toHaveAttribute('aria-pressed', 'false')
+    expect(await screen.findByRole('button', { name: 'Add a book to your library' })).toBeInTheDocument()
+    expect(screen.queryByText('Drop TXT / EPUB to start your shelf.')).not.toBeInTheDocument()
+  })
+
+  it('renders all imported books after the import tile', async () => {
+    setupApi({
+      books: [
+        {
+          id: 'book-1',
+          title: 'Example Book',
+          author: 'Ghost',
+          format: 'txt',
+          filePath: '/tmp/example.txt',
+          importedAt: 1,
+          updatedAt: 1,
+        },
+      ],
+    })
+
+    render(<BookshelfPage activeView="library" onChangeView={vi.fn()} onOpenReader={vi.fn()} />)
+
+    expect(await screen.findByRole('button', { name: 'Add a book to your library' })).toBeInTheDocument()
+    expect(screen.getByText('Example Book')).toBeInTheDocument()
   })
 
   it('opens settings from the bookshelf content header', async () => {
@@ -135,7 +154,7 @@ describe('BookshelfPage', () => {
 
     render(<BookshelfPage activeView="library" onChangeView={vi.fn()} onOpenReader={vi.fn()} />)
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Import Books' }))
+    fireEvent.click(await screen.findByRole('button', { name: 'Add a book to your library' }))
 
     expect((await screen.findAllByText('Imported Book')).length).toBeGreaterThan(0)
   })
