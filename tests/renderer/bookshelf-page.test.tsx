@@ -47,18 +47,18 @@ describe('BookshelfPage', () => {
   it('renders the empty state when there are no books', async () => {
     setupApi()
 
-    render(<BookshelfPage onOpenReader={vi.fn()} />)
+    render(<BookshelfPage activeView="library" onChangeView={vi.fn()} onOpenReader={vi.fn()} />)
 
     expect(await screen.findByText('Drop TXT / EPUB to start your shelf.')).toBeInTheDocument()
     expect(document.querySelector('.app-frame')).not.toBeInTheDocument()
-    expect(screen.getByText('Bookshelf')).toBeInTheDocument()
-    expect(screen.getByText('Quiet shelf for imported books.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Open library view' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: 'Open recent view' })).toHaveAttribute('aria-pressed', 'false')
   })
 
   it('opens settings from the bookshelf content header', async () => {
     setupApi()
 
-    render(<BookshelfPage onOpenReader={vi.fn()} />)
+    render(<BookshelfPage activeView="library" onChangeView={vi.fn()} onOpenReader={vi.fn()} />)
 
     fireEvent.click(await screen.findByRole('button', { name: 'Settings' }))
 
@@ -81,7 +81,7 @@ describe('BookshelfPage', () => {
     })
     const onOpenReader = vi.fn()
 
-    render(<BookshelfPage onOpenReader={onOpenReader} />)
+    render(<BookshelfPage activeView="library" onChangeView={vi.fn()} onOpenReader={onOpenReader} />)
 
     fireEvent.click((await screen.findAllByText('Example Book'))[0])
 
@@ -90,6 +90,18 @@ describe('BookshelfPage', () => {
     })
     expect(onOpenReader).toHaveBeenCalledTimes(1)
     expect(setConfig.mock.invocationCallOrder[0]).toBeLessThan(onOpenReader.mock.invocationCallOrder[0])
+  })
+
+  it('renders shell navigation toggles with the active view state', async () => {
+    setupApi()
+
+    render(<BookshelfPage activeView="library" onChangeView={vi.fn()} onOpenReader={vi.fn()} />)
+
+    expect(await screen.findByRole('button', { name: 'Open recent view' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    )
+    expect(screen.getByRole('button', { name: 'Open library view' })).toHaveAttribute('aria-pressed', 'true')
   })
 
 })

@@ -99,7 +99,7 @@ describe('App single-window shell', () => {
     render(<App />)
 
     expect(document.querySelector('.app-frame')).toBeInTheDocument()
-    expect(await screen.findByText('Bookshelf')).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Open library view' })).toBeInTheDocument()
 
     fireEvent.click((await screen.findAllByText('Example Book'))[0])
 
@@ -131,7 +131,38 @@ describe('App single-window shell', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Back to bookshelf' }))
 
-    expect(await screen.findByText('Bookshelf')).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Open library view' })).toBeInTheDocument()
+  })
+
+  it('keeps the bookshelf shell mounted while switching between library and recent', async () => {
+    setupApi(null)
+
+    render(<App />)
+
+    expect(await screen.findByRole('button', { name: 'Open recent view' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    )
+    expect(screen.getByRole('button', { name: 'Open library view' })).toHaveAttribute('aria-pressed', 'true')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Open recent view' }))
+
+    expect(screen.getByRole('button', { name: 'Open recent view' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: 'Open library view' })).toHaveAttribute('aria-pressed', 'false')
+    expect(document.querySelector('.app-frame')).toBeInTheDocument()
+  })
+
+  it('returns from reader to the same shell instead of the legacy bookshelf header layout', async () => {
+    setupApi('book-1')
+
+    render(<App />)
+
+    expect(await screen.findByText('第一段')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Back to bookshelf' }))
+
+    expect(await screen.findByRole('button', { name: 'Open library view' })).toBeInTheDocument()
+    expect(screen.queryByText('Bookshelf')).not.toBeInTheDocument()
   })
 
   it('stays on the bookshelf after manual back when the same selected book is broadcast again', async () => {
@@ -143,7 +174,7 @@ describe('App single-window shell', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Back to bookshelf' }))
 
-    expect(await screen.findByText('Bookshelf')).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Open library view' })).toBeInTheDocument()
 
     act(() => {
       emitConfig({
@@ -154,7 +185,7 @@ describe('App single-window shell', () => {
       })
     })
 
-    expect(screen.getByText('Bookshelf')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Open library view' })).toBeInTheDocument()
     expect(screen.queryByText('第一段')).not.toBeInTheDocument()
   })
 
@@ -163,7 +194,7 @@ describe('App single-window shell', () => {
 
     render(<App />)
 
-    expect(await screen.findByText('Bookshelf')).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Open library view' })).toBeInTheDocument()
 
     act(() => {
       emitConfig({

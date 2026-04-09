@@ -1,7 +1,8 @@
 import { useState } from 'react'
+import { useConfig } from '../../hooks/useConfig'
 import { useLibrary } from '../../hooks/useLibrary'
 import { BookGrid } from './BookGrid'
-import { BookshelfHeader } from './BookshelfHeader'
+import { SettingsPanel } from '../settings/SettingsPanel'
 
 function getDroppedPaths(fileList: FileList) {
   return Array.from(fileList)
@@ -10,11 +11,15 @@ function getDroppedPaths(fileList: FileList) {
 }
 
 type BookshelfPageProps = {
+  activeView: 'recent' | 'library'
+  onChangeView: (view: 'recent' | 'library') => void
   onOpenReader: () => void
 }
 
-export function BookshelfPage({ onOpenReader }: BookshelfPageProps) {
+export function BookshelfPage({ activeView, onChangeView, onOpenReader }: BookshelfPageProps) {
   const { books, loading, addBooks, removeBook } = useLibrary()
+  const { config, fallbackConfig, updateConfig } = useConfig()
+  const [settingsOpen, setSettingsOpen] = useState(false)
   const [dragActive, setDragActive] = useState(false)
 
   async function handleImport() {
@@ -46,7 +51,34 @@ export function BookshelfPage({ onOpenReader }: BookshelfPageProps) {
         }
       }}
     >
-      <BookshelfHeader onImport={handleImport} />
+      <header className="bookshelf-header">
+        <div className="bookshelf-header__actions">
+          <button
+            type="button"
+            className="bookshelf-header__action"
+            aria-label="Open recent view"
+            aria-pressed={activeView === 'recent'}
+            onClick={() => onChangeView('recent')}
+          >
+            Recent
+          </button>
+          <button
+            type="button"
+            className="bookshelf-header__action"
+            aria-label="Open library view"
+            aria-pressed={activeView === 'library'}
+            onClick={() => onChangeView('library')}
+          >
+            Library
+          </button>
+          <button className="bookshelf-header__action" onClick={() => void handleImport()}>
+            Import Books
+          </button>
+          <button className="bookshelf-header__action" onClick={() => setSettingsOpen(true)}>
+            Settings
+          </button>
+        </div>
+      </header>
       <main className="bookshelf-main">
         {loading ? (
           <p className="bookshelf-status">Loading library...</p>
@@ -54,6 +86,16 @@ export function BookshelfPage({ onOpenReader }: BookshelfPageProps) {
           <BookGrid books={books} onOpen={handleOpen} onRemove={removeBook} onImport={handleImport} />
         )}
       </main>
+      {settingsOpen ? (
+        <SettingsPanel
+          config={config ?? fallbackConfig}
+          onClose={() => setSettingsOpen(false)}
+          onSave={async (patch) => {
+            await updateConfig(patch)
+            setSettingsOpen(false)
+          }}
+        />
+      ) : null}
     </div>
   )
 }
