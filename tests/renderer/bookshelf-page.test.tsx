@@ -70,8 +70,33 @@ describe('BookshelfPage', () => {
 
     render(<BookshelfPage activeView="library" onChangeView={vi.fn()} onOpenReader={vi.fn()} />)
 
-    expect(await screen.findByRole('button', { name: 'Add a book to your library' })).toBeInTheDocument()
-    expect(screen.getByText('Example Book')).toBeInTheDocument()
+    const addTile = await screen.findByRole('button', { name: 'Add a book to your library' })
+    const firstBookTitle = screen.getByText('Example Book')
+
+    expect(addTile).toBeInTheDocument()
+    expect(firstBookTitle).toBeInTheDocument()
+    expect(addTile.compareDocumentPosition(firstBookTitle) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  })
+
+  it('renders a neutral placeholder shell for recent view instead of recent books', async () => {
+    setupApi({
+      books: [
+        {
+          id: 'book-1',
+          title: 'Example Book',
+          author: 'Ghost',
+          format: 'txt',
+          filePath: '/tmp/example.txt',
+          importedAt: 1,
+          updatedAt: 1,
+        },
+      ],
+    })
+
+    render(<BookshelfPage activeView="recent" onChangeView={vi.fn()} onOpenReader={vi.fn()} />)
+
+    expect(await screen.findByText('Recent view is coming soon.')).toBeInTheDocument()
+    expect(screen.queryByText('Example Book')).not.toBeInTheDocument()
   })
 
   it('opens settings from the bookshelf content header', async () => {

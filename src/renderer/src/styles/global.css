@@ -221,6 +221,27 @@ button {
   box-shadow: var(--shadow-card), var(--surface-highlight);
 }
 
+.bookshelf-placeholder {
+  width: 100%;
+  border: 1px solid var(--border-soft);
+  border-radius: 28px;
+  background: linear-gradient(180deg, var(--bg-panel), rgba(14, 14, 14, 0.88));
+  padding: 32px;
+  box-shadow: var(--shadow-card), var(--surface-highlight);
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
+.bookshelf-placeholder h2,
+.bookshelf-placeholder p {
+  margin: 0;
+}
+
+.bookshelf-placeholder p {
+  color: var(--text-secondary);
+}
+
 .library-view__grid {
   width: 100%;
   display: grid;

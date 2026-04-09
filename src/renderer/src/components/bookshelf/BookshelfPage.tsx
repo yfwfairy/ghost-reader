@@ -16,7 +16,7 @@ type BookshelfPageProps = {
 }
 
 export function BookshelfPage({ activeView, onChangeView, onOpenReader }: BookshelfPageProps) {
-  const { libraryBooks, recentBooks, loading, addBooks, removeBook } = useBookshelfData()
+  const { libraryBooks, loading, addBooks, removeBook } = useBookshelfData()
   const [dragActive, setDragActive] = useState(false)
 
   async function handleImport() {
@@ -52,13 +52,17 @@ export function BookshelfPage({ activeView, onChangeView, onOpenReader }: Booksh
       <main className="bookshelf-content">
         {loading ? (
           <p className="bookshelf-status">Loading library...</p>
+        ) : activeView === 'recent' ? (
+          <section className="bookshelf-placeholder">
+            <h2>Recent view is coming soon.</h2>
+            <p>The library shell is ready. Recent reading cards arrive in Task 4.</p>
+          </section>
         ) : (
           <LibraryView
-            books={activeView === 'recent' ? recentBooks : libraryBooks}
+            books={libraryBooks}
             onOpen={handleOpen}
             onRemove={removeBook}
             onImport={handleImport}
-            showAddTile={activeView === 'library'}
           />
         )}
       </main>
