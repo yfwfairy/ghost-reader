@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { BookRecord, ReadingProgress } from '@shared/types'
 
 export type BookshelfBook = BookRecord & {
@@ -8,6 +8,8 @@ export type BookshelfBook = BookRecord & {
 export function useBookshelfData() {
   const [libraryBooks, setLibraryBooks] = useState<BookshelfBook[]>([])
   const [loading, setLoading] = useState(true)
+  const hydrationCompleteRef = useRef(false)
+  const preHydrationRemovedIdsRef = useRef<Set<string>>(new Set())
 
   async function getProgressOrNull(bookId: string) {
     try {
@@ -26,6 +28,21 @@ export function useBookshelfData() {
     )
   }
 
+  function mergeHydratedBooks(current: BookshelfBook[], hydrated: BookshelfBook[]) {
+    const removedIds = preHydrationRemovedIdsRef.current
+    const merged = current.filter((book) => !removedIds.has(book.id))
+    const existingIds = new Set(merged.map((book) => book.id))
+
+    for (const book of hydrated) {
+      if (removedIds.has(book.id) || existingIds.has(book.id)) {
+        continue
+      }
+      merged.push(book)
+    }
+
+    return merged
+  }
+
   useEffect(() => {
     let active = true
 
@@ -37,17 +54,14 @@ export function useBookshelfData() {
           return
         }
 
-        setLibraryBooks((current) => [
-          ...current,
-          ...booksWithProgress.filter((book) => !current.some((existing) => existing.id === book.id)),
-        ])
+        setLibraryBooks((current) => mergeHydratedBooks(current, booksWithProgress))
       } catch {
         if (!active) {
           return
         }
-        setLibraryBooks([])
       } finally {
         if (active) {
+          hydrationCompleteRef.current = true
           setLoading(false)
         }
       }
@@ -65,6 +79,11 @@ export function useBookshelfData() {
   async function addBooks(paths: string[]) {
     const imported = await window.api.importBooks(paths)
     const importedWithProgress = await addProgress(imported)
+    if (!hydrationCompleteRef.current) {
+      for (const book of importedWithProgress) {
+        preHydrationRemovedIdsRef.current.delete(book.id)
+      }
+    }
     setLibraryBooks((current) => [
       ...importedWithProgress,
       ...current.filter((book) => !importedWithProgress.some((incoming) => incoming.id === book.id)),
@@ -72,8 +91,19 @@ export function useBookshelfData() {
   }
 
   async function removeBook(bookId: string) {
-    await window.api.removeBook(bookId)
-    setLibraryBooks((current) => current.filter((book) => book.id !== bookId))
+    const trackForHydration = !hydrationCompleteRef.current
+    if (trackForHydration) {
+      preHydrationRemovedIdsRef.current.add(bookId)
+    }
+    try {
+      await window.api.removeBook(bookId)
+      setLibraryBooks((current) => current.filter((book) => book.id !== bookId))
+    } catch (error) {
+      if (trackForHydration) {
+        preHydrationRemovedIdsRef.current.delete(bookId)
+      }
+      throw error
+    }
   }
 
   return { libraryBooks, recentBooks, loading, addBooks, removeBook }
