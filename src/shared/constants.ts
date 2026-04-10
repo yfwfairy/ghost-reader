@@ -10,4 +10,5 @@ export const DEFAULT_APP_CONFIG = {
   lineHeight: 1.8,
   currentBookId: null,
   alwaysOnTop: false,
+  language: 'en',
 } as const

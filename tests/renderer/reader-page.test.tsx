@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom/vitest'
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { createRef } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import type { AppConfig } from '../../src/shared/types'
 import { ReaderPage } from '../../src/renderer/src/components/reader/ReaderPage'
@@ -9,6 +10,7 @@ const baseConfig: AppConfig = {
   lineHeight: 1.9,
   currentBookId: null,
   alwaysOnTop: false,
+  language: 'en',
 }
 
 describe('ReaderPage', () => {
@@ -61,6 +63,7 @@ describe('ReaderPage', () => {
   it('navigates back without clearing current book selection when back button is pressed', async () => {
     const onBack = vi.fn()
     const setConfig = vi.fn().mockResolvedValue({ ...baseConfig, currentBookId: null })
+    const backRef = createRef<(() => void | Promise<void>) | null>()
 
     Object.defineProperty(window, 'api', {
       configurable: true,
@@ -89,20 +92,21 @@ describe('ReaderPage', () => {
       },
     })
 
-    render(<ReaderPage onBack={onBack} />)
+    render(<ReaderPage backRef={backRef} onBack={onBack} />)
 
     expect(await screen.findByText('第一段')).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Back to bookshelf' }))
-
-    await waitFor(() => {
-      expect(setConfig).not.toHaveBeenCalled()
-      expect(onBack).toHaveBeenCalledTimes(1)
+    await act(async () => {
+      await backRef.current?.()
     })
+
+    expect(setConfig).not.toHaveBeenCalled()
+    expect(onBack).toHaveBeenCalledTimes(1)
   })
 
   it('flushes queued txt progress before navigating back', async () => {
     const saveProgress = vi.fn()
+    const backRef = createRef<(() => void | Promise<void>) | null>()
 
     Object.defineProperty(window, 'api', {
       configurable: true,
@@ -131,7 +135,7 @@ describe('ReaderPage', () => {
       },
     })
 
-    render(<ReaderPage onBack={vi.fn()} />)
+    render(<ReaderPage backRef={backRef} onBack={vi.fn()} />)
 
     const renderer = await screen.findByTestId('txt-renderer')
     Object.defineProperty(renderer, 'scrollHeight', { value: 1000, configurable: true })
@@ -142,8 +146,7 @@ describe('ReaderPage', () => {
     try {
       fireEvent.scroll(renderer)
       await act(async () => {
-        fireEvent.click(screen.getByRole('button', { name: 'Back to bookshelf' }))
-        await Promise.resolve()
+        await backRef.current?.()
       })
 
       expect(saveProgress).toHaveBeenCalledTimes(1)
@@ -161,6 +164,7 @@ describe('ReaderPage', () => {
 
   it('waits for a pending txt progress save before returning to the bookshelf', async () => {
     const onBack = vi.fn()
+    const backRef = createRef<(() => void | Promise<void>) | null>()
     let resolveSaveProgress: (() => void) | null = null
     const saveProgress = vi.fn().mockImplementation(
       () =>
@@ -196,7 +200,7 @@ describe('ReaderPage', () => {
       },
     })
 
-    render(<ReaderPage onBack={onBack} />)
+    render(<ReaderPage backRef={backRef} onBack={onBack} />)
 
     const renderer = await screen.findByTestId('txt-renderer')
     Object.defineProperty(renderer, 'scrollHeight', { value: 1000, configurable: true })
@@ -205,9 +209,9 @@ describe('ReaderPage', () => {
 
     fireEvent.scroll(renderer)
 
-    const backButton = screen.getByRole('button', { name: 'Back to bookshelf' })
-    fireEvent.click(backButton)
-    fireEvent.click(backButton)
+    // 触发两次返回，第二次应被去重
+    act(() => { void backRef.current?.() })
+    act(() => { void backRef.current?.() })
 
     expect(saveProgress).toHaveBeenCalledTimes(1)
     expect(onBack).not.toHaveBeenCalled()
@@ -221,6 +225,7 @@ describe('ReaderPage', () => {
 
   it('still returns to the bookshelf if txt progress saving fails', async () => {
     const onBack = vi.fn()
+    const backRef = createRef<(() => void | Promise<void>) | null>()
     const saveProgress = vi.fn().mockRejectedValue(new Error('disk offline'))
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
 
@@ -252,7 +257,7 @@ describe('ReaderPage', () => {
     })
 
     try {
-      render(<ReaderPage onBack={onBack} />)
+      render(<ReaderPage backRef={backRef} onBack={onBack} />)
 
       const renderer = await screen.findByTestId('txt-renderer')
       Object.defineProperty(renderer, 'scrollHeight', { value: 1000, configurable: true })
@@ -260,12 +265,13 @@ describe('ReaderPage', () => {
       Object.defineProperty(renderer, 'scrollTop', { value: 120, writable: true, configurable: true })
 
       fireEvent.scroll(renderer)
-      fireEvent.click(screen.getByRole('button', { name: 'Back to bookshelf' }))
 
-      await waitFor(() => {
-        expect(saveProgress).toHaveBeenCalledTimes(1)
-        expect(onBack).toHaveBeenCalledTimes(1)
+      await act(async () => {
+        await backRef.current?.()
       })
+
+      expect(saveProgress).toHaveBeenCalledTimes(1)
+      expect(onBack).toHaveBeenCalledTimes(1)
 
       expect(consoleError).toHaveBeenCalledWith(
         'Failed to save reader progress before returning to the bookshelf.',

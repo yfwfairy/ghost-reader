@@ -58,7 +58,7 @@ describe('RecentView', () => {
     render(<RecentView books={[]} onOpen={vi.fn()} onOpenLibrary={onOpenLibrary} />)
 
     expect(screen.getByRole('heading', { level: 2, name: 'Recent Encounters' })).toBeInTheDocument()
-    expect(screen.getByText('The void remains silent.')).toBeInTheDocument()
+    expect(screen.getByText('All reading is unfinished.')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Open .* in reader/ })).not.toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: /Browse Library/i }))

@@ -10,6 +10,7 @@ describe('App single-window shell', () => {
       lineHeight: 1.8,
       currentBookId: initialBookId,
       alwaysOnTop: false,
+      language: 'en' as const,
     }
 
     Object.defineProperty(window, 'api', {
@@ -49,15 +50,16 @@ describe('App single-window shell', () => {
       lineHeight: 1.8,
       currentBookId: initialBookId,
       alwaysOnTop: false,
+      language: 'en' as const,
     }
-    let handleConfigChange: ((next: typeof config) => void) | null = null
+    const configChangeCallbacks: ((next: typeof config) => void)[] = []
 
     Object.defineProperty(window, 'api', {
       configurable: true,
       value: {
         getConfig: vi.fn().mockImplementation(async () => config),
         onConfigChanged: vi.fn((callback: (next: typeof config) => void) => {
-          handleConfigChange = callback
+          configChangeCallbacks.push(callback)
           return vi.fn()
         }),
         setConfig: vi.fn().mockImplementation(async (patch) => {
@@ -88,7 +90,7 @@ describe('App single-window shell', () => {
     return {
       emitConfig(nextConfig: typeof config) {
         config = nextConfig
-        handleConfigChange?.(nextConfig)
+        configChangeCallbacks.forEach((cb) => cb(nextConfig))
       },
     }
   }
@@ -111,22 +113,22 @@ describe('App single-window shell', () => {
     expect(document.querySelector('.reader-page__topbar')).not.toBeInTheDocument()
   })
 
-  it('starts on reader page when config already has a selected book', async () => {
+  it('starts on home page even when config already has a selected book', async () => {
     setupApi('book-1')
 
     render(<App />)
 
-    expect(await screen.findByText('第一段')).toBeInTheDocument()
-    await waitFor(() => {
-      expect(document.querySelector('.app-frame__title')).toHaveTextContent('Example Book')
-    })
+    // 始终从首页进入，不自动恢复阅读器
+    expect(await screen.findByRole('button', { name: 'Open library view' })).toBeInTheDocument()
   })
 
   it('navigates back to bookshelf from reader back action', async () => {
-    setupApi('book-1')
+    setupApi(null)
 
     render(<App />)
 
+    // 先从首页导航到阅读器
+    fireEvent.click((await screen.findAllByText('Example Book'))[0])
     expect(await screen.findByText('第一段')).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Back to bookshelf' }))
@@ -153,10 +155,12 @@ describe('App single-window shell', () => {
   })
 
   it('returns from reader to the same shell instead of the legacy bookshelf header layout', async () => {
-    setupApi('book-1')
+    setupApi(null)
 
     render(<App />)
 
+    // 先从首页导航到阅读器
+    fireEvent.click((await screen.findAllByText('Example Book'))[0])
     expect(await screen.findByText('第一段')).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Back to bookshelf' }))
@@ -180,6 +184,7 @@ describe('App single-window shell', () => {
         lineHeight: 1.8,
         currentBookId: 'book-1',
         alwaysOnTop: false,
+        language: 'en' as const,
       })
     })
 
@@ -192,9 +197,22 @@ describe('App single-window shell', () => {
   })
 
   it('stays on the bookshelf after manual back when the same selected book is broadcast again', async () => {
-    const { emitConfig } = setupDeferredConfigApi('book-1')
+    const { emitConfig } = setupDeferredConfigApi(null)
 
     render(<App />)
+
+    expect(await screen.findByRole('button', { name: 'Open library view' })).toBeInTheDocument()
+
+    // 通过 config 变更导航到阅读器
+    act(() => {
+      emitConfig({
+        fontSize: 16,
+        lineHeight: 1.8,
+        currentBookId: 'book-1',
+        alwaysOnTop: false,
+        language: 'en' as const,
+      })
+    })
 
     expect(await screen.findByText('第一段')).toBeInTheDocument()
 
@@ -202,12 +220,14 @@ describe('App single-window shell', () => {
 
     expect(await screen.findByRole('button', { name: 'Open library view' })).toBeInTheDocument()
 
+    // 再次广播相同的 bookId 不应该切回阅读器
     act(() => {
       emitConfig({
         fontSize: 16,
         lineHeight: 1.8,
         currentBookId: 'book-1',
         alwaysOnTop: false,
+        language: 'en' as const,
       })
     })
 
@@ -228,6 +248,7 @@ describe('App single-window shell', () => {
         lineHeight: 1.8,
         currentBookId: 'book-1',
         alwaysOnTop: false,
+        language: 'en' as const,
       })
     })
 
@@ -253,23 +274,23 @@ describe('App single-window shell', () => {
       lineHeight: number
       currentBookId: null
       alwaysOnTop: boolean
+      language: 'en'
     }) => void) | null = null
+    const configPromise = new Promise((resolve) => {
+      resolveConfig = resolve as typeof resolveConfig
+    })
     const setAlwaysOnTop = vi.fn().mockImplementation(async (value: boolean) => ({
       fontSize: 16,
       lineHeight: 1.8,
       currentBookId: null,
       alwaysOnTop: value,
+      language: 'en' as const,
     }))
 
     Object.defineProperty(window, 'api', {
       configurable: true,
       value: {
-        getConfig: vi.fn(
-          () =>
-            new Promise((resolve) => {
-              resolveConfig = resolve
-            }),
-        ),
+        getConfig: vi.fn(() => configPromise),
         onConfigChanged: vi.fn(() => vi.fn()),
         setConfig: vi.fn(),
         getAllBooks: vi.fn().mockResolvedValue([]),
@@ -295,6 +316,7 @@ describe('App single-window shell', () => {
       lineHeight: 1.8,
       currentBookId: null,
       alwaysOnTop: true,
+      language: 'en' as const,
     })
 
     const unpinButton = await screen.findByRole('button', { name: 'Unpin window' })

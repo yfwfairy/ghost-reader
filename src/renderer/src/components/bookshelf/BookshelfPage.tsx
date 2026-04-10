@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
 import { useConfig } from '../../hooks/useConfig'
+import { useTranslation } from '../../hooks/useTranslation'
 import { SettingsPanel } from '../settings/SettingsPanel'
 import { useBookshelfData } from '../../hooks/useBookshelfData'
 import { LibraryView } from './LibraryView'
@@ -25,6 +26,7 @@ type BookshelfPageProps = {
 export function BookshelfPage({ activeView, onChangeView, onOpenReader }: BookshelfPageProps) {
   const { libraryBooks, recentBooks, loading, addBooks, removeBook } = useBookshelfData()
   const { config, fallbackConfig, updateConfig } = useConfig()
+  const { t } = useTranslation()
   const [dragActive, setDragActive] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT)
@@ -98,7 +100,7 @@ export function BookshelfPage({ activeView, onChangeView, onOpenReader }: Booksh
       <main className="bookshelf-content">
         <div className="bookshelf-content__drag-bar" />
         {loading ? (
-          <p className="bookshelf-status">Loading library...</p>
+          <p className="bookshelf-status">{t('app.loading')}</p>
         ) : activeView === 'recent' ? (
           <RecentView books={recentBooks} onOpen={handleOpen} onOpenLibrary={() => onChangeView('library')} />
         ) : (
@@ -116,7 +118,6 @@ export function BookshelfPage({ activeView, onChangeView, onOpenReader }: Booksh
           onClose={() => setSettingsOpen(false)}
           onSave={async (patch) => {
             await updateConfig(patch)
-            setSettingsOpen(false)
           }}
         />
       ) : null}

@@ -1,0 +1,83 @@
+const zhTW: Record<string, string> = {
+  // 側邊欄
+  'sidebar.brand': 'Ghost Reader',
+  'sidebar.subtitle': '紙頁之間，時間靜止',
+  'sidebar.recent': '最近',
+  'sidebar.library': '書庫',
+  'sidebar.settings': '設定',
+  'sidebar.recentAria': '開啟最近閱讀',
+  'sidebar.libraryAria': '開啟書庫',
+
+  // 設定面板
+  'settings.title': '閱讀器設定',
+  'settings.summary': '設定你的閱讀偏好。',
+  'settings.closeAria': '關閉設定',
+  'settings.appearance': '外觀',
+  'settings.language': '語言',
+  'settings.shortcuts': '快捷鍵',
+  'settings.theme': '介面主題',
+  'settings.themeObsidian': '曜石黑',
+  'settings.themeLunar': '月光灰',
+  'settings.langLabel': '顯示語言',
+  'settings.shortcutPage': '翻頁',
+  'settings.shortcutHide': '快速隱藏',
+  'settings.shortcutFullscreen': '切換全螢幕',
+  'settings.shortcuts.title': '閱讀快捷鍵',
+  'settings.lang.en': '英語',
+  'settings.lang.zh': '簡體中文',
+  'settings.lang.zh-TW': '繁體中文',
+  'settings.privacyPolicy': '隱私權政策',
+  'settings.termsOfService': '服務條款',
+
+  // Recent 頁面
+  'recent.heading': '最近閱讀',
+  'recent.subtitle': '繼續你的閱讀吧',
+  'recent.emptyTitle': '所有閱讀都是未完成的。',
+  'recent.emptyCopy': '有些故事，值得重讀一生。\n從書庫開啟新的旅程吧。',
+  'recent.emptyAction': '瀏覽書庫',
+  'recent.footerSilence': '靜謐',
+  'recent.footerFocus': '專注',
+  'recent.footerImmersion': '沉浸',
+  'recent.percentRead': '{0}%',
+  'recent.lastOpened': '上次開啟 {0}',
+  'recent.openAria': '在閱讀器中開啟 {0}',
+  'recent.preview': '預覽',
+
+  // Library 頁面
+  'library.heading': '你的書殿',
+  'library.empty': '等待你的第一本書',
+  'library.subtitle': '共 {0} 本在架',
+  'library.subtitleSingular': '',
+  'library.subtitlePlural': '',
+  'library.search': '搜尋藏書...',
+  'library.addAria': '新增書籍到書庫',
+  'library.addLabel': '新增書籍',
+  'library.removeAria': '移除 {0}',
+
+  // Reader 頁面
+  'reader.eyebrow': '閱讀中',
+  'reader.title': '閱讀器',
+  'reader.preparingSubtitle': '正在準備你選擇的書籍。',
+  'reader.preparingMessage': '準備閱讀器...',
+  'reader.noBookSubtitle': '從書庫中選擇一本書開始閱讀。',
+  'reader.noBookMessage': '未選擇書籍。',
+  'reader.unknownAuthor': '未知作者',
+  'reader.loadingMeta': '正在載入書籍',
+  'reader.noBookMeta': '未選擇書籍',
+  'reader.backToShelf': '返回書架',
+  'reader.chapters': '章節',
+  'reader.appearance': '外觀',
+  'reader.progressRead': '{0}% 已讀',
+
+  // App 通用
+  'app.title': 'Ghost Reader',
+  'app.readerTitle': '閱讀中',
+  'app.loading': '正在載入書庫...',
+  'app.pinLoading': '載入置頂狀態',
+  'app.unpin': '取消置頂',
+  'app.pin': '視窗置頂',
+  'app.pinned': '已置頂',
+  'app.pinLabel': '置頂',
+}
+
+export default zhTW

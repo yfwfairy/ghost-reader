@@ -1,3 +1,4 @@
+import { useTranslation } from '../../hooks/useTranslation'
 import type { BookshelfBook } from '../../hooks/useBookshelfData'
 import { RecentBookCard } from './RecentBookCard'
 
@@ -8,10 +9,12 @@ type RecentViewProps = {
 }
 
 export function RecentView({ books, onOpen, onOpenLibrary }: RecentViewProps) {
+  const { t } = useTranslation()
+
   if (books.length === 0) {
     return (
       <section className="recent-view recent-view--empty">
-        <h2 className="sr-only">Recent Encounters</h2>
+        <h2 className="sr-only">{t('recent.heading')}</h2>
         <div className="recent-view__empty-center">
           {/* 水晶碎片插画 */}
           <div className="recent-view__crystal crystal-float" aria-hidden="true">
@@ -27,23 +30,21 @@ export function RecentView({ books, onOpen, onOpenLibrary }: RecentViewProps) {
               </div>
             </div>
           </div>
-          <h3 className="recent-view__empty-title">The void remains silent.</h3>
+          <h3 className="recent-view__empty-title">{t('recent.emptyTitle')}</h3>
           <p className="recent-view__empty-copy">
-            Your recent encounters have yet to be etched into the monolith.
-            <br />
-            Begin a new journey from your library.
+            {t('recent.emptyCopy')}
           </p>
           <button type="button" className="recent-view__empty-action" onClick={onOpenLibrary}>
-            <span>Browse Library</span>
+            <span>{t('recent.emptyAction')}</span>
             <span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
           </button>
         </div>
         <footer className="recent-view__empty-footer" aria-hidden="true">
-          <span>Silence</span>
+          <span>{t('recent.footerSilence')}</span>
           <span className="recent-view__empty-footer-dot" />
-          <span>Focus</span>
+          <span>{t('recent.footerFocus')}</span>
           <span className="recent-view__empty-footer-dot" />
-          <span>Immersion</span>
+          <span>{t('recent.footerImmersion')}</span>
         </footer>
       </section>
     )
@@ -52,8 +53,8 @@ export function RecentView({ books, onOpen, onOpenLibrary }: RecentViewProps) {
   return (
     <section className="recent-view">
       <header className="recent-view__header">
-        <h2>Recent Encounters</h2>
-        <p>Resuming your nocturnal drifts.</p>
+        <h2>{t('recent.heading')}</h2>
+        <p>{t('recent.subtitle')}</p>
       </header>
       <div className="recent-view__list">
         {books.map((book) => (

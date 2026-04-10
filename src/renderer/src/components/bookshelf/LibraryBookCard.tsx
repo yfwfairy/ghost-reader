@@ -1,3 +1,4 @@
+import { useTranslation } from '../../hooks/useTranslation'
 import type { BookshelfBook } from '../../hooks/useBookshelfData'
 
 type LibraryBookCardProps = {
@@ -7,6 +8,7 @@ type LibraryBookCardProps = {
 }
 
 export function LibraryBookCard({ book, onOpen, onRemove }: LibraryBookCardProps) {
+  const { t } = useTranslation()
   const progress = book.progress
 
   return (
@@ -23,7 +25,7 @@ export function LibraryBookCard({ book, onOpen, onRemove }: LibraryBookCardProps
         <button
           className="library-book-card__remove"
           type="button"
-          aria-label={`Remove ${book.title}`}
+          aria-label={t('library.removeAria', book.title)}
           onClick={() => void onRemove(book.id)}
         >
           <span className="material-symbols-outlined" aria-hidden="true">delete</span>

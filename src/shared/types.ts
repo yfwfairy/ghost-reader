@@ -19,11 +19,14 @@ export interface ReadingProgress {
   epubCfi?: string
 }
 
+export type Locale = 'en' | 'zh' | 'zh-TW'
+
 export interface AppConfig {
   fontSize: number
   lineHeight: number
   currentBookId: string | null
   alwaysOnTop: boolean
+  language: Locale
 }
 
 export interface GhostReaderApi {

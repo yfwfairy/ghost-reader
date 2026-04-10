@@ -1,41 +1,39 @@
 import type { PropsWithChildren } from 'react'
+import { useTranslation } from '../../hooks/useTranslation'
 
 type ReaderLayoutProps = PropsWithChildren<{
   title: string
   meta?: string
-  backDisabled?: boolean
-  onBack: () => void | Promise<void>
 }>
 
 export function ReaderLayout({
   title,
   meta,
-  backDisabled = false,
-  onBack,
   children,
 }: ReaderLayoutProps) {
+  const { t } = useTranslation()
+
   return (
     <section className="reader-page">
       <section className="reader-page__shell">
         <div className="reader-page__body">
-          <header className="reader-page__toolbar">
-            <button
-              className="reader-page__back"
-              type="button"
-              aria-label="Back to bookshelf"
-              disabled={backDisabled}
-              onClick={() => void onBack()}
-            >
-              Back to bookshelf
-            </button>
-            <div className="reader-page__heading">
-              <h1 className="reader-page__title">{title}</h1>
-              {meta ? <p className="reader-page__meta">{meta}</p> : null}
-            </div>
-          </header>
           <div className="reader-page__content">{children}</div>
         </div>
       </section>
+
+      {/* 底部导航栏 */}
+      <nav className="reader-bottom-nav">
+        <div className="reader-bottom-nav__actions">
+          <button className="reader-bottom-nav__btn" type="button">
+            <span className="material-symbols-outlined" aria-hidden="true">menu_book</span>
+            <span>{t('reader.chapters')}</span>
+          </button>
+          <button className="reader-bottom-nav__btn" type="button">
+            <span className="material-symbols-outlined" aria-hidden="true">palette</span>
+            <span>{t('reader.appearance')}</span>
+          </button>
+        </div>
+      </nav>
     </section>
   )
 }

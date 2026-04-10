@@ -1,3 +1,4 @@
+import { useTranslation } from '../../hooks/useTranslation'
 import type { BookshelfBook } from '../../hooks/useBookshelfData'
 import { AddToLibraryCard } from './AddToLibraryCard'
 import { LibraryBookCard } from './LibraryBookCard'
@@ -11,20 +12,26 @@ type LibraryViewProps = {
 }
 
 export function LibraryView({ books, onImport, onOpen, onRemove, showAddTile = true }: LibraryViewProps) {
+  const { t } = useTranslation()
+
   return (
     <section className="library-view">
       <header className="library-view__header">
         <div className="library-view__header-text">
-          <h2 className="library-view__title">Your Sanctuary</h2>
+          <h2 className="library-view__title">{t('library.heading')}</h2>
           <p className="library-view__subtitle">
             {books.length === 0
-              ? 'Your glass shelf awaits its first title.'
-              : `${books.length} work${books.length === 1 ? '' : 's'} currently suspended in glass.`}
+              ? t('library.empty')
+              : t(
+                  'library.subtitle',
+                  books.length,
+                  books.length === 1 ? t('library.subtitleSingular') : t('library.subtitlePlural'),
+                )}
           </p>
         </div>
         <div className="library-view__search">
           <span className="material-symbols-outlined">search</span>
-          <input type="text" placeholder="Filter archive..." />
+          <input type="text" placeholder={t('library.search')} />
         </div>
       </header>
       <div className="library-view__grid">

@@ -12,8 +12,8 @@ export class WindowManager {
     this.bookshelfWindow = new BrowserWindow({
       width: DEFAULT_WINDOW_SIZE.width,
       height: DEFAULT_WINDOW_SIZE.height,
-      minWidth: 980,
-      minHeight: 640,
+      minWidth: 280,
+      minHeight: 200,
       title: 'Ghost Reader',
       titleBarStyle: 'hiddenInset',
       vibrancy: 'under-window',

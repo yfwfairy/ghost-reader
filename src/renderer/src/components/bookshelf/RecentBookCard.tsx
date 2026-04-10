@@ -1,3 +1,4 @@
+import { useTranslation } from '../../hooks/useTranslation'
 import type { BookshelfBook } from '../../hooks/useBookshelfData'
 
 type RecentBookCardProps = {
@@ -20,6 +21,7 @@ function formatLastOpened(updatedAt: number) {
 }
 
 export function RecentBookCard({ book, onOpen }: RecentBookCardProps) {
+  const { t } = useTranslation()
   const progressPercentage = clampPercentage(Math.round((book.progress?.percentage ?? 0) * 100))
   const lastOpenedLabel = formatLastOpened(book.progress?.updatedAt ?? book.updatedAt)
 
@@ -28,11 +30,11 @@ export function RecentBookCard({ book, onOpen }: RecentBookCardProps) {
       <button
         type="button"
         className="recent-book-card__open"
-        aria-label={`Open ${book.title} in reader`}
+        aria-label={t('recent.openAria', book.title)}
         onClick={() => void onOpen(book.id)}
       >
         <div className="recent-book-card__cover">
-          {book.coverDataUrl ? <img src={book.coverDataUrl} alt={book.title} /> : <span>Preview</span>}
+          {book.coverDataUrl ? <img src={book.coverDataUrl} alt={book.title} /> : <span>{t('recent.preview')}</span>}
           <div className="recent-book-card__cover-fade" />
         </div>
         <div className="recent-book-card__body">
@@ -40,8 +42,8 @@ export function RecentBookCard({ book, onOpen }: RecentBookCardProps) {
           <p className="recent-book-card__author">{book.author}</p>
           <div className="recent-book-card__progress-section">
             <div className="recent-book-card__stats">
-              <span>{progressPercentage}% read</span>
-              <span>Last opened {lastOpenedLabel}</span>
+              <span>{t('recent.percentRead', progressPercentage)}</span>
+              <span>{t('recent.lastOpened', lastOpenedLabel)}</span>
             </div>
             <div className="recent-book-card__progress" role="presentation" aria-hidden>
               <span style={{ width: `${progressPercentage}%` }} />

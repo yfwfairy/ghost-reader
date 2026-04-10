@@ -9,6 +9,7 @@ const baseConfig: AppConfig = {
   lineHeight: 1.8,
   currentBookId: null,
   alwaysOnTop: false,
+  language: 'en',
 }
 
 function setupApi(options?: {
@@ -154,7 +155,7 @@ describe('BookshelfPage', () => {
 
     render(<BookshelfPage activeView="recent" onChangeView={onChangeView} onOpenReader={vi.fn()} />)
 
-    expect(await screen.findByText('The void remains silent.')).toBeInTheDocument()
+    expect(await screen.findByText('All reading is unfinished.')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Open .* in reader/ })).not.toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: /Browse Library/i }))

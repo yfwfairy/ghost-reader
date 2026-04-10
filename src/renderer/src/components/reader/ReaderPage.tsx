@@ -1,17 +1,21 @@
 import { useEffect, useRef, useState } from 'react'
 import type { BookRecord, ReadingProgress } from '@shared/types'
 import { useConfig } from '../../hooks/useConfig'
+import { useTranslation } from '../../hooks/useTranslation'
 import { EpubRenderer } from './EpubRenderer'
 import { ReaderLayout } from './ReaderLayout'
 import { TxtRenderer } from './TxtRenderer'
 
 type ReaderPageProps = {
+  backRef?: React.RefObject<(() => void | Promise<void>) | null>
   onBack: () => void
   onTitleChange?: (title: string) => void
+  onProgressChange?: (percentage: number) => void
 }
 
-export function ReaderPage({ onBack, onTitleChange }: ReaderPageProps) {
+export function ReaderPage({ backRef, onBack, onTitleChange, onProgressChange }: ReaderPageProps) {
   const { config, fallbackConfig, loading } = useConfig()
+  const { t } = useTranslation()
   const [book, setBook] = useState<BookRecord | null>(null)
   const [progress, setProgress] = useState<ReadingProgress | null>(null)
   const [txtContent, setTxtContent] = useState('')
@@ -117,6 +121,7 @@ export function ReaderPage({ onBack, onTitleChange }: ReaderPageProps) {
     const nextProgress: ReadingProgress = { bookId: book.id, ...patch }
     pendingTxtProgress.current = nextProgress
     setProgress(nextProgress)
+    onProgressChange?.(patch.percentage ?? nextProgress.percentage ?? 0)
     saveTimer.current = window.setTimeout(() => {
       pendingTxtProgress.current = null
       void window.api.saveProgress(nextProgress)
@@ -165,37 +170,39 @@ export function ReaderPage({ onBack, onTitleChange }: ReaderPageProps) {
     await backNavigation
   }
 
-  const readerTitle = book?.title ?? 'Reader'
+  // 暴露返回处理器给 AppFrame 的书架按钮
+  useEffect(() => {
+    if (backRef) {
+      backRef.current = handleBackToBookshelf
+    }
+  })
+
+  const readerTitle = book?.title ?? t('reader.title')
   const readerMeta = book
-    ? `${book.author || 'Unknown author'} · ${book.format.toUpperCase()}`
+    ? `${book.author || t('reader.unknownAuthor')} · ${book.format.toUpperCase()}`
     : loading || bookLoading
-      ? 'Loading selected book'
-      : 'No book selected'
+      ? t('reader.loadingMeta')
+      : t('reader.noBookMeta')
 
   useEffect(() => {
-    onTitleChange?.(book?.title ?? 'Reading')
-  }, [book?.title, onTitleChange])
+    onTitleChange?.(book?.title ?? t('app.readerTitle'))
+  }, [book?.title, onTitleChange, t])
 
   return (
-    <ReaderLayout
-      title={readerTitle}
-      meta={readerMeta}
-      backDisabled={isNavigatingBack}
-      onBack={handleBackToBookshelf}
-    >
+    <ReaderLayout title={readerTitle} meta={readerMeta}>
       {loading || bookLoading ? (
         <div className="reader-empty">
-          <p className="reader-empty__eyebrow">Reading</p>
-          <h1 className="reader-empty__title">Reader</h1>
-          <p className="reader-empty__subtitle">Preparing your selected book.</p>
-          <p className="reader-empty__message">Preparing reader...</p>
+          <p className="reader-empty__eyebrow">{t('reader.eyebrow')}</p>
+          <h1 className="reader-empty__title">{t('reader.title')}</h1>
+          <p className="reader-empty__subtitle">{t('reader.preparingSubtitle')}</p>
+          <p className="reader-empty__message">{t('reader.preparingMessage')}</p>
         </div>
       ) : !book ? (
         <div className="reader-empty">
-          <p className="reader-empty__eyebrow">Reading</p>
-          <h1 className="reader-empty__title">Reader</h1>
-          <p className="reader-empty__subtitle">Choose a book from your library to start reading.</p>
-          <p className="reader-empty__message">No book selected.</p>
+          <p className="reader-empty__eyebrow">{t('reader.eyebrow')}</p>
+          <h1 className="reader-empty__title">{t('reader.title')}</h1>
+          <p className="reader-empty__subtitle">{t('reader.noBookSubtitle')}</p>
+          <p className="reader-empty__message">{t('reader.noBookMessage')}</p>
         </div>
       ) : book.format === 'txt' ? (
         <TxtRenderer
@@ -217,6 +224,7 @@ export function ReaderPage({ onBack, onTitleChange }: ReaderPageProps) {
 
             const nextProgress: ReadingProgress = { bookId: book.id, ...patch }
             setProgress(nextProgress)
+            onProgressChange?.(patch.percentage ?? 0)
             void window.api.saveProgress(nextProgress)
           }}
         />
