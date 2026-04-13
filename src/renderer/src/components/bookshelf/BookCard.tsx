@@ -15,7 +15,7 @@ export function BookCard({ book, onOpen, onRemove }: BookCardProps) {
       <div className="book-card__meta">
         <div className="book-card__text">
           <strong>{book.title}</strong>
-          <span>{book.author}</span>
+          {book.author && book.author.toLowerCase() !== 'unknown' && <span>{book.author}</span>}
         </div>
         <div className="book-card__footer">
           <span className="book-card__format">{book.format.toUpperCase()}</span>

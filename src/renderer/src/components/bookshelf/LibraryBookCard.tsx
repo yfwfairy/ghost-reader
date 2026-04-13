@@ -12,6 +12,10 @@ type LibraryBookCardProps = {
   onRemove: (bookId: string) => Promise<void>
 }
 
+function isKnownAuthor(author: string | undefined): author is string {
+  return !!author && author.toLowerCase() !== 'unknown'
+}
+
 export function LibraryBookCard({ book, onOpen, onRemove }: LibraryBookCardProps) {
   return (
     <article className="library-book-card">
@@ -24,6 +28,11 @@ export function LibraryBookCard({ book, onOpen, onRemove }: LibraryBookCardProps
           )}
         </button>
         <div className="library-book-card__overlay" />
+        {book.wordCount != null && (
+          <span className="library-book-card__word-count">
+            {formatWordCount(book.wordCount)}
+          </span>
+        )}
         <button
           className="library-book-card__remove"
           type="button"
@@ -35,12 +44,7 @@ export function LibraryBookCard({ book, onOpen, onRemove }: LibraryBookCardProps
       </div>
       <button className="library-book-card__meta" type="button" onClick={() => void onOpen(book.id)}>
         <strong>{book.title}</strong>
-        <span>{book.author}</span>
-        {book.wordCount != null && (
-          <span className="library-book-card__word-count">
-            {formatWordCount(book.wordCount)}
-          </span>
-        )}
+        {isKnownAuthor(book.author) && <span>{book.author}</span>}
       </button>
     </article>
   )

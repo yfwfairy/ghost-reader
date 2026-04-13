@@ -56,6 +56,11 @@ export function registerIpcHandlers(windowManager: WindowManagerBridge) {
     progressStore.setAll(cleaned.progress)
   })
 
+  registerHandler('progress:reset', (_event, bookId: string) => {
+    const next = progressStore.getAll().filter((row) => row.bookId !== bookId)
+    progressStore.setAll(next)
+  })
+
   registerHandler('progress:get', (_event, bookId: string) => {
     return progressStore.getAll().find((row) => row.bookId === bookId) ?? null
   })

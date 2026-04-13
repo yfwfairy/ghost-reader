@@ -43,6 +43,11 @@ const en: Record<string, string> = {
   'recent.lastOpened': 'Last opened {0}',
   'recent.openAria': 'Open {0} in reader',
   'recent.preview': 'Preview',
+  'recent.manage': 'Manage',
+  'recent.exitManage': 'Exit',
+  'recent.selectAll': 'Select All',
+  'recent.deselectAll': 'Deselect All',
+  'recent.delete': 'Delete',
 
   // Library 页面
   'library.heading': 'Your Sanctuary',

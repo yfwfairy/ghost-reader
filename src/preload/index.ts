@@ -16,6 +16,7 @@ const api: GhostReaderApi = {
   getAllBooks: () => ipcRenderer.invoke('library:list'),
   importBooks: (paths) => ipcRenderer.invoke('library:import', paths),
   removeBook: (bookId) => ipcRenderer.invoke('library:remove', bookId),
+  resetProgress: (bookId) => ipcRenderer.invoke('progress:reset', bookId),
   readTxtFile: (filePath) => ipcRenderer.invoke('file:read-txt', filePath),
   readEpubFile: (filePath) => ipcRenderer.invoke('file:read-epub', filePath),
   getProgress: (bookId) => ipcRenderer.invoke('progress:get', bookId),

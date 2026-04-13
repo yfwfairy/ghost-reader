@@ -222,7 +222,7 @@ export function ReaderPage({ backRef, onBack, onTitleChange, immersive = false, 
 
   const readerTitle = book?.title ?? t('reader.title')
   const readerMeta = book
-    ? `${book.author || t('reader.unknownAuthor')} · ${book.format.toUpperCase()}`
+    ? [book.author && book.author.toLowerCase() !== 'unknown' ? book.author : '', book.format.toUpperCase()].filter(Boolean).join(' · ')
     : loading || bookLoading
       ? t('reader.loadingMeta')
       : t('reader.noBookMeta')

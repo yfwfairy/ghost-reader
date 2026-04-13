@@ -24,7 +24,7 @@ type BookshelfPageProps = {
 }
 
 export function BookshelfPage({ activeView, onChangeView, onOpenReader }: BookshelfPageProps) {
-  const { libraryBooks, recentBooks, loading, addBooks, removeBook } = useBookshelfData()
+  const { libraryBooks, recentBooks, loading, addBooks, removeBook, resetBooks } = useBookshelfData()
   const { config, fallbackConfig, updateConfig } = useConfig()
   const { t } = useTranslation()
   const [dragActive, setDragActive] = useState(false)
@@ -102,7 +102,7 @@ export function BookshelfPage({ activeView, onChangeView, onOpenReader }: Booksh
         {loading ? (
           <p className="bookshelf-status">{t('app.loading')}</p>
         ) : activeView === 'recent' ? (
-          <RecentView books={recentBooks} onOpen={handleOpen} onOpenLibrary={() => onChangeView('library')} />
+          <RecentView books={recentBooks} onOpen={handleOpen} onOpenLibrary={() => onChangeView('library')} resetBooks={resetBooks} />
         ) : (
           <LibraryView
             books={libraryBooks}

@@ -42,6 +42,11 @@ const zhTW: Record<string, string> = {
   'recent.lastOpened': '上次開啟 {0}',
   'recent.openAria': '在閱讀器中開啟 {0}',
   'recent.preview': '預覽',
+  'recent.manage': '管理',
+  'recent.exitManage': '退出管理',
+  'recent.selectAll': '全選',
+  'recent.deselectAll': '取消全選',
+  'recent.delete': '刪除',
 
   // Library 頁面
   'library.heading': '你的書殿',

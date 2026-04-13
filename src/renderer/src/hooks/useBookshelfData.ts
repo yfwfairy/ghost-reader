@@ -106,5 +106,14 @@ export function useBookshelfData() {
     }
   }
 
-  return { libraryBooks, recentBooks, loading, addBooks, removeBook }
+  async function resetBooks(bookIds: string[]) {
+    await Promise.all(bookIds.map((id) => window.api.resetProgress(id)))
+    setLibraryBooks((current) =>
+      current.map((book) =>
+        bookIds.includes(book.id) ? { ...book, progress: null } : book,
+      ),
+    )
+  }
+
+  return { libraryBooks, recentBooks, loading, addBooks, removeBook, resetBooks }
 }

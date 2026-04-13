@@ -50,6 +50,7 @@ export interface GhostReaderApi {
   getAllBooks: () => Promise<BookRecord[]>
   importBooks: (paths: string[]) => Promise<BookRecord[]>
   removeBook: (bookId: string) => Promise<void>
+  resetProgress: (bookId: string) => Promise<void>
   readTxtFile: (filePath: string) => Promise<string>
   readEpubFile: (filePath: string) => Promise<ArrayBuffer>
   getProgress: (bookId: string) => Promise<ReadingProgress | null>

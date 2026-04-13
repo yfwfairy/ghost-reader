@@ -42,6 +42,11 @@ const zh: Record<string, string> = {
   'recent.lastOpened': '上次打开 {0}',
   'recent.openAria': '在阅读器中打开 {0}',
   'recent.preview': '预览',
+  'recent.manage': '管理',
+  'recent.exitManage': '退出管理',
+  'recent.selectAll': '全选',
+  'recent.deselectAll': '取消全选',
+  'recent.delete': '删除',
 
   // Library 页面
   'library.heading': '书架',
