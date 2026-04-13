@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useRef } from 'react'
-import type { ReadingProgress } from '@shared/types'
+import type { ColorTheme, FontFamily, ReadingProgress } from '@shared/types'
+import { THEME_MAP } from '@shared/constants'
 
 type TxtRendererProps = {
   content: string
   config: {
     fontSize: number
     lineHeight: number
+    fontFamily: FontFamily
+    colorTheme: ColorTheme
   }
   savedProgress?: ReadingProgress | null
   onProgressUpdate: (patch: Pick<ReadingProgress, 'txtScrollTop' | 'percentage' | 'updatedAt'>) => void
@@ -38,7 +41,12 @@ export function TxtRenderer({ content, config, savedProgress, onProgressUpdate }
           updatedAt: Date.now(),
         })
       }}
-      style={{ fontSize: `${config.fontSize}px`, lineHeight: config.lineHeight }}
+      style={{
+        fontSize: `${config.fontSize}px`,
+        lineHeight: config.lineHeight,
+        fontFamily: `${config.fontFamily}, serif`,
+        color: THEME_MAP[config.colorTheme].text,
+      }}
     >
       {paragraphs.map((paragraph, index) => (
         <p key={`${index}-${paragraph.slice(0, 16)}`}>{paragraph}</p>

@@ -1,5 +1,10 @@
-import { useTranslation } from '../../hooks/useTranslation'
 import type { BookshelfBook } from '../../hooks/useBookshelfData'
+
+function formatWordCount(count: number) {
+  if (count < 1000) return `${count}字`
+  if (count < 10000) return `${(count / 1000).toFixed(1)}k字`
+  return `${(count / 10000).toFixed(2)}w字`
+}
 
 type LibraryBookCardProps = {
   book: BookshelfBook
@@ -8,9 +13,6 @@ type LibraryBookCardProps = {
 }
 
 export function LibraryBookCard({ book, onOpen, onRemove }: LibraryBookCardProps) {
-  const { t } = useTranslation()
-  const progress = book.progress
-
   return (
     <article className="library-book-card">
       <div className="library-book-card__cover">
@@ -25,7 +27,7 @@ export function LibraryBookCard({ book, onOpen, onRemove }: LibraryBookCardProps
         <button
           className="library-book-card__remove"
           type="button"
-          aria-label={t('library.removeAria', book.title)}
+          aria-label={`Remove ${book.title}`}
           onClick={() => void onRemove(book.id)}
         >
           <span className="material-symbols-outlined" aria-hidden="true">delete</span>
@@ -34,11 +36,11 @@ export function LibraryBookCard({ book, onOpen, onRemove }: LibraryBookCardProps
       <button className="library-book-card__meta" type="button" onClick={() => void onOpen(book.id)}>
         <strong>{book.title}</strong>
         <span>{book.author}</span>
-        {progress ? (
-          <div className="library-book-card__progress">
-            <span style={{ width: `${Math.round(progress.percentage * 100)}%` }} />
-          </div>
-        ) : null}
+        {book.wordCount != null && (
+          <span className="library-book-card__word-count">
+            {formatWordCount(book.wordCount)}
+          </span>
+        )}
       </button>
     </article>
   )

@@ -68,6 +68,21 @@ const zh: Record<string, string> = {
   'reader.chapters': '章节',
   'reader.appearance': '外观',
   'reader.progressRead': '{0}% 已读',
+  'reader.chaptersPlaceholder': '章节列表即将上线。',
+  'reader.appearancePlaceholder': '外观设置即将上线。',
+  'reader.noChapters': '暂无章节。',
+
+  // 抽屉弹窗
+  'drawer.titleChapters': '目录',
+  'drawer.titleAppearance': '显示设置',
+  'drawer.chaptersTotal': '个章节',
+
+  // 外观设置
+  'appearance.typography': '字体',
+  'appearance.fontSize': '字号',
+  'appearance.lineHeight': '行高',
+  'appearance.glassIntensity': '玻璃透明度',
+  'appearance.colorTheme': '主题色',
 
   // App 通用
   'app.title': 'Ghost Reader',
@@ -78,6 +93,8 @@ const zh: Record<string, string> = {
   'app.pin': '窗口置顶',
   'app.pinned': '已置顶',
   'app.pinLabel': '置顶',
+  'app.immersive': '进入沉浸模式',
+  'app.exitImmersive': '退出沉浸模式',
 }
 
 export default zh

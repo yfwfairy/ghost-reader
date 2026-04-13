@@ -1,6 +1,6 @@
 import { dialog, ipcMain } from 'electron'
 import type { AppConfig, ReadingProgress } from '@shared/types'
-import { buildBookRecord, pickSupportedPaths, readTxtFile } from './file-service'
+import { buildBookRecord, pickSupportedPaths, readEpubFile, readTxtFile } from './file-service'
 import {
   configStore,
   libraryStore,
@@ -12,6 +12,7 @@ import {
 type WindowManagerBridge = {
   setMainWindowAlwaysOnTop: (value: boolean) => AppConfig
   broadcastConfig: () => void
+  setMinimumSize: (width: number, height: number) => void
 }
 
 function registerHandler<Args extends unknown[], ReturnValue>(
@@ -78,8 +79,16 @@ export function registerIpcHandlers(windowManager: WindowManagerBridge) {
     return pickSupportedPaths(result.filePaths)
   })
   registerHandler('file:read-txt', (_event, filePath: string) => readTxtFile(filePath))
+  registerHandler('file:read-epub', async (_event, filePath: string) => {
+    const buffer = await readEpubFile(filePath)
+    return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength)
+  })
 
   registerHandler('window:set-always-on-top', (_event, value: boolean) =>
     windowManager.setMainWindowAlwaysOnTop(value),
   )
+
+  registerHandler('window:set-min-size', (_event, width: number, height: number) => {
+    windowManager.setMinimumSize(width, height)
+  })
 }

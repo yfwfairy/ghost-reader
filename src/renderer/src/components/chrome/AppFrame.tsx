@@ -3,15 +3,16 @@ import { useTranslation } from '../../hooks/useTranslation'
 
 type AppFrameProps = {
   title: string
-  progress?: number | null
   alwaysOnTop: boolean | null
   onToggleAlwaysOnTop: () => void | Promise<void>
   onBack?: () => void
   chromeless?: boolean
+  immersive?: boolean
+  onToggleImmersive?: () => void
   children: ReactNode
 }
 
-export function AppFrame({ title, progress, alwaysOnTop, onToggleAlwaysOnTop, onBack, chromeless = false, children }: AppFrameProps) {
+export function AppFrame({ title, alwaysOnTop, onToggleAlwaysOnTop, onBack, chromeless = false, immersive = false, onToggleImmersive, children }: AppFrameProps) {
   const { t } = useTranslation()
   const pinLoading = alwaysOnTop === null
   const pinAriaLabel = pinLoading
@@ -21,16 +22,25 @@ export function AppFrame({ title, progress, alwaysOnTop, onToggleAlwaysOnTop, on
       : t('app.pin')
 
   return (
-    <section className={`app-frame ${chromeless ? 'app-frame--chromeless' : ''}`}>
+    <section className={`app-frame ${chromeless ? 'app-frame--chromeless' : ''} ${immersive ? 'app-frame--immersive' : ''}`}>
       <header className="app-frame__titlebar">
         <div className="app-frame__titlebar-left" />
         <div className="app-frame__titlebar-center">
           <p className="app-frame__title">{title}</p>
-          {progress != null && (
-            <span className="app-frame__progress">{t('reader.progressRead', String(progress))}</span>
-          )}
         </div>
         <div className="app-frame__actions no-drag">
+          {onToggleImmersive && (
+            <button
+              className="app-frame__fullscreen"
+              type="button"
+              aria-label={immersive ? t('app.exitImmersive') : t('app.immersive')}
+              onClick={onToggleImmersive}
+            >
+              <span className="material-symbols-outlined" aria-hidden="true">
+                {immersive ? 'close_fullscreen' : 'open_in_full'}
+              </span>
+            </button>
+          )}
           <button
             className={`app-frame__pin ${alwaysOnTop ? 'app-frame__pin--active' : ''}`}
             type="button"

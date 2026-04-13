@@ -68,6 +68,21 @@ const zhTW: Record<string, string> = {
   'reader.chapters': '章節',
   'reader.appearance': '外觀',
   'reader.progressRead': '{0}% 已讀',
+  'reader.chaptersPlaceholder': '章節列表即將上線。',
+  'reader.appearancePlaceholder': '外觀設定即將上線。',
+  'reader.noChapters': '暫無章節。',
+
+  // 抽屜彈窗
+  'drawer.titleChapters': '目錄',
+  'drawer.titleAppearance': '顯示設定',
+  'drawer.chaptersTotal': '個章節',
+
+  // 外觀設定
+  'appearance.typography': '字體',
+  'appearance.fontSize': '字號',
+  'appearance.lineHeight': '行高',
+  'appearance.glassIntensity': '玻璃透明度',
+  'appearance.colorTheme': '主題色',
 
   // App 通用
   'app.title': 'Ghost Reader',
@@ -78,6 +93,8 @@ const zhTW: Record<string, string> = {
   'app.pin': '視窗置頂',
   'app.pinned': '已置頂',
   'app.pinLabel': '置頂',
+  'app.immersive': '進入沉浸模式',
+  'app.exitImmersive': '退出沉浸模式',
 }
 
 export default zhTW

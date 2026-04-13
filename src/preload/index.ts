@@ -17,10 +17,12 @@ const api: GhostReaderApi = {
   importBooks: (paths) => ipcRenderer.invoke('library:import', paths),
   removeBook: (bookId) => ipcRenderer.invoke('library:remove', bookId),
   readTxtFile: (filePath) => ipcRenderer.invoke('file:read-txt', filePath),
+  readEpubFile: (filePath) => ipcRenderer.invoke('file:read-epub', filePath),
   getProgress: (bookId) => ipcRenderer.invoke('progress:get', bookId),
   saveProgress: (payload) => ipcRenderer.invoke('progress:set', payload),
   openFileDialog: () => ipcRenderer.invoke('file:open-dialog'),
   setAlwaysOnTop: (value) => ipcRenderer.invoke('window:set-always-on-top', value),
+  setMinWindowSize: (width, height) => ipcRenderer.invoke('window:set-min-size', width, height),
 }
 
 contextBridge.exposeInMainWorld('api', api)

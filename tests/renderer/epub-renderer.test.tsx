@@ -25,6 +25,9 @@ const {
   const epubFactory = vi.fn(() => ({
     renderTo,
     destroy: bookDestroy,
+    loaded: {
+      navigation: Promise.resolve({ toc: [] }),
+    },
   }))
 
   return {
@@ -55,6 +58,8 @@ describe('EpubRenderer', () => {
         filePath="/tmp/example.epub"
         fontSize={18}
         lineHeight={1.8}
+        fontFamily="Newsreader"
+        colorTheme="obsidian"
         onProgressUpdate={vi.fn()}
       />,
     )
@@ -67,6 +72,8 @@ describe('EpubRenderer', () => {
         filePath="/tmp/example.epub"
         fontSize={18}
         lineHeight={1.8}
+        fontFamily="Newsreader"
+        colorTheme="obsidian"
         onProgressUpdate={vi.fn()}
       />,
     )
@@ -83,6 +90,8 @@ describe('EpubRenderer', () => {
         filePath="/tmp/example.epub"
         fontSize={18}
         lineHeight={1.8}
+        fontFamily="Newsreader"
+        colorTheme="obsidian"
         savedCfi="epubcfi(/6/2!/4/2/2)"
         onProgressUpdate={vi.fn()}
       />,
@@ -97,6 +106,8 @@ describe('EpubRenderer', () => {
         filePath="/tmp/example.epub"
         fontSize={18}
         lineHeight={1.8}
+        fontFamily="Newsreader"
+        colorTheme="obsidian"
         savedCfi="epubcfi(/6/2!/4/2/10)"
         onProgressUpdate={vi.fn()}
       />,

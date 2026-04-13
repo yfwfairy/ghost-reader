@@ -8,6 +8,9 @@ describe('App single-window shell', () => {
     let config = {
       fontSize: 16,
       lineHeight: 1.8,
+      fontFamily: 'Newsreader' as const,
+      glassIntensity: 85,
+      colorTheme: 'obsidian' as const,
       currentBookId: initialBookId,
       alwaysOnTop: false,
       language: 'en' as const,
@@ -40,6 +43,8 @@ describe('App single-window shell', () => {
         removeBook: vi.fn(),
         openFileDialog: vi.fn().mockResolvedValue([]),
         setAlwaysOnTop: vi.fn(),
+        setMinWindowSize: vi.fn(),
+        readEpubFile: vi.fn().mockResolvedValue(new ArrayBuffer(0)),
       },
     })
   }
@@ -48,6 +53,9 @@ describe('App single-window shell', () => {
     let config = {
       fontSize: 16,
       lineHeight: 1.8,
+      fontFamily: 'Newsreader' as const,
+      glassIntensity: 85,
+      colorTheme: 'obsidian' as const,
       currentBookId: initialBookId,
       alwaysOnTop: false,
       language: 'en' as const,
@@ -84,6 +92,8 @@ describe('App single-window shell', () => {
         removeBook: vi.fn(),
         openFileDialog: vi.fn().mockResolvedValue([]),
         setAlwaysOnTop: vi.fn(),
+        setMinWindowSize: vi.fn(),
+        readEpubFile: vi.fn().mockResolvedValue(new ArrayBuffer(0)),
       },
     })
 
@@ -182,6 +192,9 @@ describe('App single-window shell', () => {
       emitConfig({
         fontSize: 16,
         lineHeight: 1.8,
+        fontFamily: 'Newsreader' as const,
+        glassIntensity: 85,
+        colorTheme: 'obsidian' as const,
         currentBookId: 'book-1',
         alwaysOnTop: false,
         language: 'en' as const,
@@ -208,6 +221,9 @@ describe('App single-window shell', () => {
       emitConfig({
         fontSize: 16,
         lineHeight: 1.8,
+        fontFamily: 'Newsreader' as const,
+        glassIntensity: 85,
+        colorTheme: 'obsidian' as const,
         currentBookId: 'book-1',
         alwaysOnTop: false,
         language: 'en' as const,
@@ -225,6 +241,9 @@ describe('App single-window shell', () => {
       emitConfig({
         fontSize: 16,
         lineHeight: 1.8,
+        fontFamily: 'Newsreader' as const,
+        glassIntensity: 85,
+        colorTheme: 'obsidian' as const,
         currentBookId: 'book-1',
         alwaysOnTop: false,
         language: 'en' as const,
@@ -246,6 +265,9 @@ describe('App single-window shell', () => {
       emitConfig({
         fontSize: 16,
         lineHeight: 1.8,
+        fontFamily: 'Newsreader' as const,
+        glassIntensity: 85,
+        colorTheme: 'obsidian' as const,
         currentBookId: 'book-1',
         alwaysOnTop: false,
         language: 'en' as const,
@@ -272,6 +294,9 @@ describe('App single-window shell', () => {
     let resolveConfig: ((value: {
       fontSize: number
       lineHeight: number
+      fontFamily: 'Newsreader'
+      glassIntensity: number
+      colorTheme: 'obsidian'
       currentBookId: null
       alwaysOnTop: boolean
       language: 'en'
@@ -282,6 +307,9 @@ describe('App single-window shell', () => {
     const setAlwaysOnTop = vi.fn().mockImplementation(async (value: boolean) => ({
       fontSize: 16,
       lineHeight: 1.8,
+      fontFamily: 'Newsreader' as const,
+      glassIntensity: 85,
+      colorTheme: 'obsidian' as const,
       currentBookId: null,
       alwaysOnTop: value,
       language: 'en' as const,
@@ -301,6 +329,8 @@ describe('App single-window shell', () => {
         removeBook: vi.fn(),
         openFileDialog: vi.fn().mockResolvedValue([]),
         setAlwaysOnTop,
+        setMinWindowSize: vi.fn(),
+        readEpubFile: vi.fn().mockResolvedValue(new ArrayBuffer(0)),
       },
     })
 
@@ -314,6 +344,9 @@ describe('App single-window shell', () => {
     resolveConfig?.({
       fontSize: 16,
       lineHeight: 1.8,
+      fontFamily: 'Newsreader' as const,
+      glassIntensity: 85,
+      colorTheme: 'obsidian' as const,
       currentBookId: null,
       alwaysOnTop: true,
       language: 'en' as const,

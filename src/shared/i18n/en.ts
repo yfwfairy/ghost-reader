@@ -69,6 +69,21 @@ const en: Record<string, string> = {
   'reader.chapters': 'Chapters',
   'reader.appearance': 'Appearance',
   'reader.progressRead': '{0}% READ',
+  'reader.chaptersPlaceholder': 'Chapter list coming soon.',
+  'reader.appearancePlaceholder': 'Appearance settings coming soon.',
+  'reader.noChapters': 'No chapters available.',
+
+  // 抽屉弹窗
+  'drawer.titleChapters': 'Table of Contents',
+  'drawer.titleAppearance': 'Display Settings',
+  'drawer.chaptersTotal': 'Chapters Total',
+
+  // 外观设置
+  'appearance.typography': 'Typography',
+  'appearance.fontSize': 'Font Size',
+  'appearance.lineHeight': 'Line Height',
+  'appearance.glassIntensity': 'Glass Intensity',
+  'appearance.colorTheme': 'Color Theme',
 
   // App 通用
   'app.title': 'Ghost Reader',
@@ -79,6 +94,8 @@ const en: Record<string, string> = {
   'app.pin': 'Pin window',
   'app.pinned': 'Pinned',
   'app.pinLabel': 'Pin',
+  'app.immersive': 'Enter immersive mode',
+  'app.exitImmersive': 'Exit immersive mode',
 }
 
 export default en

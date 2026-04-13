@@ -38,7 +38,7 @@ describe('RecentView', () => {
     expect(screen.getByRole('heading', { level: 2, name: 'Recent Encounters' })).toBeInTheDocument()
     expect(screen.getByText('Resuming your nocturnal drifts.')).toBeInTheDocument()
     expect(screen.getByText('Most Recent')).toBeInTheDocument()
-    expect(screen.getByText('80% read')).toBeInTheDocument()
+    expect(screen.getByText('80%')).toBeInTheDocument()
     expect(screen.getByText('Last opened 2024-03-10')).toBeInTheDocument()
   })
 

@@ -7,6 +7,7 @@ export interface BookRecord {
   format: BookFormat
   filePath: string
   coverDataUrl?: string
+  wordCount?: number
   importedAt: number
   updatedAt: number
 }
@@ -19,11 +20,23 @@ export interface ReadingProgress {
   epubCfi?: string
 }
 
+export interface TocEntry {
+  id: string
+  href: string
+  label: string
+  subitems?: TocEntry[]
+}
+
 export type Locale = 'en' | 'zh' | 'zh-TW'
+export type FontFamily = 'Newsreader' | 'Manrope' | 'Inter' | 'Lora' | 'Merriweather'
+export type ColorTheme = 'obsidian' | 'parchment' | 'midnight' | 'onyx' | 'ember' | 'forest' | 'ocean' | 'slate'
 
 export interface AppConfig {
   fontSize: number
   lineHeight: number
+  fontFamily: FontFamily
+  glassIntensity: number
+  colorTheme: ColorTheme
   currentBookId: string | null
   alwaysOnTop: boolean
   language: Locale
@@ -37,8 +50,10 @@ export interface GhostReaderApi {
   importBooks: (paths: string[]) => Promise<BookRecord[]>
   removeBook: (bookId: string) => Promise<void>
   readTxtFile: (filePath: string) => Promise<string>
+  readEpubFile: (filePath: string) => Promise<ArrayBuffer>
   getProgress: (bookId: string) => Promise<ReadingProgress | null>
   saveProgress: (payload: ReadingProgress) => Promise<ReadingProgress>
   openFileDialog: () => Promise<string[]>
   setAlwaysOnTop: (value: boolean) => Promise<AppConfig>
+  setMinWindowSize: (width: number, height: number) => Promise<void>
 }

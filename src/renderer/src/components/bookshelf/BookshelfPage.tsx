@@ -13,9 +13,9 @@ function getDroppedPaths(fileList: FileList) {
     .filter((path): path is string => Boolean(path))
 }
 
-const SIDEBAR_MIN = 220
-const SIDEBAR_MAX = 420
-const SIDEBAR_DEFAULT = 288
+const SIDEBAR_MIN = 200
+const SIDEBAR_MAX = 300
+const SIDEBAR_DEFAULT = 250
 
 type BookshelfPageProps = {
   activeView: 'recent' | 'library'

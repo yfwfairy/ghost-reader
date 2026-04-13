@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import type { BookRecord, ReadingProgress } from '@shared/types'
+import type { BookRecord, ReadingProgress, TocEntry } from '@shared/types'
+import { THEME_MAP, hexToRgbTriplet } from '@shared/constants'
 import { useConfig } from '../../hooks/useConfig'
 import { useTranslation } from '../../hooks/useTranslation'
 import { EpubRenderer } from './EpubRenderer'
@@ -10,16 +11,19 @@ type ReaderPageProps = {
   backRef?: React.RefObject<(() => void | Promise<void>) | null>
   onBack: () => void
   onTitleChange?: (title: string) => void
-  onProgressChange?: (percentage: number) => void
+  immersive?: boolean
+  onExitImmersive?: () => void
 }
 
-export function ReaderPage({ backRef, onBack, onTitleChange, onProgressChange }: ReaderPageProps) {
+export function ReaderPage({ backRef, onBack, onTitleChange, immersive = false, onExitImmersive }: ReaderPageProps) {
   const { config, fallbackConfig, loading } = useConfig()
   const { t } = useTranslation()
   const [book, setBook] = useState<BookRecord | null>(null)
   const [progress, setProgress] = useState<ReadingProgress | null>(null)
   const [txtContent, setTxtContent] = useState('')
+  const [epubData, setEpubData] = useState<ArrayBuffer | null>(null)
   const [bookLoading, setBookLoading] = useState(true)
+  const [toc, setToc] = useState<TocEntry[]>([])
   const [isNavigatingBack, setIsNavigatingBack] = useState(false)
   const saveTimer = useRef<ReturnType<typeof window.setTimeout> | null>(null)
   const pendingTxtProgress = useRef<ReadingProgress | null>(null)
@@ -35,8 +39,19 @@ export function ReaderPage({ backRef, onBack, onTitleChange, onProgressChange }:
       mountedRef.current = false
       delete document.documentElement.dataset.appMode
       delete document.body.dataset.appMode
+      delete document.documentElement.dataset.colorTheme
     }
   }, [])
+
+  // 同步 colorTheme 到 CSS 变量和 HTML 属性
+  useEffect(() => {
+    const theme = THEME_MAP[activeConfig.colorTheme]
+    const root = document.documentElement
+    root.dataset.colorTheme = activeConfig.colorTheme
+    root.style.setProperty('--theme-bg', hexToRgbTriplet(theme.bg))
+    root.style.setProperty('--theme-text', hexToRgbTriplet(theme.text))
+    root.style.setProperty('--theme-accent', hexToRgbTriplet(theme.accent))
+  }, [activeConfig.colorTheme])
 
   useEffect(() => {
     if (loading) {
@@ -44,6 +59,7 @@ export function ReaderPage({ backRef, onBack, onTitleChange, onProgressChange }:
       setBook(null)
       setProgress(null)
       setTxtContent('')
+      setEpubData(null)
       return
     }
 
@@ -52,6 +68,7 @@ export function ReaderPage({ backRef, onBack, onTitleChange, onProgressChange }:
       setBook(null)
       setProgress(null)
       setTxtContent('')
+      setEpubData(null)
       return
     }
 
@@ -71,6 +88,7 @@ export function ReaderPage({ backRef, onBack, onTitleChange, onProgressChange }:
       if (!currentBook) {
         setProgress(null)
         setTxtContent('')
+        setEpubData(null)
         setBookLoading(false)
         return
       }
@@ -86,11 +104,16 @@ export function ReaderPage({ backRef, onBack, onTitleChange, onProgressChange }:
         const content = await window.api.readTxtFile(currentBook.filePath)
         if (!cancelled) {
           setTxtContent(content)
+          setEpubData(null)
           setBookLoading(false)
         }
       } else {
-        setTxtContent('')
-        setBookLoading(false)
+        const data = await window.api.readEpubFile(currentBook.filePath)
+        if (!cancelled) {
+          setEpubData(data)
+          setTxtContent('')
+          setBookLoading(false)
+        }
       }
     }
 
@@ -121,7 +144,6 @@ export function ReaderPage({ backRef, onBack, onTitleChange, onProgressChange }:
     const nextProgress: ReadingProgress = { bookId: book.id, ...patch }
     pendingTxtProgress.current = nextProgress
     setProgress(nextProgress)
-    onProgressChange?.(patch.percentage ?? nextProgress.percentage ?? 0)
     saveTimer.current = window.setTimeout(() => {
       pendingTxtProgress.current = null
       void window.api.saveProgress(nextProgress)
@@ -189,7 +211,7 @@ export function ReaderPage({ backRef, onBack, onTitleChange, onProgressChange }:
   }, [book?.title, onTitleChange, t])
 
   return (
-    <ReaderLayout title={readerTitle} meta={readerMeta}>
+    <ReaderLayout title={readerTitle} meta={readerMeta} toc={toc} progress={progress?.percentage ?? null} immersive={immersive} onExitImmersive={onExitImmersive}>
       {loading || bookLoading ? (
         <div className="reader-empty">
           <p className="reader-empty__eyebrow">{t('reader.eyebrow')}</p>
@@ -207,16 +229,24 @@ export function ReaderPage({ backRef, onBack, onTitleChange, onProgressChange }:
       ) : book.format === 'txt' ? (
         <TxtRenderer
           content={txtContent}
-          config={{ fontSize: activeConfig.fontSize, lineHeight: activeConfig.lineHeight }}
+          config={{
+            fontSize: activeConfig.fontSize,
+            lineHeight: activeConfig.lineHeight,
+            fontFamily: activeConfig.fontFamily,
+            colorTheme: activeConfig.colorTheme,
+          }}
           savedProgress={progress}
           onProgressUpdate={saveProgressLater}
         />
-      ) : (
+      ) : book.format === 'epub' && epubData ? (
         <EpubRenderer
-          filePath={book.filePath}
+          bookData={epubData}
           fontSize={activeConfig.fontSize}
           lineHeight={activeConfig.lineHeight}
+          fontFamily={activeConfig.fontFamily}
+          colorTheme={activeConfig.colorTheme}
           savedCfi={progress?.epubCfi}
+          onTocLoaded={setToc}
           onProgressUpdate={(patch) => {
             if (!book) {
               return
@@ -224,11 +254,10 @@ export function ReaderPage({ backRef, onBack, onTitleChange, onProgressChange }:
 
             const nextProgress: ReadingProgress = { bookId: book.id, ...patch }
             setProgress(nextProgress)
-            onProgressChange?.(patch.percentage ?? 0)
             void window.api.saveProgress(nextProgress)
           }}
         />
-      )}
+      ) : null}
     </ReaderLayout>
   )
 }

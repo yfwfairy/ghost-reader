@@ -1,9 +1,26 @@
 import '@testing-library/jest-dom/vitest'
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ReaderLayout } from '../../src/renderer/src/components/reader/ReaderLayout'
 
 describe('ReaderLayout', () => {
+  beforeEach(() => {
+    Object.defineProperty(window, 'api', {
+      configurable: true,
+      value: {
+        getConfig: vi.fn().mockResolvedValue({
+          fontSize: 16,
+          lineHeight: 1.8,
+          currentBookId: null,
+          alwaysOnTop: false,
+          language: 'en',
+        }),
+        onConfigChanged: vi.fn(() => vi.fn()),
+        setConfig: vi.fn(),
+      },
+    })
+  })
+
   it('renders reader shell with content area and no toolbar', () => {
     render(
       <ReaderLayout title="Example Book" meta="Ghost Author · EPUB">

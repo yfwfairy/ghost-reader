@@ -15,7 +15,7 @@ function AppInner() {
   const [page, setPage] = useState<AppPage>('home')
   const [homeView, setHomeView] = useState<HomeView>('library')
   const [readerTitle, setReaderTitle] = useState(t('app.readerTitle'))
-  const [readerProgress, setReaderProgress] = useState<number | null>(null)
+  const [immersive, setImmersive] = useState(false)
   const lastObservedBookId = useRef<string | null | undefined>(undefined)
   const readerBackRef = useRef<(() => void | Promise<void>) | null>(null)
   const activeConfig = config ?? fallbackConfig
@@ -32,6 +32,7 @@ function AppInner() {
     if (previousBookId === undefined) {
       // 始终从首页进入，不自动恢复阅读器
       setPage('home')
+      void window.api.setMinWindowSize(800, 450)
       return
     }
 
@@ -41,16 +42,22 @@ function AppInner() {
 
     setReaderTitle(t('app.readerTitle'))
     setPage(currentBookId ? 'reader' : 'home')
+    if (currentBookId) {
+      void window.api.setMinWindowSize(300, 200)
+    } else {
+      void window.api.setMinWindowSize(800, 450)
+    }
   }, [config, t])
 
   return (
     <AppFrame
       title={page === 'home' ? t('app.title') : readerTitle}
-      progress={page === 'reader' ? readerProgress : undefined}
       alwaysOnTop={config ? config.alwaysOnTop : null}
       onToggleAlwaysOnTop={() => void window.api.setAlwaysOnTop(!activeConfig.alwaysOnTop)}
       onBack={page === 'reader' ? () => void readerBackRef.current?.() : undefined}
       chromeless={page === 'home'}
+      immersive={page === 'reader' && immersive}
+      onToggleImmersive={page === 'reader' ? () => setImmersive((prev) => !prev) : undefined}
     >
       {page === 'home' ? (
         <BookshelfPage
@@ -58,8 +65,8 @@ function AppInner() {
           onChangeView={setHomeView}
           onOpenReader={() => {
             setReaderTitle(t('app.readerTitle'))
-            setReaderProgress(null)
             setPage('reader')
+            void window.api.setMinWindowSize(300, 200)
           }}
         />
       ) : (
@@ -67,11 +74,13 @@ function AppInner() {
           backRef={readerBackRef}
           onBack={() => {
             void window.api.setAlwaysOnTop(false)
-            setReaderProgress(null)
+            setImmersive(false)
             setPage('home')
+            void window.api.setMinWindowSize(800, 450)
           }}
           onTitleChange={(nextTitle) => setReaderTitle(nextTitle)}
-          onProgressChange={setReaderProgress}
+          immersive={immersive}
+          onExitImmersive={() => setImmersive(false)}
         />
       )}
     </AppFrame>

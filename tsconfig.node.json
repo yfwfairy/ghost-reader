@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@shared/*": ["src/shared/*"]
+    },
     "composite": true,
     "tsBuildInfoFile": "./.typecheck/tsconfig.node.tsbuildinfo",
     "outDir": "./.typecheck/node",

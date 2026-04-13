@@ -45,6 +45,21 @@ export class WindowManager {
     return next
   }
 
+  setMinimumSize(width: number, height: number) {
+    if (!this.bookshelfWindow) {
+      return
+    }
+    this.bookshelfWindow.setMinimumSize(width, height)
+
+    // 如果当前窗口尺寸小于新下限，自动扩大
+    const [currentWidth, currentHeight] = this.bookshelfWindow.getSize()
+    const newWidth = Math.max(currentWidth, width)
+    const newHeight = Math.max(currentHeight, height)
+    if (newWidth !== currentWidth || newHeight !== currentHeight) {
+      this.bookshelfWindow.setSize(newWidth, newHeight)
+    }
+  }
+
   broadcastConfig() {
     const config = configStore.get()
     this.bookshelfWindow?.webContents.send('config:changed', config)

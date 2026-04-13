@@ -8,6 +8,9 @@ import { ReaderPage } from '../../src/renderer/src/components/reader/ReaderPage'
 const baseConfig: AppConfig = {
   fontSize: 18,
   lineHeight: 1.9,
+  fontFamily: 'Newsreader',
+  glassIntensity: 85,
+  colorTheme: 'obsidian',
   currentBookId: null,
   alwaysOnTop: false,
   language: 'en',
@@ -44,6 +47,8 @@ describe('ReaderPage', () => {
         importBooks: vi.fn(),
         removeBook: vi.fn(),
         setAlwaysOnTop: vi.fn(),
+        setMinWindowSize: vi.fn(),
+        readEpubFile: vi.fn().mockResolvedValue(new ArrayBuffer(0)),
       },
     })
 
@@ -89,6 +94,8 @@ describe('ReaderPage', () => {
         importBooks: vi.fn(),
         removeBook: vi.fn(),
         setAlwaysOnTop: vi.fn(),
+        setMinWindowSize: vi.fn(),
+        readEpubFile: vi.fn().mockResolvedValue(new ArrayBuffer(0)),
       },
     })
 
@@ -132,6 +139,8 @@ describe('ReaderPage', () => {
         importBooks: vi.fn(),
         removeBook: vi.fn(),
         setAlwaysOnTop: vi.fn(),
+        setMinWindowSize: vi.fn(),
+        readEpubFile: vi.fn().mockResolvedValue(new ArrayBuffer(0)),
       },
     })
 
@@ -197,6 +206,8 @@ describe('ReaderPage', () => {
         importBooks: vi.fn(),
         removeBook: vi.fn(),
         setAlwaysOnTop: vi.fn(),
+        setMinWindowSize: vi.fn(),
+        readEpubFile: vi.fn().mockResolvedValue(new ArrayBuffer(0)),
       },
     })
 
@@ -253,6 +264,8 @@ describe('ReaderPage', () => {
         importBooks: vi.fn(),
         removeBook: vi.fn(),
         setAlwaysOnTop: vi.fn(),
+        setMinWindowSize: vi.fn(),
+        readEpubFile: vi.fn().mockResolvedValue(new ArrayBuffer(0)),
       },
     })
 
