@@ -22,7 +22,7 @@ function formatLastOpened(updatedAt: number) {
 
 export function RecentBookCard({ book, onOpen }: RecentBookCardProps) {
   const { t } = useTranslation()
-  const progressPercentage = clampPercentage(Math.round((book.progress?.percentage ?? 0) * 100))
+  const progressPercentage = clampPercentage(book.progress?.percentage ?? 0)
   const lastOpenedLabel = formatLastOpened(book.progress?.updatedAt ?? book.updatedAt)
 
   return (

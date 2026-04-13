@@ -71,6 +71,8 @@ const zhTW: Record<string, string> = {
   'reader.chaptersPlaceholder': '章節列表即將上線。',
   'reader.appearancePlaceholder': '外觀設定即將上線。',
   'reader.noChapters': '暫無章節。',
+  'reader.prevChapter': '上一章',
+  'reader.nextChapter': '下一章',
 
   // 抽屜彈窗
   'drawer.titleChapters': '目錄',

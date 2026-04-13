@@ -22,9 +22,13 @@ const {
     destroy: renditionDestroy,
   }))
   const bookDestroy = vi.fn()
+  const spineEach = vi.fn()
   const epubFactory = vi.fn(() => ({
     renderTo,
     destroy: bookDestroy,
+    ready: Promise.resolve(),
+    spine: { each: spineEach, length: 0 },
+    locations: { generate: vi.fn(() => Promise.resolve([])) },
     loaded: {
       navigation: Promise.resolve({ toc: [] }),
     },
@@ -48,6 +52,8 @@ vi.mock('epubjs', () => ({
 import { EpubRenderer } from '../../src/renderer/src/components/reader/EpubRenderer'
 
 describe('EpubRenderer', () => {
+  const bookData = new ArrayBuffer(8)
+
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -55,7 +61,7 @@ describe('EpubRenderer', () => {
   it('does not recreate the epub rendition when the progress callback identity changes', () => {
     const { rerender } = render(
       <EpubRenderer
-        filePath="/tmp/example.epub"
+        bookData={bookData}
         fontSize={18}
         lineHeight={1.8}
         fontFamily="Newsreader"
@@ -69,7 +75,7 @@ describe('EpubRenderer', () => {
 
     rerender(
       <EpubRenderer
-        filePath="/tmp/example.epub"
+        bookData={bookData}
         fontSize={18}
         lineHeight={1.8}
         fontFamily="Newsreader"
@@ -87,7 +93,7 @@ describe('EpubRenderer', () => {
   it('does not recreate the epub rendition when saved cfi changes', () => {
     const { rerender } = render(
       <EpubRenderer
-        filePath="/tmp/example.epub"
+        bookData={bookData}
         fontSize={18}
         lineHeight={1.8}
         fontFamily="Newsreader"
@@ -103,7 +109,7 @@ describe('EpubRenderer', () => {
 
     rerender(
       <EpubRenderer
-        filePath="/tmp/example.epub"
+        bookData={bookData}
         fontSize={18}
         lineHeight={1.8}
         fontFamily="Newsreader"

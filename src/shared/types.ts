@@ -18,6 +18,7 @@ export interface ReadingProgress {
   updatedAt: number
   txtScrollTop?: number
   epubCfi?: string
+  chapterProgress?: Record<string, number>
 }
 
 export interface TocEntry {

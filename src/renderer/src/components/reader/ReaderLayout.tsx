@@ -9,8 +9,11 @@ type ReaderLayoutProps = PropsWithChildren<{
   meta?: string
   toc?: TocEntry[]
   progress?: number | null
+  chapterProgressMap?: Record<string, number>
+  currentChapterHref?: string | null
   immersive?: boolean
   onExitImmersive?: () => void
+  onChapterSelect?: (href: string) => void
 }>
 
 export function ReaderLayout({
@@ -18,8 +21,11 @@ export function ReaderLayout({
   meta,
   toc,
   progress,
+  chapterProgressMap,
+  currentChapterHref,
   immersive = false,
   onExitImmersive,
+  onChapterSelect,
   children,
 }: ReaderLayoutProps) {
   const { t } = useTranslation()
@@ -63,6 +69,12 @@ export function ReaderLayout({
         onTabChange={setDrawerTab}
         onClose={() => setDrawerOpen(false)}
         toc={toc}
+        chapterProgressMap={chapterProgressMap}
+        currentChapterHref={currentChapterHref}
+        onChapterSelect={onChapterSelect ? (href: string) => {
+          onChapterSelect(href)
+          setDrawerOpen(false)
+        } : undefined}
       />
 
       {/* 底部导航栏 */}

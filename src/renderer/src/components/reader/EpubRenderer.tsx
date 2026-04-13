@@ -1,7 +1,8 @@
-import { useEffect, useEffectEvent, useRef } from 'react'
+import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import ePub from 'epubjs'
 import type { ColorTheme, FontFamily, ReadingProgress, TocEntry } from '@shared/types'
 import { THEME_MAP } from '@shared/constants'
+import { useTranslation } from '../../hooks/useTranslation'
 
 type EpubRendererProps = {
   bookData: ArrayBuffer
@@ -10,8 +11,11 @@ type EpubRendererProps = {
   fontFamily: FontFamily
   colorTheme: ColorTheme
   savedCfi?: string
+  displayRef?: React.RefObject<((href: string, scrollPct?: number) => void) | null>
   onProgressUpdate: (patch: Pick<ReadingProgress, 'epubCfi' | 'percentage' | 'updatedAt'>) => void
+  onChapterScroll?: (chapterHref: string, percent: number) => void
   onTocLoaded?: (toc: TocEntry[]) => void
+  onSpineReady?: (spineHrefs: string[]) => void
 }
 
 // 将 epubjs NavItem 映射为 TocEntry
@@ -33,8 +37,11 @@ export function EpubRenderer({
   fontFamily,
   colorTheme,
   savedCfi,
+  displayRef,
   onProgressUpdate,
+  onChapterScroll,
   onTocLoaded,
+  onSpineReady,
 }: EpubRendererProps) {
   const mountRef = useRef<HTMLDivElement | null>(null)
   const renditionRef = useRef<ReturnType<ReturnType<typeof ePub>['renderTo']> | null>(null)
@@ -43,10 +50,31 @@ export function EpubRenderer({
   const lineHeightRef = useRef(lineHeight)
   const fontFamilyRef = useRef(fontFamily)
   const colorThemeRef = useRef(colorTheme)
+  const currentChapterRef = useRef({ href: '', index: 0 })
+  const [hasPrev, setHasPrev] = useState(false)
+  const [hasNext, setHasNext] = useState(false)
+  const [chapterPercent, setChapterPercent] = useState(0)
+  const chapterRenderedRef = useRef(false)
+  const { t } = useTranslation()
   const handleProgressUpdate = useEffectEvent(onProgressUpdate)
+  const handleChapterScroll = useEffectEvent((href: string, pct: number) => {
+    onChapterScroll?.(href, pct)
+  })
   const handleTocLoaded = useEffectEvent((toc: TocEntry[]) => {
     onTocLoaded?.(toc)
   })
+  const handleSpineReady = useEffectEvent((spineHrefs: string[]) => {
+    onSpineReady?.(spineHrefs)
+  })
+
+  // 计算章节内滚动进度
+  function computeScrollPercent(el: HTMLElement, rendered: boolean) {
+    const { scrollTop, scrollHeight, clientHeight } = el
+    const maxScroll = scrollHeight - clientHeight
+    // 内容未渲染完成时 scrollHeight === clientHeight，返回 0 而非 100
+    if (maxScroll <= 0) return rendered ? 100 : 0
+    return Math.min(100, Math.round((scrollTop / maxScroll) * 100))
+  }
 
   // 创建 rendition（仅 bookData 变化时重建）
   useEffect(() => {
@@ -54,14 +82,29 @@ export function EpubRenderer({
       return
     }
 
+    let cancelled = false
+    const mount = mountRef.current
     const book = ePub(bookData)
-    const rendition = book.renderTo(mountRef.current, {
+    const rendition = book.renderTo(mount, {
       width: '100%',
       height: '100%',
       flow: 'scrolled-doc',
       spread: 'none',
     })
     renditionRef.current = rendition
+
+    // 记录目录跳转时的目标滚动百分比
+    const pendingScrollPct = { value: null as number | null }
+
+    // 暴露导航方法给外部
+    if (displayRef) {
+      displayRef.current = (href: string, scrollPct?: number) => {
+        pendingScrollPct.value = scrollPct ?? null
+        // 立即标记未渲染，防止卸载旧章节时 onScroll 误算 100%
+        chapterRenderedRef.current = false
+        void rendition.display(href)
+      }
+    }
 
     // 使用 ref 中的最新值设置初始主题
     rendition.themes.default({
@@ -76,12 +119,124 @@ export function EpubRenderer({
 
     lastDisplayedCfiRef.current = savedCfi
     void rendition.display(savedCfi)
-    rendition.on('relocated', (location: { start: { cfi: string; percentage: number } }) => {
+
+    // 生成位置索引以获取精确的全书进度百分比
+    // （epubjs 的 location.start.percentage 依赖此步骤，否则永远返回 0）
+    book.ready
+      .then(() => {
+        // 收集 spine hrefs 用于加权全书进度计算
+        const spine = book.spine as unknown as { each: (fn: (item: { href: string }) => void) => void }
+        const hrefs: string[] = []
+        spine.each((item) => hrefs.push(item.href))
+        handleSpineReady(hrefs)
+
+        return (book.locations as unknown as { generate: (chars: number) => Promise<string[]> }).generate(1600)
+      })
+      .then(() => {
+        if (cancelled) return
+          // 重新上报当前位置，此时 percentage 基于精确的 locations
+          ; (rendition as unknown as { reportLocation: () => void }).reportLocation()
+      })
+      .catch(() => { /* 忽略 locations 生成失败 */ })
+
+    // epubjs 异步在 mount 内创建 .epub-container 作为真正的滚动容器
+    // 需要在 relocated 中延迟查找并绑定
+    const scrollState = { el: null as HTMLElement | null }
+    let rafId = 0
+    let scrollRafId = 0
+
+    // 滚动事件处理（rAF 节流）
+    // 章节过渡期间（chapterRenderedRef === false）完全跳过，
+    // 防止旧内容卸载导致 scrollTop/maxScroll 比值虚高覆盖真实进度
+    function onScroll() {
+      cancelAnimationFrame(scrollRafId)
+      scrollRafId = requestAnimationFrame(() => {
+        const el = scrollState.el
+        if (!el || !chapterRenderedRef.current) return
+        const pct = computeScrollPercent(el, true)
+        setChapterPercent(pct)
+        if (currentChapterRef.current.href) {
+          handleChapterScroll(currentChapterRef.current.href, pct)
+        }
+      })
+    }
+
+    // 章节变更 + 进度上报
+    let lastRelocatedIdx = -1
+    rendition.on('relocated', (location: { start: { cfi: string; percentage: number; index: number } }) => {
+      // 同步 lastDisplayedCfi，防止 savedCfi useEffect 将自身上报的 CFI 再次 display 形成反馈循环
+      lastDisplayedCfiRef.current = location.start.cfi
+
+      // 延迟查找 .epub-container（epubjs 异步创建，首次 relocated 时已在 DOM 中）
+      if (!scrollState.el) {
+        const container = mount.querySelector('.epub-container') as HTMLElement | null
+        if (container) {
+          scrollState.el = container
+          container.addEventListener('scroll', onScroll, { passive: true })
+        }
+      }
+
+      const spineLength = (book.spine as unknown as { length: number }).length
+      const idx = location.start.index
+      currentChapterRef.current = {
+        href: (book.spine as unknown as { get: (i: number) => { href: string } | undefined }).get(idx)?.href ?? '',
+        index: idx,
+      }
+      setHasPrev(idx > 0)
+      setHasNext(idx < spineLength - 1)
+
+      // 上报全书进度（locations 就绪前用 spine 粗略估算）
+      const locPct = location.start.percentage
+      const globalPct = locPct > 0
+        ? Math.round(locPct * 100)
+        : Math.round((idx / Math.max(1, spineLength)) * 100)
+
       handleProgressUpdate({
         epubCfi: location.start.cfi,
-        percentage: Math.round(location.start.percentage * 100),
+        percentage: globalPct,
         updatedAt: Date.now(),
       })
+
+      // 仅在章节真正切换时重置进度并轮询布局完成
+      // scrolled-doc 模式下 relocated 在同章节滚动时也会频繁触发，
+      // 若每次都 setChapterPercent(0) 会导致 React 反复重渲染引起页面抖动
+      const chapterChanged = idx !== lastRelocatedIdx
+      lastRelocatedIdx = idx
+
+      if (chapterChanged) {
+        chapterRenderedRef.current = false
+        setChapterPercent(0)
+
+        // 取出并清空待恢复的滚动位置（仅目录跳转时有值）
+        const targetScrollPct = pendingScrollPct.value
+        pendingScrollPct.value = null
+
+        const target = scrollState.el
+        if (!target) return
+
+        cancelAnimationFrame(rafId)
+        const start = performance.now()
+        function poll() {
+          const maxScroll = target!.scrollHeight - target!.clientHeight
+          if (maxScroll > 0 || performance.now() - start > 2000) {
+            chapterRenderedRef.current = true
+            // 目录跳转时恢复到上次阅读位置，上/下一章从开头开始
+            if (targetScrollPct != null && targetScrollPct > 0 && maxScroll > 0) {
+              target!.scrollTop = Math.round((targetScrollPct / 100) * maxScroll)
+            } else {
+              target!.scrollTop = 0
+            }
+            const pct = computeScrollPercent(target!, true)
+            setChapterPercent(pct)
+            if (currentChapterRef.current.href) {
+              handleChapterScroll(currentChapterRef.current.href, pct)
+            }
+            return
+          }
+          rafId = requestAnimationFrame(poll)
+        }
+        rafId = requestAnimationFrame(poll)
+      }
     })
 
     // 加载目录
@@ -90,8 +245,16 @@ export function EpubRenderer({
     })
 
     return () => {
+      cancelled = true
+      cancelAnimationFrame(rafId)
+      cancelAnimationFrame(scrollRafId)
+      if (scrollState.el) scrollState.el.removeEventListener('scroll', onScroll)
       renditionRef.current = null
       lastDisplayedCfiRef.current = undefined
+      currentChapterRef.current = { href: '', index: 0 }
+      if (displayRef) {
+        displayRef.current = null
+      }
       rendition.destroy()
       book.destroy()
     }
@@ -126,5 +289,37 @@ export function EpubRenderer({
     void renditionRef.current.display(savedCfi)
   }, [savedCfi])
 
-  return <div ref={mountRef} className="epub-renderer" />
+  const showNav = chapterPercent >= 85
+
+  return (
+    <div className="epub-renderer">
+      <div ref={mountRef} className="epub-renderer__view" />
+      <div className={`epub-chapter-nav ${showNav ? 'epub-chapter-nav--visible' : ''}`}>
+        {hasPrev && (
+          <button
+            type="button"
+            className="epub-chapter-nav__btn"
+            onClick={() => {
+              chapterRenderedRef.current = false
+              void renditionRef.current?.prev()
+            }}
+          >
+            {t('reader.prevChapter')}
+          </button>
+        )}
+        {hasNext && (
+          <button
+            type="button"
+            className="epub-chapter-nav__btn"
+            onClick={() => {
+              chapterRenderedRef.current = false
+              void renditionRef.current?.next()
+            }}
+          >
+            {t('reader.nextChapter')}
+          </button>
+        )}
+      </div>
+    </div>
+  )
 }

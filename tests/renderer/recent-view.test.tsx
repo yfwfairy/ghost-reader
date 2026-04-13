@@ -15,7 +15,7 @@ function createRecentBook(overrides: Partial<BookshelfBook> = {}): BookshelfBook
     updatedAt: 1,
     progress: {
       bookId: 'book-1',
-      percentage: 0.42,
+      percentage: 42,
       updatedAt: 1710000000000,
     },
     ...overrides,
@@ -27,8 +27,8 @@ describe('RecentView', () => {
     render(
       <RecentView
         books={[
-          createRecentBook({ id: 'book-2', title: 'Most Recent', progress: { bookId: 'book-2', percentage: 0.8, updatedAt: 1710100000000 } }),
-          createRecentBook({ id: 'book-1', title: 'Earlier Session', progress: { bookId: 'book-1', percentage: 0.42, updatedAt: 1710000000000 } }),
+          createRecentBook({ id: 'book-2', title: 'Most Recent', progress: { bookId: 'book-2', percentage: 80, updatedAt: 1710100000000 } }),
+          createRecentBook({ id: 'book-1', title: 'Earlier Session', progress: { bookId: 'book-1', percentage: 42, updatedAt: 1710000000000 } }),
         ]}
         onOpen={vi.fn()}
         onOpenLibrary={vi.fn()}

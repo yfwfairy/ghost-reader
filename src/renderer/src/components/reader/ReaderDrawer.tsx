@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import type { ColorTheme, FontFamily, TocEntry } from '@shared/types'
 import { THEME_MAP } from '@shared/constants'
 import { useConfig } from '../../hooks/useConfig'
@@ -11,6 +12,9 @@ type ReaderDrawerProps = {
   onTabChange: (tab: DrawerTab) => void
   onClose: () => void
   toc?: TocEntry[]
+  chapterProgressMap?: Record<string, number>
+  currentChapterHref?: string | null
+  onChapterSelect?: (href: string) => void
 }
 
 const FONT_OPTIONS: { value: FontFamily; className: string }[] = [
@@ -26,10 +30,21 @@ const THEME_KEYS: ColorTheme[] = [
   'ember', 'forest', 'ocean', 'slate',
 ]
 
-export function ReaderDrawer({ open, activeTab, onTabChange, onClose, toc = [] }: ReaderDrawerProps) {
+export function ReaderDrawer({ open, activeTab, onTabChange, onClose, toc = [], chapterProgressMap, currentChapterHref, onChapterSelect }: ReaderDrawerProps) {
   const { t } = useTranslation()
   const { config, fallbackConfig, updateConfig } = useConfig()
   const activeConfig = config ?? fallbackConfig
+  const activeItemRef = useRef<HTMLLIElement | null>(null)
+
+  // 抽屉打开时将当前章节滚动到可见区域居中
+  useEffect(() => {
+    if (open && activeTab === 'chapters' && activeItemRef.current) {
+      // 延迟一帧确保抽屉动画开始后 DOM 已布局
+      requestAnimationFrame(() => {
+        activeItemRef.current?.scrollIntoView({ block: 'center', behavior: 'instant' })
+      })
+    }
+  }, [open, activeTab])
 
   // context title 根据当前 tab 切换
   const contextTitle = activeTab === 'chapters'
@@ -60,14 +75,36 @@ export function ReaderDrawer({ open, activeTab, onTabChange, onClose, toc = [] }
                     </span>
                   </div>
                   <ul className="chapter-list">
-                    {toc.map((entry, i) => (
-                      <li key={entry.id} className="chapter-list__item">
-                        <span className="chapter-list__number">
-                          {String(i + 1).padStart(2, '0')}
-                        </span>
-                        <span className="chapter-list__title">{entry.label}</span>
-                      </li>
-                    ))}
+                    {toc.map((entry, i) => {
+                      // 匹配 chapterProgressMap 中的 href（可能带或不带 hash）
+                      const baseHref = entry.href.split('#')[0]
+                      const pct = chapterProgressMap?.[entry.href]
+                        ?? chapterProgressMap?.[baseHref]
+                        ?? 0
+                      const isActive = currentChapterHref === entry.href
+                        || currentChapterHref === baseHref
+                      const radius = 9
+                      const stroke = 2
+                      const circumference = 2 * Math.PI * radius
+                      const offset = circumference - (pct / 100) * circumference
+                      return (
+                        <li
+                          key={entry.id}
+                          ref={isActive ? activeItemRef : undefined}
+                          className={`chapter-list__item ${isActive ? 'chapter-list__item--active' : ''}`}
+                          onClick={() => onChapterSelect?.(entry.href)}
+                        >
+                          <span className="chapter-list__number">
+                            {String(i + 1).padStart(2, '0')}
+                          </span>
+                          <span className="chapter-list__title">{entry.label}</span>
+                          <svg className="chapter-list__ring" width="22" height="22" viewBox="0 0 22 22">
+                            <circle cx="11" cy="11" r={radius} fill="none" stroke="rgba(var(--theme-text), 0.1)" strokeWidth={stroke} />
+                            <circle cx="11" cy="11" r={radius} fill="none" stroke="rgba(var(--theme-text), 0.6)" strokeWidth={stroke} strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" transform="rotate(-90 11 11)" />
+                          </svg>
+                        </li>
+                      )
+                    })}
                   </ul>
                 </>
               ) : (

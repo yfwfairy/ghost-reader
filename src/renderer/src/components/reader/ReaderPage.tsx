@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { BookRecord, ReadingProgress, TocEntry } from '@shared/types'
 import { THEME_MAP, hexToRgbTriplet } from '@shared/constants'
 import { useConfig } from '../../hooks/useConfig'
@@ -25,11 +25,32 @@ export function ReaderPage({ backRef, onBack, onTitleChange, immersive = false, 
   const [bookLoading, setBookLoading] = useState(true)
   const [toc, setToc] = useState<TocEntry[]>([])
   const [isNavigatingBack, setIsNavigatingBack] = useState(false)
-  const saveTimer = useRef<ReturnType<typeof window.setTimeout> | null>(null)
+  const saveTimer = useRef<number | ReturnType<typeof setTimeout> | null>(null)
   const pendingTxtProgress = useRef<ReadingProgress | null>(null)
   const mountedRef = useRef(true)
   const backNavigationRef = useRef<Promise<void> | null>(null)
+  const epubDisplayRef = useRef<((href: string, scrollPct?: number) => void) | null>(null)
+  const chapterProgressRef = useRef<Record<string, number>>({})
+  const spineHrefsRef = useRef<string[]>([])
+  const [currentChapterPercent, setCurrentChapterPercent] = useState<number | null>(null)
+  const [currentChapterHref, setCurrentChapterHref] = useState<string | null>(null)
   const activeConfig = config ?? fallbackConfig
+
+  // 从已保存的进度中恢复章节进度 map
+  useEffect(() => {
+    if (progress?.chapterProgress) {
+      chapterProgressRef.current = { ...progress.chapterProgress }
+    }
+  }, [progress?.bookId])
+
+  const handleChapterScroll = useCallback((chapterHref: string, percent: number) => {
+    setCurrentChapterPercent(percent)
+    setCurrentChapterHref(chapterHref)
+    const prev = chapterProgressRef.current[chapterHref] ?? 0
+    if (percent > prev) {
+      chapterProgressRef.current = { ...chapterProgressRef.current, [chapterHref]: percent }
+    }
+  }, [])
 
   useEffect(() => {
     document.documentElement.dataset.appMode = 'reader'
@@ -211,7 +232,12 @@ export function ReaderPage({ backRef, onBack, onTitleChange, immersive = false, 
   }, [book?.title, onTitleChange, t])
 
   return (
-    <ReaderLayout title={readerTitle} meta={readerMeta} toc={toc} progress={progress?.percentage ?? null} immersive={immersive} onExitImmersive={onExitImmersive}>
+    <ReaderLayout title={readerTitle} meta={readerMeta} toc={toc} progress={book?.format === 'epub' ? currentChapterPercent : (progress?.percentage ?? null)} chapterProgressMap={book?.format === 'epub' ? chapterProgressRef.current : undefined} currentChapterHref={currentChapterHref} immersive={immersive} onExitImmersive={onExitImmersive} onChapterSelect={book?.format === 'epub' ? (href: string) => {
+      const savedPct = chapterProgressRef.current[href]
+        ?? chapterProgressRef.current[href.split('#')[0]]
+        ?? 0
+      epubDisplayRef.current?.(href, savedPct > 0 ? savedPct : undefined)
+    } : undefined}>
       {loading || bookLoading ? (
         <div className="reader-empty">
           <p className="reader-empty__eyebrow">{t('reader.eyebrow')}</p>
@@ -246,13 +272,30 @@ export function ReaderPage({ backRef, onBack, onTitleChange, immersive = false, 
           fontFamily={activeConfig.fontFamily}
           colorTheme={activeConfig.colorTheme}
           savedCfi={progress?.epubCfi}
+          displayRef={epubDisplayRef}
           onTocLoaded={setToc}
+          onChapterScroll={handleChapterScroll}
+          onSpineReady={(hrefs) => { spineHrefsRef.current = hrefs }}
           onProgressUpdate={(patch) => {
             if (!book) {
               return
             }
 
-            const nextProgress: ReadingProgress = { bookId: book.id, ...patch }
+            // 用章节进度加权平均计算全书进度
+            const spineHrefs = spineHrefsRef.current
+            let weightedPct = patch.percentage
+            if (spineHrefs.length > 0) {
+              const sum = spineHrefs.reduce((acc, href) =>
+                acc + (chapterProgressRef.current[href] ?? 0), 0)
+              weightedPct = Math.round(sum / spineHrefs.length)
+            }
+
+            const nextProgress: ReadingProgress = {
+              bookId: book.id,
+              ...patch,
+              percentage: weightedPct,
+              chapterProgress: chapterProgressRef.current,
+            }
             setProgress(nextProgress)
             void window.api.saveProgress(nextProgress)
           }}

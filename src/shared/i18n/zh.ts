@@ -71,6 +71,8 @@ const zh: Record<string, string> = {
   'reader.chaptersPlaceholder': '章节列表即将上线。',
   'reader.appearancePlaceholder': '外观设置即将上线。',
   'reader.noChapters': '暂无章节。',
+  'reader.prevChapter': '上一章',
+  'reader.nextChapter': '下一章',
 
   // 抽屉弹窗
   'drawer.titleChapters': '目录',

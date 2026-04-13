@@ -72,6 +72,8 @@ const en: Record<string, string> = {
   'reader.chaptersPlaceholder': 'Chapter list coming soon.',
   'reader.appearancePlaceholder': 'Appearance settings coming soon.',
   'reader.noChapters': 'No chapters available.',
+  'reader.prevChapter': 'Previous Chapter',
+  'reader.nextChapter': 'Next Chapter',
 
   // 抽屉弹窗
   'drawer.titleChapters': 'Table of Contents',
