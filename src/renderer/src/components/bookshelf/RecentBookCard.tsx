@@ -21,14 +21,38 @@ function clampPercentage(value: number) {
   return value
 }
 
-function formatLastOpened(updatedAt: number) {
-  return new Date(updatedAt).toISOString().slice(0, 10)
+function formatLastOpened(updatedAt: number, t: (key: string, ...args: (string | number)[]) => string) {
+  const now = new Date()
+  const then = new Date(updatedAt)
+
+  // 归零到当天 00:00 用于天数比较
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
+  const thenStart = new Date(then.getFullYear(), then.getMonth(), then.getDate()).getTime()
+  const daysDiff = Math.floor((todayStart - thenStart) / 86_400_000)
+
+  if (daysDiff === 0) {
+    // 今天：显示 "今日 HH:MM"
+    const hh = String(then.getHours()).padStart(2, '0')
+    const mm = String(then.getMinutes()).padStart(2, '0')
+    return t('recent.timeToday', `${hh}:${mm}`)
+  }
+  if (daysDiff === 1) {
+    return t('recent.timeYesterday')
+  }
+  if (daysDiff <= 7) {
+    return t('recent.timeDaysAgo', daysDiff)
+  }
+  // 超过一周：显示短日期
+  const y = String(then.getFullYear()).slice(2)
+  const m = String(then.getMonth() + 1).padStart(2, '0')
+  const d = String(then.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
 }
 
 export function RecentBookCard({ book, onOpen, managing = false, selected = false, onToggleSelect, onResetSingle }: RecentBookCardProps) {
   const { t } = useTranslation()
   const progressPercentage = clampPercentage(book.progress?.percentage ?? 0)
-  const lastOpenedLabel = formatLastOpened(book.progress?.updatedAt ?? book.updatedAt)
+  const lastOpenedLabel = formatLastOpened(book.progress?.updatedAt ?? book.updatedAt, t)
 
   function handleCardClick() {
     if (managing) {

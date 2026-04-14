@@ -41,6 +41,9 @@ const zhTW: Record<string, string> = {
   'recent.footerImmersion': '沉浸',
   'recent.percentRead': '{0}%',
   'recent.lastOpened': '上次開啟 {0}',
+  'recent.timeToday': '今日 {0}',
+  'recent.timeYesterday': '昨天',
+  'recent.timeDaysAgo': '{0}天前',
   'recent.openAria': '在閱讀器中開啟 {0}',
   'recent.preview': '預覽',
   'recent.manage': '管理',
@@ -84,6 +87,8 @@ const zhTW: Record<string, string> = {
   'drawer.titleChapters': '目錄',
   'drawer.titleAppearance': '顯示設定',
   'drawer.chaptersTotal': '個章節',
+  'drawer.booksTotal': '本',
+  'drawer.reading': '閱讀中',
 
   // 外觀設定
   'appearance.typography': '字體',

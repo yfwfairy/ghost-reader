@@ -101,6 +101,16 @@ export function ReaderLayout({
           <span className="reader-bottom-nav__progress">{progress}%</span>
         )}
       </nav>
+
+      {/* 沉浸模式下浮动进度 */}
+      {immersive && progress != null && (
+        <span className="reader-immersive-progress">{progress}%</span>
+      )}
+
+      {/* 沉浸模式下顶部拖拽区域（替代被隐藏的标题栏） */}
+      {immersive && (
+        <div className="reader-immersive-drag-bar" />
+      )}
     </section>
   )
 }

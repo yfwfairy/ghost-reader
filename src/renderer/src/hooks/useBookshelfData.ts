@@ -115,5 +115,8 @@ export function useBookshelfData() {
     )
   }
 
-  return { libraryBooks, recentBooks, loading, addBooks, removeBook, resetBooks }
+  // 按导入时间降序，最新添加的排最前
+  const sortedLibraryBooks = [...libraryBooks].sort((a, b) => b.importedAt - a.importedAt)
+
+  return { libraryBooks: sortedLibraryBooks, recentBooks, loading, addBooks, removeBook, resetBooks }
 }

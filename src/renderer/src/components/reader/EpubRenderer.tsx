@@ -51,6 +51,8 @@ export function EpubRenderer({
   const fontFamilyRef = useRef(fontFamily)
   const colorThemeRef = useRef(colorTheme)
   const currentChapterRef = useRef({ href: '', index: 0 })
+  // 标记是否正在进行 displayRef 触发的导航，期间 savedCfi effect 不应介入
+  const navigatingViaDisplayRef = useRef(false)
   const [hasPrev, setHasPrev] = useState(false)
   const [hasNext, setHasNext] = useState(false)
   const [chapterPercent, setChapterPercent] = useState(0)
@@ -95,13 +97,23 @@ export function EpubRenderer({
 
     // 记录目录跳转时的目标滚动百分比
     const pendingScrollPct = { value: null as number | null }
+    // 标记是否为 fragment 跳转（如点击子目录），此时不应强制 scrollTop=0
+    const pendingFragmentNav = { value: false }
 
     // 暴露导航方法给外部
     if (displayRef) {
       displayRef.current = (href: string, scrollPct?: number) => {
         pendingScrollPct.value = scrollPct ?? null
-        // 立即标记未渲染，防止卸载旧章节时 onScroll 误算 100%
-        chapterRenderedRef.current = false
+        pendingFragmentNav.value = href.includes('#') && scrollPct == null
+        // 标记正在进行外部导航，阻止 savedCfi effect 竞争
+        navigatingViaDisplayRef.current = true
+        // 同章节内 fragment 跳转不需要标记未渲染（内容不会卸载重载），
+        // 否则 onScroll 会被永久跳过导致进度卡住
+        const targetBase = href.split('#')[0]
+        const currentBase = currentChapterRef.current.href.split('#')[0]
+        if (targetBase !== currentBase) {
+          chapterRenderedRef.current = false
+        }
         void rendition.display(href)
       }
     }
@@ -210,6 +222,8 @@ export function EpubRenderer({
         // 取出并清空待恢复的滚动位置（仅目录跳转时有值）
         const targetScrollPct = pendingScrollPct.value
         pendingScrollPct.value = null
+        const isFragmentNav = pendingFragmentNav.value
+        pendingFragmentNav.value = false
 
         const target = scrollState.el
         if (!target) return
@@ -221,9 +235,10 @@ export function EpubRenderer({
           if (maxScroll > 0 || performance.now() - start > 2000) {
             chapterRenderedRef.current = true
             // 目录跳转时恢复到上次阅读位置，上/下一章从开头开始
+            // fragment 跳转（子目录）时让 epubjs 自行定位锚点，不强制归零
             if (targetScrollPct != null && targetScrollPct > 0 && maxScroll > 0) {
               target!.scrollTop = Math.round((targetScrollPct / 100) * maxScroll)
-            } else {
+            } else if (!isFragmentNav) {
               target!.scrollTop = 0
             }
             const pct = computeScrollPercent(target!, true)
@@ -236,6 +251,20 @@ export function EpubRenderer({
           rafId = requestAnimationFrame(poll)
         }
         rafId = requestAnimationFrame(poll)
+      } else if (!chapterRenderedRef.current) {
+        // 同章节内 fragment 跳转（如点击子目录）：
+        // displayRef 调用时已将 chapterRenderedRef 设为 false，
+        // 但 chapterChanged 为 false 不会进入上方分支恢复它，
+        // 导致 onScroll 被永久跳过、进度卡住。此处恢复。
+        chapterRenderedRef.current = true
+        const target = scrollState.el
+        if (target) {
+          const pct = computeScrollPercent(target, true)
+          setChapterPercent(pct)
+          if (currentChapterRef.current.href) {
+            handleChapterScroll(currentChapterRef.current.href, pct)
+          }
+        }
       }
     })
 
@@ -281,6 +310,12 @@ export function EpubRenderer({
   }, [fontSize, lineHeight, fontFamily, colorTheme])
 
   useEffect(() => {
+    // displayRef 导航期间不响应 savedCfi 变化，避免竞争覆盖 fragment 定位
+    if (navigatingViaDisplayRef.current) {
+      navigatingViaDisplayRef.current = false
+      lastDisplayedCfiRef.current = savedCfi
+      return
+    }
     if (!renditionRef.current || lastDisplayedCfiRef.current === savedCfi) {
       return
     }

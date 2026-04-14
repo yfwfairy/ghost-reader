@@ -45,7 +45,12 @@ export function ReaderPage({ backRef, onBack, onTitleChange, immersive = false, 
 
   const handleChapterScroll = useCallback((chapterHref: string, percent: number) => {
     setCurrentChapterPercent(percent)
-    setCurrentChapterHref(chapterHref)
+    // 仅当 spine href 发生变化时更新 currentChapterHref，
+    // 保留用户点击子目录时设置的精确 fragment href
+    setCurrentChapterHref((prev) => {
+      if (prev && prev.split('#')[0] === chapterHref.split('#')[0]) return prev
+      return chapterHref
+    })
     const prev = chapterProgressRef.current[chapterHref] ?? 0
     if (percent > prev) {
       chapterProgressRef.current = { ...chapterProgressRef.current, [chapterHref]: percent }
@@ -233,6 +238,8 @@ export function ReaderPage({ backRef, onBack, onTitleChange, immersive = false, 
 
   return (
     <ReaderLayout title={readerTitle} meta={readerMeta} toc={toc} progress={book?.format === 'epub' ? currentChapterPercent : (progress?.percentage ?? null)} chapterProgressMap={book?.format === 'epub' ? chapterProgressRef.current : undefined} currentChapterHref={currentChapterHref} immersive={immersive} onExitImmersive={onExitImmersive} onChapterSelect={book?.format === 'epub' ? (href: string) => {
+      // 立即更新当前章节 href（包含 fragment），以便目录精确匹配子项
+      setCurrentChapterHref(href)
       const savedPct = chapterProgressRef.current[href]
         ?? chapterProgressRef.current[href.split('#')[0]]
         ?? 0

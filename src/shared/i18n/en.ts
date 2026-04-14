@@ -42,6 +42,9 @@ const en: Record<string, string> = {
   'recent.footerImmersion': 'Immersion',
   'recent.percentRead': '{0}%',
   'recent.lastOpened': 'Last opened {0}',
+  'recent.timeToday': 'Today {0}',
+  'recent.timeYesterday': 'Yesterday',
+  'recent.timeDaysAgo': '{0}d ago',
   'recent.openAria': 'Open {0} in reader',
   'recent.preview': 'Preview',
   'recent.manage': 'Manage',
@@ -85,6 +88,8 @@ const en: Record<string, string> = {
   'drawer.titleChapters': 'Table of Contents',
   'drawer.titleAppearance': 'Display Settings',
   'drawer.chaptersTotal': 'Chapters Total',
+  'drawer.booksTotal': 'Books',
+  'drawer.reading': 'READING',
 
   // 外观设置
   'appearance.typography': 'Typography',

@@ -727,6 +727,26 @@ html[data-app-mode='reader'] .app-frame__content {
   overflow: hidden;
   opacity: 0;
   pointer-events: none;
+  -webkit-app-region: no-drag;
+}
+
+/* 沉浸模式：禁止文字选中 */
+.app-frame--immersive .epub-renderer,
+.app-frame--immersive .txt-renderer {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* 沉浸模式：顶部透明拖拽条（替代被隐藏的标题栏） */
+.reader-immersive-drag-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 36px;
+  z-index: 70;
+  -webkit-app-region: drag;
+  pointer-events: auto;
 }
 
 .bookshelf-status,
@@ -951,7 +971,7 @@ html[data-app-mode='reader'] .app-frame__content {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 48px 64px;
+  padding: 48px 64px 0px 64px;
   position: relative;
   box-sizing: border-box;
 }
@@ -1283,7 +1303,7 @@ html[data-app-mode='reader'] .app-frame__content {
   align-items: center;
   gap: 12px;
   padding: 16px 0;
-  background: rgba(14, 14, 14, 0.5);
+  background: linear-gradient(270deg, rgba(18, 18, 18, 0.76), rgba(9, 9, 9, 0.76));
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   opacity: 0;
@@ -2081,6 +2101,22 @@ html[data-app-mode='reader'] .app-frame__content {
   pointer-events: none;
 }
 
+/* 沉浸模式下浮动进度 */
+.reader-immersive-progress {
+  position: fixed;
+  right: 16px;
+  bottom: 12px;
+  z-index: 60;
+  font-family: var(--font-label);
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(var(--theme-text), 0.35);
+  letter-spacing: 0.05em;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+  -webkit-app-region: no-drag;
+}
+
 .reader-bottom-nav__actions {
   display: flex;
   gap: 8px;
@@ -2150,7 +2186,7 @@ html[data-app-mode='reader'] .app-frame__content {
   margin-inline: auto;
   transform: translateY(100%);
   transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  background: rgba(var(--theme-bg), 0.92);
+  background: rgba(var(--theme-bg), 0.95);
   backdrop-filter: blur(40px) saturate(180%);
   -webkit-backdrop-filter: blur(40px) saturate(180%);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
@@ -2171,6 +2207,9 @@ html[data-app-mode='reader'] .app-frame__content {
   align-items: center;
   justify-content: space-between;
   padding: 18px 24px 16px;
+  background: rgba(var(--theme-bg), 0.72);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   position: sticky;
   top: 0;
@@ -2212,7 +2251,7 @@ html[data-app-mode='reader'] .app-frame__content {
 .reader-drawer__body {
   flex: 1;
   overflow-y: auto;
-  padding: 20px 24px;
+  padding: 0 24px 20px;
 }
 
 .reader-drawer__placeholder {
@@ -2231,12 +2270,98 @@ html[data-app-mode='reader'] .app-frame__content {
   margin-bottom: 16px;
 }
 
+.chapter-list__meta--sticky {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  margin: 0px -24px;
+  padding: 10px 24px 10px;
+  background: rgba(var(--theme-bg), 0.72);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+}
+
+/* ── 合集选书下拉 ─────────────────────────── */
+.chapter-list__book-select {
+  appearance: none;
+  -webkit-appearance: none;
+  color-scheme: dark;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 5px 28px 5px 10px;
+  font-family: var(--font-headline);
+  font-size: 11px;
+  color: rgba(var(--theme-text), 0.7);
+  cursor: pointer;
+  transition: all 180ms ease;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(255,255,255,0.4)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+
+.chapter-list__book-select:hover {
+  background-color: rgba(255, 255, 255, 0.10);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.chapter-list__book-select:focus {
+  outline: none;
+  border-color: rgba(var(--theme-accent), 0.4);
+}
+
+.chapter-list__book-select option {
+  background: rgb(var(--theme-bg));
+  color: rgba(var(--theme-text), 0.9);
+  color-scheme: dark;
+}
+
 .chapter-list__count {
   font-family: var(--font-headline);
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.15em;
   color: rgba(var(--theme-text), 0.5);
+}
+
+/* 章节 meta 右侧分组 */
+.chapter-list__meta-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+/* 排序按钮 */
+.chapter-list__sort-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: rgba(var(--theme-text), 0.4);
+  cursor: pointer;
+  padding: 2px;
+  transition: all 180ms ease;
+  line-height: 1;
+}
+
+.chapter-list__sort-btn .material-symbols-outlined {
+  font-size: 16px;
+}
+
+.chapter-list__sort-btn:hover {
+  color: rgba(var(--theme-text), 0.7);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.chapter-list__sort-btn--active {
+  color: rgba(var(--theme-accent), 0.8);
 }
 
 .chapter-list {
@@ -2249,23 +2374,26 @@ html[data-app-mode='reader'] .app-frame__content {
 }
 
 .chapter-list__item {
+  position: relative;
+  transition: all 200ms ease;
+}
+
+.chapter-list__item-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
   padding: 14px 16px;
-  border-radius: 12px;
   cursor: pointer;
-  transition: all 200ms ease;
+  border-radius: 12px;
   border: 1px solid transparent;
+  transition: all 200ms ease;
 }
 
-.chapter-list__item:hover {
+.chapter-list__item-row:hover {
   background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.05);
 }
 
-.chapter-list__item--active {
+.chapter-list__item--active>.chapter-list__item-row {
   background: rgba(var(--theme-accent), 0.1);
   border-color: rgba(var(--theme-accent), 0.2);
 }
@@ -2296,11 +2424,181 @@ html[data-app-mode='reader'] .app-frame__content {
   text-overflow: ellipsis;
 }
 
+/* ── 合集选书条（已废弃，使用下拉框替代） ─── */
+
+/* ── 展开箭头 ─────────────────────────── */
+.chapter-list__chevron {
+  flex-shrink: 0;
+  font-size: 18px;
+  color: rgba(var(--theme-text), 0.35);
+  transition: transform 250ms cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.chapter-list__chevron--open {
+  transform: rotate(90deg);
+}
+
+/* 无子项时的箭头占位（保持列对齐） */
+.chapter-list__chevron--placeholder {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+}
+
+/* ── 祖先标记（当前阅读位置的父章节） ───────── */
+.chapter-list__item--ancestor>.chapter-list__item-row {
+  background: rgba(var(--theme-accent), 0.06);
+  border-color: rgba(var(--theme-accent), 0.12);
+}
+
+.chapter-list__item--ancestor .chapter-list__number {
+  color: rgba(var(--theme-accent), 0.55);
+}
+
+.chapter-list__item--ancestor .chapter-list__title {
+  color: rgba(var(--theme-accent), 0.7);
+}
+
+/* ── 手风琴容器 ─────────────────────────── */
+.chapter-subitems-wrap {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.25s ease;
+}
+
+.chapter-subitems-wrap--open {
+  max-height: 600px;
+  opacity: 1;
+}
+
+.chapter-subitems {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 8px 44px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  position: relative;
+}
+
+/* 垂直引导线 — 对齐 · 前缀 */
+.chapter-subitems::before {
+  content: '';
+  position: absolute;
+  left: 66px;
+  top: 0;
+  bottom: 8px;
+  width: 1px;
+  background: rgba(var(--theme-text), 0.08);
+}
+
+/* 嵌套 L3 列表引导线 */
+.chapter-subitems--nested {
+  padding-left: 16px;
+  padding-bottom: 4px;
+}
+
+.chapter-subitems--nested::before {
+  left: 30px;
+}
+
+/* ── L2/L3 子项 ─────────────────────────── */
+.chapter-subitems__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 160ms ease;
+}
+
+.chapter-subitems__item:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.chapter-subitems__item--l2 {
+  padding: 8px 12px 8px 20px;
+}
+
+.chapter-subitems__item--l3 {
+  padding: 6px 12px 6px 12px;
+}
+
+.chapter-subitems__prefix {
+  flex-shrink: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(var(--theme-text), 0.18);
+  user-select: none;
+}
+
+/* L3 圆点稍小 */
+.chapter-subitems__item--l3 .chapter-subitems__prefix {
+  width: 4px;
+  height: 4px;
+}
+
+.chapter-subitems__title {
+  flex: 1;
+  font-family: var(--font-body);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chapter-subitems__item--l2 .chapter-subitems__title {
+  font-size: 12px;
+  color: rgba(var(--theme-text), 0.55);
+}
+
+.chapter-subitems__item--l3 .chapter-subitems__title {
+  font-size: 10px;
+  color: rgba(var(--theme-text), 0.40);
+}
+
+/* ── L2/L3 选中态（叶子节点） ─────────────── */
+.chapter-subitems__item--active .chapter-subitems__prefix {
+  background: rgba(var(--theme-accent), 0.8);
+}
+
+.chapter-subitems__item--active .chapter-subitems__title {
+  color: rgba(var(--theme-accent), 1);
+  font-weight: 600;
+}
+
+/* ── 选中子目录右侧 READING 标签 ─────────── */
+.chapter-subitems__reading-label {
+  margin-left: auto;
+  font-family: var(--font-headline);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(var(--theme-accent), 0.7);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── L2/L3 祖先态（当前阅读位置的父节点） ──── */
+.chapter-subitems__item--ancestor .chapter-subitems__prefix {
+  background: rgba(var(--theme-accent), 0.45);
+}
+
+.chapter-subitems__item--ancestor .chapter-subitems__title {
+  color: rgba(var(--theme-accent), 0.6);
+}
+
 /* 外观面板区块 */
 .reader-drawer__pane--appearance {
   display: flex;
   flex-direction: column;
   gap: 32px;
+  padding-top: 20px;
 }
 
 .appearance-section {
@@ -3028,4 +3326,33 @@ html[data-app-mode='reader'] .app-frame__content {
 
 .settings-panel__footer-links span:hover {
   color: var(--text-primary);
+}
+
+/* ── 浅色主题：章节列表 + 下拉 + 子项 ──────────── */
+[data-appearance="light"] .chapter-list__meta--sticky {
+  background: rgba(var(--theme-bg), 0.92);
+}
+
+[data-appearance="light"] .chapter-list__book-select {
+  color-scheme: light;
+  background-color: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.08);
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(0,0,0,0.35)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+[data-appearance="light"] .chapter-list__book-select:hover {
+  background-color: rgba(0, 0, 0, 0.07);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+[data-appearance="light"] .chapter-list__item-row:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+[data-appearance="light"] .chapter-subitems::before {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+[data-appearance="light"] .chapter-subitems__item:hover {
+  background: rgba(0, 0, 0, 0.03);
 }

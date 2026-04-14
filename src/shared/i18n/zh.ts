@@ -41,6 +41,9 @@ const zh: Record<string, string> = {
   'recent.footerImmersion': '沉浸',
   'recent.percentRead': '{0}%',
   'recent.lastOpened': '上次打开 {0}',
+  'recent.timeToday': '今日 {0}',
+  'recent.timeYesterday': '昨天',
+  'recent.timeDaysAgo': '{0}天前',
   'recent.openAria': '在阅读器中打开 {0}',
   'recent.preview': '预览',
   'recent.manage': '管理',
@@ -84,6 +87,8 @@ const zh: Record<string, string> = {
   'drawer.titleChapters': '目录',
   'drawer.titleAppearance': '显示设置',
   'drawer.chaptersTotal': '个章节',
+  'drawer.booksTotal': '本',
+  'drawer.reading': '阅读中',
 
   // 外观设置
   'appearance.typography': '字体',
