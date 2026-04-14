@@ -29,7 +29,8 @@ describe('useBookshelfData', () => {
     })
 
     expect(result.current.recentBooks.map((book) => book.id)).toEqual(['c', 'a'])
-    expect(result.current.libraryBooks.map((book) => book.id)).toEqual(['a', 'b', 'c'])
+    // libraryBooks 按 importedAt 降序排列
+    expect(result.current.libraryBooks.map((book) => book.id)).toEqual(['c', 'b', 'a'])
   })
 
   it('updates libraryBooks immediately when adding and removing books', async () => {

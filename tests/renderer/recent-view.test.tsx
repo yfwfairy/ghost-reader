@@ -1,8 +1,31 @@
 import '@testing-library/jest-dom/vitest'
 import { fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { BookshelfBook } from '../../src/renderer/src/hooks/useBookshelfData'
 import { RecentView } from '../../src/renderer/src/components/bookshelf/RecentView'
+
+// PlaceholderCover → useConfig → window.api.getConfig
+beforeEach(() => {
+  Object.defineProperty(window, 'api', {
+    configurable: true,
+    value: {
+      getConfig: vi.fn().mockResolvedValue({
+        fontSize: 16,
+        lineHeight: 1.8,
+        fontFamily: 'Newsreader',
+        glassIntensity: 85,
+        colorTheme: 'obsidian',
+        currentBookId: null,
+        alwaysOnTop: false,
+        language: 'en',
+        appearance: 'dark',
+        appearanceFollowSystem: false,
+      }),
+      onConfigChanged: vi.fn(() => vi.fn()),
+      setConfig: vi.fn(),
+    },
+  })
+})
 
 function createRecentBook(overrides: Partial<BookshelfBook> = {}): BookshelfBook {
   return {
@@ -32,6 +55,7 @@ describe('RecentView', () => {
         ]}
         onOpen={vi.fn()}
         onOpenLibrary={vi.fn()}
+        resetBooks={vi.fn()}
       />,
     )
 
@@ -39,13 +63,14 @@ describe('RecentView', () => {
     expect(screen.getByText('Resuming your nocturnal drifts.')).toBeInTheDocument()
     expect(screen.getByText('Most Recent')).toBeInTheDocument()
     expect(screen.getByText('80%')).toBeInTheDocument()
-    expect(screen.getByText('Last opened 2024-03-10')).toBeInTheDocument()
+    // formatLastOpened 对超过 7 天的日期返回 YY-MM-DD 格式，两张卡片各一条
+    expect(screen.getAllByText(/Last opened \d{2}-03-1[01]/)).toHaveLength(2)
   })
 
   it('opens reader when a recent card is clicked', () => {
     const onOpen = vi.fn()
 
-    render(<RecentView books={[createRecentBook()]} onOpen={onOpen} onOpenLibrary={vi.fn()} />)
+    render(<RecentView books={[createRecentBook()]} onOpen={onOpen} onOpenLibrary={vi.fn()} resetBooks={vi.fn()} />)
 
     fireEvent.click(screen.getByRole('button', { name: 'Open Example Book in reader' }))
 
@@ -55,7 +80,7 @@ describe('RecentView', () => {
   it('renders centered empty state and routes to library with a single action', () => {
     const onOpenLibrary = vi.fn()
 
-    render(<RecentView books={[]} onOpen={vi.fn()} onOpenLibrary={onOpenLibrary} />)
+    render(<RecentView books={[]} onOpen={vi.fn()} onOpenLibrary={onOpenLibrary} resetBooks={vi.fn()} />)
 
     expect(screen.getByRole('heading', { level: 2, name: 'Recent Encounters' })).toBeInTheDocument()
     expect(screen.getByText('All reading is unfinished.')).toBeInTheDocument()

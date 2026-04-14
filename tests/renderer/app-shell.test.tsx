@@ -1,7 +1,25 @@
 import '@testing-library/jest-dom/vitest'
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '../../src/renderer/src/App'
+
+// App 中 useSystemDarkMode 调用了 window.matchMedia
+beforeEach(() => {
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    configurable: true,
+    value: vi.fn().mockImplementation((query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })),
+  })
+})
 
 describe('App single-window shell', () => {
   function setupApi(initialBookId: string | null) {
@@ -291,18 +309,9 @@ describe('App single-window shell', () => {
   })
 
   it('waits for persisted always-on-top before enabling pin and can unpin from the app shell', async () => {
-    let resolveConfig: ((value: {
-      fontSize: number
-      lineHeight: number
-      fontFamily: 'Newsreader'
-      glassIntensity: number
-      colorTheme: 'obsidian'
-      currentBookId: null
-      alwaysOnTop: boolean
-      language: 'en'
-    }) => void) | null = null
-    const configPromise = new Promise((resolve) => {
-      resolveConfig = resolve as typeof resolveConfig
+    let resolveConfig!: (value: any) => void
+    const configPromise = new Promise<any>((resolve) => {
+      resolveConfig = resolve
     })
     const setAlwaysOnTop = vi.fn().mockImplementation(async (value: boolean) => ({
       fontSize: 16,

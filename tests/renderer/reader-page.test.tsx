@@ -176,7 +176,7 @@ describe('ReaderPage', () => {
   it('waits for a pending txt progress save before returning to the bookshelf', async () => {
     const onBack = vi.fn()
     const backRef = createRef<(() => void | Promise<void>) | null>()
-    let resolveSaveProgress: (() => void) | null = null
+    let resolveSaveProgress!: () => void
     const saveProgress = vi.fn().mockImplementation(
       () =>
         new Promise<void>((resolve) => {
@@ -240,7 +240,7 @@ describe('ReaderPage', () => {
     const onBack = vi.fn()
     const backRef = createRef<(() => void | Promise<void>) | null>()
     const saveProgress = vi.fn().mockRejectedValue(new Error('disk offline'))
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => { })
 
     Object.defineProperty(window, 'api', {
       configurable: true,
