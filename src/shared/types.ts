@@ -31,6 +31,7 @@ export interface TocEntry {
 export type Locale = 'en' | 'zh' | 'zh-TW'
 export type FontFamily = 'Newsreader' | 'Manrope' | 'Inter' | 'Lora' | 'Merriweather'
 export type ColorTheme = 'obsidian' | 'parchment' | 'midnight' | 'onyx' | 'ember' | 'forest' | 'ocean' | 'slate'
+export type AppearanceMode = 'dark' | 'light'
 
 export interface AppConfig {
   fontSize: number
@@ -38,6 +39,8 @@ export interface AppConfig {
   fontFamily: FontFamily
   glassIntensity: number
   colorTheme: ColorTheme
+  appearance: AppearanceMode
+  appearanceFollowSystem: boolean
   currentBookId: string | null
   alwaysOnTop: boolean
   language: Locale

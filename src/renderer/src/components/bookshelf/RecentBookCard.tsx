@@ -1,5 +1,6 @@
 import { useTranslation } from '../../hooks/useTranslation'
 import type { BookshelfBook } from '../../hooks/useBookshelfData'
+import { PlaceholderCover } from './PlaceholderCover'
 
 type RecentBookCardProps = {
   book: BookshelfBook
@@ -61,7 +62,7 @@ export function RecentBookCard({ book, onOpen, managing = false, selected = fals
           onClick={handleCardClick}
         >
           <div className="recent-book-card__cover">
-            {book.coverDataUrl ? <img src={book.coverDataUrl} alt={book.title} /> : <span>{t('recent.preview')}</span>}
+            {book.coverDataUrl ? <img src={book.coverDataUrl} alt={book.title} /> : <PlaceholderCover bookId={book.id} title={book.title} />}
             <div className="recent-book-card__cover-fade" />
           </div>
           <div className="recent-book-card__body">

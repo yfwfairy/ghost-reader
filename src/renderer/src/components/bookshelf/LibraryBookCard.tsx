@@ -1,4 +1,5 @@
 import type { BookshelfBook } from '../../hooks/useBookshelfData'
+import { PlaceholderCover } from './PlaceholderCover'
 
 function formatWordCount(count: number) {
   if (count < 1000) return `${count}字`
@@ -24,7 +25,7 @@ export function LibraryBookCard({ book, onOpen, onRemove }: LibraryBookCardProps
           {book.coverDataUrl ? (
             <img src={book.coverDataUrl} alt={book.title} />
           ) : (
-            <span aria-hidden="true">{book.format.toUpperCase()}</span>
+            <PlaceholderCover bookId={book.id} title={book.title} />
           )}
         </button>
         <div className="library-book-card__overlay" />

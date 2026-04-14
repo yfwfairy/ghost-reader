@@ -7,6 +7,11 @@ describe('SettingsPanel', () => {
   const defaultConfig = {
     fontSize: 16,
     lineHeight: 1.8,
+    fontFamily: 'Newsreader' as const,
+    glassIntensity: 85,
+    colorTheme: 'obsidian' as const,
+    appearance: 'dark' as const,
+    appearanceFollowSystem: false,
     currentBookId: null as string | null,
     alwaysOnTop: false,
     language: 'en' as const,

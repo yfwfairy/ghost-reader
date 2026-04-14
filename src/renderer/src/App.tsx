@@ -9,6 +9,22 @@ import './styles/global.css'
 export type HomeView = 'recent' | 'library'
 export type AppPage = 'home' | 'reader'
 
+// 监听系统深浅色偏好
+function useSystemDarkMode(enabled: boolean) {
+  const [dark, setDark] = useState(() =>
+    window.matchMedia('(prefers-color-scheme: dark)').matches
+  )
+  useEffect(() => {
+    if (!enabled) return
+    const mq = window.matchMedia('(prefers-color-scheme: dark)')
+    setDark(mq.matches)
+    const handler = (e: MediaQueryListEvent) => setDark(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [enabled])
+  return dark
+}
+
 function AppInner() {
   const { config, fallbackConfig } = useConfig()
   const { t } = useTranslation()
@@ -19,6 +35,16 @@ function AppInner() {
   const lastObservedBookId = useRef<string | null | undefined>(undefined)
   const readerBackRef = useRef<(() => void | Promise<void>) | null>(null)
   const activeConfig = config ?? fallbackConfig
+
+  // 跟随系统 or 手动选择
+  const systemDark = useSystemDarkMode(activeConfig.appearanceFollowSystem)
+  const effectiveAppearance = activeConfig.appearanceFollowSystem
+    ? (systemDark ? 'dark' : 'light')
+    : activeConfig.appearance
+
+  useEffect(() => {
+    document.documentElement.dataset.appearance = effectiveAppearance
+  }, [effectiveAppearance])
 
   useEffect(() => {
     if (config === null) {

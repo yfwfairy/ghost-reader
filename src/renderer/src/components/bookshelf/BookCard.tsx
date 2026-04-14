@@ -1,4 +1,5 @@
 import type { BookRecord } from '@shared/types'
+import { PlaceholderCover } from './PlaceholderCover'
 
 type BookCardProps = {
   book: BookRecord
@@ -10,7 +11,7 @@ export function BookCard({ book, onOpen, onRemove }: BookCardProps) {
   return (
     <article className="book-card" onClick={() => void onOpen(book.id)}>
       <div className="book-card__cover">
-        {book.coverDataUrl ? <img src={book.coverDataUrl} alt={book.title} /> : <span>{book.title}</span>}
+        {book.coverDataUrl ? <img src={book.coverDataUrl} alt={book.title} /> : <PlaceholderCover bookId={book.id} title={book.title} />}
       </div>
       <div className="book-card__meta">
         <div className="book-card__text">

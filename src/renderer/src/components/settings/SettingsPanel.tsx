@@ -153,20 +153,42 @@ export function SettingsPanel({ config, onSave, onClose }: SettingsPanelProps) {
           <div className="settings-panel__content" ref={scrollContainerRef}>
             {/* Interface Theme */}
             <section className="settings-panel__section" ref={appearanceRef}>
-              <h3>{t('settings.theme')}</h3>
-              <div className="settings-theme-grid">
-                <div className="settings-theme-card settings-theme-card--active">
+              <div className="settings-theme-header">
+                <h3>{t('settings.theme')}</h3>
+                <label className="settings-toggle">
+                  <span className="settings-toggle__label">{t('settings.followSystem')}</span>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={draft.appearanceFollowSystem}
+                    className={`settings-toggle__track ${draft.appearanceFollowSystem ? 'settings-toggle__track--on' : ''}`}
+                    onClick={() => applyChange({ appearanceFollowSystem: !draft.appearanceFollowSystem })}
+                  >
+                    <span className="settings-toggle__thumb" />
+                  </button>
+                </label>
+              </div>
+              <div className={`settings-theme-grid ${draft.appearanceFollowSystem ? 'settings-theme-grid--collapsed' : ''}`}>
+                <button
+                  type="button"
+                  className={`settings-theme-card ${draft.appearance === 'dark' ? 'settings-theme-card--active' : ''}`}
+                  onClick={() => applyChange({ appearance: 'dark' })}
+                >
                   <span className="material-symbols-outlined" aria-hidden="true">
                     dark_mode
                   </span>
                   <span className="settings-theme-card__label">{t('settings.themeObsidian')}</span>
-                </div>
-                <div className="settings-theme-card">
+                </button>
+                <button
+                  type="button"
+                  className={`settings-theme-card ${draft.appearance === 'light' ? 'settings-theme-card--active' : ''}`}
+                  onClick={() => applyChange({ appearance: 'light' })}
+                >
                   <span className="material-symbols-outlined" aria-hidden="true">
                     light_mode
                   </span>
                   <span className="settings-theme-card__label">{t('settings.themeLunar')}</span>
-                </div>
+                </button>
               </div>
             </section>
 

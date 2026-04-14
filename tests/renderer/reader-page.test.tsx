@@ -11,6 +11,8 @@ const baseConfig: AppConfig = {
   fontFamily: 'Newsreader',
   glassIntensity: 85,
   colorTheme: 'obsidian',
+  appearance: 'dark',
+  appearanceFollowSystem: false,
   currentBookId: null,
   alwaysOnTop: false,
   language: 'en',

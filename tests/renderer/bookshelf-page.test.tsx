@@ -7,6 +7,11 @@ import type { AppConfig, BookRecord, ReadingProgress } from '../../src/shared/ty
 const baseConfig: AppConfig = {
   fontSize: 16,
   lineHeight: 1.8,
+  fontFamily: 'Newsreader',
+  glassIntensity: 85,
+  colorTheme: 'obsidian',
+  appearance: 'dark',
+  appearanceFollowSystem: false,
   currentBookId: null,
   alwaysOnTop: false,
   language: 'en',
