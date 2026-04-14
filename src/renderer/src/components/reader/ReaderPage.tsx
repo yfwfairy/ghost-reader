@@ -103,7 +103,7 @@ export function ReaderPage({ backRef, onBack, onTitleChange, immersive = false, 
 
     async function loadCurrentBook() {
       const books = await window.api.getAllBooks()
-      const currentBook = books.find((candidate) => candidate.id === config.currentBookId) ?? null
+      const currentBook = books.find((candidate) => candidate.id === config?.currentBookId) ?? null
 
       if (cancelled) {
         return
