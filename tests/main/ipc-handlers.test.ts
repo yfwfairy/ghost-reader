@@ -49,6 +49,7 @@ describe('ipc handlers always-on-top routing', () => {
         alwaysOnTop: value,
       })),
       broadcastConfig: vi.fn(),
+      setMinimumSize: vi.fn(),
     }
 
     registerIpcHandlers(windowManager)
@@ -114,6 +115,7 @@ describe('ipc handlers always-on-top routing', () => {
         alwaysOnTop: value,
       })),
       broadcastConfig: vi.fn(),
+      setMinimumSize: vi.fn(),
     }
 
     registerIpcHandlers(windowManager)
@@ -173,6 +175,7 @@ describe('ipc handlers always-on-top routing', () => {
         alwaysOnTop: value,
       })),
       broadcastConfig: vi.fn(),
+      setMinimumSize: vi.fn(),
     }
 
     registerIpcHandlers(windowManager)

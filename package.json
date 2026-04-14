@@ -1,11 +1,15 @@
 {
   "name": "ghost-reader",
   "version": "0.1.0",
+  "description": "A ghostly reading companion for TXT and EPUB books",
+  "author": "Yves F. Yang",
   "private": true,
   "main": "out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",
     "build": "electron-vite build",
+    "pack": "electron-vite build && electron-builder --dir",
+    "dist": "electron-vite build && electron-builder",
     "test": "vitest run",
     "test:watch": "vitest"
   },
