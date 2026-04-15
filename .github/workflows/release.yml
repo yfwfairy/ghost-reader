@@ -1,0 +1,78 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '手动构建的版本号（如 0.1.0-dev），仅用于命名，不修改源码'
+        required: false
+        default: 'dev'
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  release:
+    runs-on: macos-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      # 提取版本号：tag 触发用 tag，手动触发用 input，兜底读 package.json
+      - name: Resolve version
+        id: version
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          elif [[ -n "${{ inputs.version }}" ]]; then
+            VERSION="${{ inputs.version }}"
+          else
+            VERSION="$(node -p "require('./package.json').version")"
+          fi
+          echo "VERSION=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Resolved version: ${VERSION}"
+
+      # tag 触发时同步 package.json 版本号，让 electron-builder 的 ${version} 占位符正确
+      - name: Sync package.json version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: npm version "${{ steps.version.outputs.VERSION }}" --no-git-tag-version --allow-same-version
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build (electron-vite)
+        run: bun run build
+
+      - name: Package for x64 (Intel)
+        run: bunx electron-builder --mac --x64 --publish never
+
+      - name: Package for arm64 (Apple Silicon)
+        run: bunx electron-builder --mac --arm64 --publish never
+
+      - name: List artifacts
+        run: ls -lh dist/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          name: ${{ startsWith(github.ref, 'refs/tags/') && format('Ghost Reader v{0}', steps.version.outputs.VERSION) || format('[manual] Ghost Reader v{0}', steps.version.outputs.VERSION) }}
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || format('manual-{0}', steps.version.outputs.VERSION) }}
+          prerelease: ${{ !startsWith(github.ref, 'refs/tags/') }}
+          generate_release_notes: ${{ startsWith(github.ref, 'refs/tags/') }}
+          files: |
+            dist/*.dmg
+            dist/*.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
