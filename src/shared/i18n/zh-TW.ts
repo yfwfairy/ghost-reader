@@ -108,6 +108,11 @@ const zhTW: Record<string, string> = {
   'app.pinLabel': '置頂',
   'app.immersive': '進入沉浸模式',
   'app.exitImmersive': '退出沉浸模式',
+
+  // Error Boundary
+  'error.readerTitle': '閱讀器崩潰了',
+  'error.readerDescription': '渲染時出現了意外錯誤，你可以返回書架。',
+  'error.backToShelf': '返回書架',
 }
 
 export default zhTW

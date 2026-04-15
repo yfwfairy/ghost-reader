@@ -2,12 +2,31 @@ import { useEffect, useRef, useState } from 'react'
 import { AppFrame } from './components/chrome/AppFrame'
 import { BookshelfPage } from './components/bookshelf/BookshelfPage'
 import { ReaderPage } from './components/reader/ReaderPage'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import { useConfig } from './hooks/useConfig'
 import { I18nProvider, useTranslation } from './hooks/useTranslation'
 import './styles/global.css'
 
 export type HomeView = 'recent' | 'library'
 export type AppPage = 'home' | 'reader'
+
+// 阅读器崩溃降级 UI
+function ReaderErrorFallback({ onBack }: { onBack: () => void }) {
+  return (
+    <div className="error-fallback">
+      <span className="error-fallback__icon material-symbols-outlined" aria-hidden="true">
+        error_outline
+      </span>
+      <h2 className="error-fallback__title">Reader crashed</h2>
+      <p className="error-fallback__description">
+        Something went wrong while rendering. You can return to the bookshelf.
+      </p>
+      <button className="error-fallback__btn" type="button" onClick={onBack}>
+        Back to bookshelf
+      </button>
+    </div>
+  )
+}
 
 // 监听系统深浅色偏好
 function useSystemDarkMode(enabled: boolean) {
@@ -96,18 +115,33 @@ function AppInner() {
           }}
         />
       ) : (
-        <ReaderPage
-          backRef={readerBackRef}
-          onBack={() => {
+        <ErrorBoundary
+          fallback={<ReaderErrorFallback onBack={() => {
+            void window.api.setAlwaysOnTop(false)
+            setImmersive(false)
+            setPage('home')
+            void window.api.setMinWindowSize(800, 450)
+          }} />}
+          onReset={() => {
             void window.api.setAlwaysOnTop(false)
             setImmersive(false)
             setPage('home')
             void window.api.setMinWindowSize(800, 450)
           }}
-          onTitleChange={(nextTitle) => setReaderTitle(nextTitle)}
-          immersive={immersive}
-          onExitImmersive={() => setImmersive(false)}
-        />
+        >
+          <ReaderPage
+            backRef={readerBackRef}
+            onBack={() => {
+              void window.api.setAlwaysOnTop(false)
+              setImmersive(false)
+              setPage('home')
+              void window.api.setMinWindowSize(800, 450)
+            }}
+            onTitleChange={(nextTitle) => setReaderTitle(nextTitle)}
+            immersive={immersive}
+            onExitImmersive={() => setImmersive(false)}
+          />
+        </ErrorBoundary>
       )}
     </AppFrame>
   )
@@ -116,7 +150,9 @@ function AppInner() {
 export default function App() {
   return (
     <I18nProvider>
-      <AppInner />
+      <ErrorBoundary>
+        <AppInner />
+      </ErrorBoundary>
     </I18nProvider>
   )
 }

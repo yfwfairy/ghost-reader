@@ -3333,6 +3333,61 @@ html[data-app-mode='reader'] .app-frame__content {
   background: rgba(var(--theme-bg), 0.92);
 }
 
+/* ── Error Boundary 降级 UI ──────────────────────── */
+.error-fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-height: 0;
+  gap: 12px;
+  padding: 48px 32px;
+  text-align: center;
+  user-select: none;
+}
+
+.error-fallback__icon {
+  font-size: 48px;
+  color: rgba(var(--theme-text), 0.25);
+}
+
+.error-fallback__title {
+  margin: 0;
+  font-family: var(--font-headline);
+  font-size: 18px;
+  font-weight: 600;
+  color: rgba(var(--theme-text), 0.85);
+}
+
+.error-fallback__description {
+  margin: 0;
+  font-family: var(--font-label);
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(var(--theme-text), 0.45);
+  max-width: 320px;
+}
+
+.error-fallback__btn {
+  margin-top: 8px;
+  padding: 8px 24px;
+  border: 1px solid rgba(var(--theme-text), 0.15);
+  border-radius: 10px;
+  background: rgba(var(--theme-text), 0.06);
+  color: rgba(var(--theme-text), 0.72);
+  font-family: var(--font-label);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 180ms ease, border-color 180ms ease;
+}
+
+.error-fallback__btn:hover {
+  background: rgba(var(--theme-text), 0.12);
+  border-color: rgba(var(--theme-text), 0.25);
+}
+
 [data-appearance="light"] .chapter-list__book-select {
   color-scheme: light;
   background-color: rgba(0, 0, 0, 0.04);

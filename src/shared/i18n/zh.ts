@@ -108,6 +108,11 @@ const zh: Record<string, string> = {
   'app.pinLabel': '置顶',
   'app.immersive': '进入沉浸模式',
   'app.exitImmersive': '退出沉浸模式',
+
+  // Error Boundary
+  'error.readerTitle': '阅读器崩溃了',
+  'error.readerDescription': '渲染时出现了意外错误，你可以返回书架。',
+  'error.backToShelf': '返回书架',
 }
 
 export default zh

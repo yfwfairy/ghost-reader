@@ -109,6 +109,11 @@ const en: Record<string, string> = {
   'app.pinLabel': 'Pin',
   'app.immersive': 'Enter immersive mode',
   'app.exitImmersive': 'Exit immersive mode',
+
+  // Error Boundary
+  'error.readerTitle': 'Reader crashed',
+  'error.readerDescription': 'Something went wrong while rendering. You can return to the bookshelf.',
+  'error.backToShelf': 'Back to bookshelf',
 }
 
 export default en
