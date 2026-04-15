@@ -17,8 +17,8 @@ type ReaderLayoutProps = PropsWithChildren<{
 }>
 
 export function ReaderLayout({
-  title,
-  meta,
+  title: _title,
+  meta: _meta,
   toc,
   progress,
   chapterProgressMap,

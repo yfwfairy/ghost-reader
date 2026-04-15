@@ -70,7 +70,7 @@ function findChapterByHref(
   return { bookIndex: 0, chapterId: null }
 }
 
-export function ReaderDrawer({ open, activeTab, onTabChange, onClose, toc = [], chapterProgressMap, currentChapterHref, onChapterSelect }: ReaderDrawerProps) {
+export function ReaderDrawer({ open, activeTab, onTabChange: _onTabChange, onClose, toc = [], chapterProgressMap, currentChapterHref, onChapterSelect }: ReaderDrawerProps) {
   const { t } = useTranslation()
   const { config, fallbackConfig, updateConfig } = useConfig()
   const activeConfig = config ?? fallbackConfig

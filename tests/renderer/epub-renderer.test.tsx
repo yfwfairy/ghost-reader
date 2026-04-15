@@ -4,9 +4,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const {
   renditionDestroy,
-  renditionOn,
+  renditionOn: _renditionOn,
   renditionDisplay,
-  themesDefault,
+  themesDefault: _themesDefault,
   renderTo,
   bookDestroy,
   epubFactory,
