@@ -7,15 +7,22 @@ import { EpubRenderer } from './EpubRenderer'
 import { ReaderLayout } from './ReaderLayout'
 import { TxtRenderer } from './TxtRenderer'
 
+export type ReaderActions = {
+  scrollLine: (direction: 'up' | 'down') => void
+  chapterPrev: () => void
+  chapterNext: () => void
+}
+
 type ReaderPageProps = {
   backRef?: React.RefObject<(() => void | Promise<void>) | null>
+  readerActionsRef?: React.RefObject<ReaderActions | null>
   onBack: () => void
   onTitleChange?: (title: string) => void
   immersive?: boolean
   onExitImmersive?: () => void
 }
 
-export function ReaderPage({ backRef, onBack, onTitleChange, immersive = false, onExitImmersive }: ReaderPageProps) {
+export function ReaderPage({ backRef, readerActionsRef, onBack, onTitleChange, immersive = false, onExitImmersive }: ReaderPageProps) {
   const { config, fallbackConfig, loading } = useConfig()
   const { t } = useTranslation()
   const [book, setBook] = useState<BookRecord | null>(null)
@@ -30,6 +37,8 @@ export function ReaderPage({ backRef, onBack, onTitleChange, immersive = false, 
   const mountedRef = useRef(true)
   const backNavigationRef = useRef<Promise<void> | null>(null)
   const epubDisplayRef = useRef<((href: string, scrollPct?: number) => void) | null>(null)
+  const epubChapterNavRef = useRef<{ prev: () => void; next: () => void } | null>(null)
+  const txtScrollRef = useRef<HTMLDivElement | null>(null)
   const chapterProgressRef = useRef<Record<string, number>>({})
   const spineHrefsRef = useRef<string[]>([])
   const [currentChapterPercent, setCurrentChapterPercent] = useState<number | null>(null)
@@ -223,6 +232,36 @@ export function ReaderPage({ backRef, onBack, onTitleChange, immersive = false, 
     }
   })
 
+  // 暴露阅读器操作给键盘快捷键 hook
+  useEffect(() => {
+    if (readerActionsRef) {
+      readerActionsRef.current = {
+        scrollLine: (direction) => {
+          // TXT：直接滚动容器
+          if (txtScrollRef.current) {
+            const lineHeight = activeConfig.fontSize * activeConfig.lineHeight
+            txtScrollRef.current.scrollBy({
+              top: direction === 'down' ? lineHeight : -lineHeight,
+              behavior: 'smooth',
+            })
+            return
+          }
+          // EPUB：滚动 .epub-container
+          const epubContainer = document.querySelector('.epub-container') as HTMLElement | null
+          if (epubContainer) {
+            const lineHeight = activeConfig.fontSize * activeConfig.lineHeight
+            epubContainer.scrollBy({
+              top: direction === 'down' ? lineHeight : -lineHeight,
+              behavior: 'smooth',
+            })
+          }
+        },
+        chapterPrev: () => epubChapterNavRef.current?.prev(),
+        chapterNext: () => epubChapterNavRef.current?.next(),
+      }
+    }
+  })
+
   const readerTitle = book?.title ?? t('reader.title')
   const readerMeta = book
     ? [book.author && book.author.toLowerCase() !== 'unknown' ? book.author : '', book.format.toUpperCase()].filter(Boolean).join(' · ')
@@ -267,6 +306,7 @@ export function ReaderPage({ backRef, onBack, onTitleChange, immersive = false, 
             colorTheme: activeConfig.colorTheme,
           }}
           savedProgress={progress}
+          scrollRef={txtScrollRef}
           onProgressUpdate={saveProgressLater}
         />
       ) : book.format === 'epub' && epubData ? (
@@ -278,6 +318,7 @@ export function ReaderPage({ backRef, onBack, onTitleChange, immersive = false, 
           colorTheme={activeConfig.colorTheme}
           savedCfi={progress?.epubCfi}
           displayRef={epubDisplayRef}
+          chapterNavRef={epubChapterNavRef}
           onTocLoaded={setToc}
           onChapterScroll={handleChapterScroll}
           onSpineReady={(hrefs) => { spineHrefsRef.current = hrefs }}

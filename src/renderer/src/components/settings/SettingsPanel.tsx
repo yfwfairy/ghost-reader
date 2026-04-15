@@ -27,6 +27,18 @@ export function SettingsPanel({ config, onSave, onClose }: SettingsPanelProps) {
   const [draft, setDraft] = useState(config)
   const [activeSection, setActiveSection] = useState<SectionId>('appearance')
 
+  // ESC 关闭设置面板（阻止冒泡，防止 App 级 ESC 同时触发）
+  useEffect(() => {
+    function handleEsc(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        e.stopPropagation()
+        onClose()
+      }
+    }
+    document.addEventListener('keydown', handleEsc)
+    return () => document.removeEventListener('keydown', handleEsc)
+  }, [onClose])
+
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const appearanceRef = useRef<HTMLElement>(null)
   const languageRef = useRef<HTMLElement>(null)
@@ -221,6 +233,13 @@ export function SettingsPanel({ config, onSave, onClose }: SettingsPanelProps) {
                   </div>
                 </div>
                 <div className="settings-shortcut-row">
+                  <span>{t('settings.shortcutChapter')}</span>
+                  <div className="settings-shortcut-keys">
+                    <kbd>←</kbd>
+                    <kbd>→</kbd>
+                  </div>
+                </div>
+                <div className="settings-shortcut-row">
                   <span>{t('settings.shortcutHide')}</span>
                   <div className="settings-shortcut-keys">
                     <kbd>ESC</kbd>
@@ -229,7 +248,20 @@ export function SettingsPanel({ config, onSave, onClose }: SettingsPanelProps) {
                 <div className="settings-shortcut-row">
                   <span>{t('settings.shortcutFullscreen')}</span>
                   <div className="settings-shortcut-keys">
-                    <kbd>F11</kbd>
+                    <kbd>⌘/Ctrl</kbd><span>+</span><kbd>F</kbd>
+                  </div>
+                </div>
+                <div className="settings-shortcut-row">
+                  <span>{t('settings.shortcutBack')}</span>
+                  <div className="settings-shortcut-keys">
+                    <kbd>⌘/Ctrl</kbd><span>+</span><kbd>B</kbd>
+                  </div>
+                </div>
+                <div className="settings-shortcut-row">
+                  <span>{t('settings.shortcutFontSize')}</span>
+                  <div className="settings-shortcut-keys">
+                    <kbd>⌘/Ctrl</kbd><span>+</span><kbd>=</kbd>
+                    <kbd>⌘/Ctrl</kbd><span>+</span><kbd>-</kbd>
                   </div>
                 </div>
               </div>

@@ -1,4 +1,4 @@
-import { useState, type PropsWithChildren } from 'react'
+import { useEffect, useState, type PropsWithChildren } from 'react'
 import type { TocEntry } from '@shared/types'
 import { useConfig } from '../../hooks/useConfig'
 import { useTranslation } from '../../hooks/useTranslation'
@@ -33,6 +33,19 @@ export function ReaderLayout({
   const activeConfig = config ?? fallbackConfig
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [drawerTab, setDrawerTab] = useState<DrawerTab>('chapters')
+
+  // ESC 关闭抽屉（阻止冒泡，防止 App 级 ESC 同时退出沉浸模式）
+  useEffect(() => {
+    if (!drawerOpen) return
+    function handleEsc(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        e.stopPropagation()
+        setDrawerOpen(false)
+      }
+    }
+    document.addEventListener('keydown', handleEsc)
+    return () => document.removeEventListener('keydown', handleEsc)
+  }, [drawerOpen])
 
   // glassIntensity 映射为蒙版透明度（0-100 → 0-0.6）
   const maskOpacity = (activeConfig.glassIntensity / 100) * 0.6

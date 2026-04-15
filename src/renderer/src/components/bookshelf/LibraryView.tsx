@@ -22,16 +22,12 @@ export function LibraryView({ books, onImport, onOpen, onRemove, showAddTile = t
           <p className="library-view__subtitle">
             {books.length === 0
               ? t('library.empty')
-              : t(
-                  'library.subtitle',
-                  books.length,
-                  books.length === 1 ? t('library.subtitleSingular') : t('library.subtitlePlural'),
-                )}
+              : t('library.subtitle', books.length)}
           </p>
         </div>
         <div className="library-view__search">
           <span className="material-symbols-outlined">search</span>
-          <input type="text" placeholder={t('library.search')} />
+          <input type="text" placeholder={t('library.search')} disabled style={{ opacity: 0.4, cursor: 'not-allowed' }} />
         </div>
       </header>
       <div className="library-view__grid">

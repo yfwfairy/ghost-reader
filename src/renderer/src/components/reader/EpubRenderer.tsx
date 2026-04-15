@@ -12,6 +12,7 @@ type EpubRendererProps = {
   colorTheme: ColorTheme
   savedCfi?: string
   displayRef?: React.RefObject<((href: string, scrollPct?: number) => void) | null>
+  chapterNavRef?: React.RefObject<{ prev: () => void; next: () => void } | null>
   onProgressUpdate: (patch: Pick<ReadingProgress, 'epubCfi' | 'percentage' | 'updatedAt'>) => void
   onChapterScroll?: (chapterHref: string, percent: number) => void
   onTocLoaded?: (toc: TocEntry[]) => void
@@ -38,6 +39,7 @@ export function EpubRenderer({
   colorTheme,
   savedCfi,
   displayRef,
+  chapterNavRef,
   onProgressUpdate,
   onChapterScroll,
   onTocLoaded,
@@ -72,6 +74,11 @@ export function EpubRenderer({
   const bindDisplayRef = useEffectEvent((handler: ((href: string, scrollPct?: number) => void) | null) => {
     if (displayRef) {
       displayRef.current = handler
+    }
+  })
+  const bindChapterNavRef = useEffectEvent((nav: { prev: () => void; next: () => void } | null) => {
+    if (chapterNavRef) {
+      chapterNavRef.current = nav
     }
   })
 
@@ -124,6 +131,31 @@ export function EpubRenderer({
         chapterRenderedRef.current = false
       }
       void rendition.display(href)
+    })
+
+    // 暴露章节前进/后退给外部（键盘快捷键）
+    bindChapterNavRef({
+      prev: () => {
+        chapterRenderedRef.current = false
+        void rendition.prev()
+      },
+      next: () => {
+        chapterRenderedRef.current = false
+        void rendition.next()
+      },
+    })
+
+    // 将 iframe 内的键盘事件转发到父文档，使全局快捷键在 EPUB 阅读时也能生效
+    rendition.on('keydown', (e: KeyboardEvent) => {
+      document.dispatchEvent(new KeyboardEvent('keydown', {
+        key: e.key,
+        code: e.code,
+        metaKey: e.metaKey,
+        ctrlKey: e.ctrlKey,
+        shiftKey: e.shiftKey,
+        altKey: e.altKey,
+        bubbles: true,
+      }))
     })
 
     // 使用 ref 中的最新值设置初始主题
@@ -290,6 +322,7 @@ export function EpubRenderer({
       lastDisplayedCfiRef.current = undefined
       currentChapterRef.current = { href: '', index: 0 }
       bindDisplayRef(null)
+      bindChapterNavRef(null)
       rendition.destroy()
       book.destroy()
     }

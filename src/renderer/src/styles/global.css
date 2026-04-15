@@ -524,6 +524,16 @@ button {
   font: inherit;
 }
 
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 0px white, 0 0 4px 4px #d7d1d11d;
+  border-radius: 8px;
+}
+
 /* 全局滚动条样式 */
 * {
   scrollbar-width: thin;
@@ -1011,6 +1021,13 @@ html[data-app-mode='reader'] .app-frame__content {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 24px;
+}
+
+@media (max-width: 1000px) {
+  .recent-view__list {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
 }
 
 .recent-book-card {
