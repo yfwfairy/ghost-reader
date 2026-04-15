@@ -46,6 +46,7 @@ export function EpubRenderer({
   const mountRef = useRef<HTMLDivElement | null>(null)
   const renditionRef = useRef<ReturnType<ReturnType<typeof ePub>['renderTo']> | null>(null)
   const lastDisplayedCfiRef = useRef<string | undefined>(undefined)
+  const latestSavedCfiRef = useRef(savedCfi)
   const fontSizeRef = useRef(fontSize)
   const lineHeightRef = useRef(lineHeight)
   const fontFamilyRef = useRef(fontFamily)
@@ -68,6 +69,15 @@ export function EpubRenderer({
   const handleSpineReady = useEffectEvent((spineHrefs: string[]) => {
     onSpineReady?.(spineHrefs)
   })
+  const bindDisplayRef = useEffectEvent((handler: ((href: string, scrollPct?: number) => void) | null) => {
+    if (displayRef) {
+      displayRef.current = handler
+    }
+  })
+
+  useEffect(() => {
+    latestSavedCfiRef.current = savedCfi
+  }, [savedCfi])
 
   // 计算章节内滚动进度
   function computeScrollPercent(el: HTMLElement, rendered: boolean) {
@@ -101,22 +111,20 @@ export function EpubRenderer({
     const pendingFragmentNav = { value: false }
 
     // 暴露导航方法给外部
-    if (displayRef) {
-      displayRef.current = (href: string, scrollPct?: number) => {
-        pendingScrollPct.value = scrollPct ?? null
-        pendingFragmentNav.value = href.includes('#') && scrollPct == null
-        // 标记正在进行外部导航，阻止 savedCfi effect 竞争
-        navigatingViaDisplayRef.current = true
-        // 同章节内 fragment 跳转不需要标记未渲染（内容不会卸载重载），
-        // 否则 onScroll 会被永久跳过导致进度卡住
-        const targetBase = href.split('#')[0]
-        const currentBase = currentChapterRef.current.href.split('#')[0]
-        if (targetBase !== currentBase) {
-          chapterRenderedRef.current = false
-        }
-        void rendition.display(href)
+    bindDisplayRef((href: string, scrollPct?: number) => {
+      pendingScrollPct.value = scrollPct ?? null
+      pendingFragmentNav.value = href.includes('#') && scrollPct == null
+      // 标记正在进行外部导航，阻止 savedCfi effect 竞争
+      navigatingViaDisplayRef.current = true
+      // 同章节内 fragment 跳转不需要标记未渲染（内容不会卸载重载），
+      // 否则 onScroll 会被永久跳过导致进度卡住
+      const targetBase = href.split('#')[0]
+      const currentBase = currentChapterRef.current.href.split('#')[0]
+      if (targetBase !== currentBase) {
+        chapterRenderedRef.current = false
       }
-    }
+      void rendition.display(href)
+    })
 
     // 使用 ref 中的最新值设置初始主题
     rendition.themes.default({
@@ -129,8 +137,8 @@ export function EpubRenderer({
       },
     })
 
-    lastDisplayedCfiRef.current = savedCfi
-    void rendition.display(savedCfi)
+    lastDisplayedCfiRef.current = latestSavedCfiRef.current
+    void rendition.display(latestSavedCfiRef.current)
 
     // 生成位置索引以获取精确的全书进度百分比
     // （epubjs 的 location.start.percentage 依赖此步骤，否则永远返回 0）
@@ -281,9 +289,7 @@ export function EpubRenderer({
       renditionRef.current = null
       lastDisplayedCfiRef.current = undefined
       currentChapterRef.current = { href: '', index: 0 }
-      if (displayRef) {
-        displayRef.current = null
-      }
+      bindDisplayRef(null)
       rendition.destroy()
       book.destroy()
     }

@@ -112,7 +112,7 @@ export function ReaderDrawer({ open, activeTab, onTabChange: _onTabChange, onClo
     requestAnimationFrame(() => {
       activeItemRef.current?.scrollIntoView({ block: 'center', behavior: 'instant' })
     })
-  }, [open, activeTab])
+  }, [open, activeTab, anthology, currentChapterHref, toc])
 
   // 渲染 L2/L3 子项
   const renderSubItem = (entry: TocEntry, depth: 2 | 3): React.ReactNode => {

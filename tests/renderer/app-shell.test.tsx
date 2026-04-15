@@ -3,6 +3,12 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '../../src/renderer/src/App'
 
+async function flushAsyncUi() {
+  await act(async () => {
+    await Promise.resolve()
+  })
+}
+
 // App 中 useSystemDarkMode 调用了 window.matchMedia
 beforeEach(() => {
   Object.defineProperty(window, 'matchMedia', {
@@ -233,6 +239,7 @@ describe('App single-window shell', () => {
     render(<App />)
 
     expect(await screen.findByRole('button', { name: 'Open library view' })).toBeInTheDocument()
+    await flushAsyncUi()
 
     // 通过 config 变更导航到阅读器
     act(() => {
@@ -253,6 +260,7 @@ describe('App single-window shell', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Back to bookshelf' }))
 
     expect(await screen.findByRole('button', { name: 'Open library view' })).toBeInTheDocument()
+    await flushAsyncUi()
 
     // 再次广播相同的 bookId 不应该切回阅读器
     act(() => {

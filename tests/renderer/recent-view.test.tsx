@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom/vitest'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { BookshelfBook } from '../../src/renderer/src/hooks/useBookshelfData'
 import { RecentView } from '../../src/renderer/src/components/bookshelf/RecentView'
@@ -45,8 +45,14 @@ function createRecentBook(overrides: Partial<BookshelfBook> = {}): BookshelfBook
   }
 }
 
+async function flushAsyncUi() {
+  await act(async () => {
+    await Promise.resolve()
+  })
+}
+
 describe('RecentView', () => {
-  it('renders recent cards with title, copy, progress, and last-opened metadata', () => {
+  it('renders recent cards with title, copy, progress, and last-opened metadata', async () => {
     render(
       <RecentView
         books={[
@@ -59,6 +65,8 @@ describe('RecentView', () => {
       />,
     )
 
+    await flushAsyncUi()
+
     expect(screen.getByRole('heading', { level: 2, name: 'Recent Encounters' })).toBeInTheDocument()
     expect(screen.getByText('Resuming your nocturnal drifts.')).toBeInTheDocument()
     expect(screen.getByText('Most Recent')).toBeInTheDocument()
@@ -67,10 +75,12 @@ describe('RecentView', () => {
     expect(screen.getAllByText(/Last opened \d{2}-03-1[01]/)).toHaveLength(2)
   })
 
-  it('opens reader when a recent card is clicked', () => {
+  it('opens reader when a recent card is clicked', async () => {
     const onOpen = vi.fn()
 
     render(<RecentView books={[createRecentBook()]} onOpen={onOpen} onOpenLibrary={vi.fn()} resetBooks={vi.fn()} />)
+
+    await flushAsyncUi()
 
     fireEvent.click(screen.getByRole('button', { name: 'Open Example Book in reader' }))
 

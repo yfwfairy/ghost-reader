@@ -38,10 +38,8 @@ export function ReaderPage({ backRef, onBack, onTitleChange, immersive = false, 
 
   // 从已保存的进度中恢复章节进度 map
   useEffect(() => {
-    if (progress?.chapterProgress) {
-      chapterProgressRef.current = { ...progress.chapterProgress }
-    }
-  }, [progress?.bookId])
+    chapterProgressRef.current = progress?.chapterProgress ? { ...progress.chapterProgress } : {}
+  }, [progress])
 
   const handleChapterScroll = useCallback((chapterHref: string, percent: number) => {
     setCurrentChapterPercent(percent)

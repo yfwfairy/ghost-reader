@@ -5,28 +5,28 @@ export type BookshelfBook = BookRecord & {
   progress: ReadingProgress | null
 }
 
+async function getProgressOrNull(bookId: string) {
+  try {
+    return await window.api.getProgress(bookId)
+  } catch {
+    return null
+  }
+}
+
+async function addProgress(books: BookRecord[]) {
+  return Promise.all(
+    books.map(async (book) => ({
+      ...book,
+      progress: await getProgressOrNull(book.id),
+    })),
+  )
+}
+
 export function useBookshelfData() {
   const [libraryBooks, setLibraryBooks] = useState<BookshelfBook[]>([])
   const [loading, setLoading] = useState(true)
   const hydrationCompleteRef = useRef(false)
   const preHydrationRemovedIdsRef = useRef<Set<string>>(new Set())
-
-  async function getProgressOrNull(bookId: string) {
-    try {
-      return await window.api.getProgress(bookId)
-    } catch {
-      return null
-    }
-  }
-
-  async function addProgress(books: BookRecord[]) {
-    return Promise.all(
-      books.map(async (book) => ({
-        ...book,
-        progress: await getProgressOrNull(book.id),
-      })),
-    )
-  }
 
   function mergeHydratedBooks(current: BookshelfBook[], hydrated: BookshelfBook[]) {
     const removedIds = preHydrationRemovedIdsRef.current
