@@ -4,7 +4,6 @@
   "description": "A ghostly reading companion for TXT and EPUB books",
   "author": "Yves F. Yang",
   "private": true,
-  "type": "module",
   "main": "out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",

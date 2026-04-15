@@ -1009,6 +1009,7 @@ html[data-app-mode='reader'] .app-frame__content {
 
 .recent-view__list {
   display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 24px;
 }
 
@@ -1082,7 +1083,7 @@ html[data-app-mode='reader'] .app-frame__content {
 
 .recent-book-card__body {
   flex: 1;
-  padding: 28px 32px;
+  padding: 20px 24px;
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -1095,7 +1096,7 @@ html[data-app-mode='reader'] .app-frame__content {
 
 .recent-book-card__title {
   font-family: var(--font-body);
-  font-size: 26px;
+  font-size: 20px;
   font-weight: 800;
   letter-spacing: -0.02em;
   color: rgba(231, 229, 228, 1);
@@ -1110,9 +1111,9 @@ html[data-app-mode='reader'] .app-frame__content {
 
 .recent-book-card__author {
   font-family: var(--font-body);
-  font-size: 15px;
+  font-size: 13px;
   color: rgba(172, 171, 170, 1);
-  margin-top: 5px;
+  margin-top: 3px;
 }
 
 /* 进度区域推到卡片底部 */
@@ -1137,7 +1138,7 @@ html[data-app-mode='reader'] .app-frame__content {
 }
 
 .recent-book-card__stats span:first-child {
-  font-size: 18px;
+  font-size: 13px;
   color: rgba(239, 248, 255, 1);
 }
 
@@ -1711,32 +1712,8 @@ html[data-app-mode='reader'] .app-frame__content {
 .library-view__grid {
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 32px;
-}
-
-@media (min-width: 1100px) {
-  .library-view__grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-@media (min-width: 1400px) {
-  .library-view__grid {
-    grid-template-columns: repeat(5, 1fr);
-  }
-}
-
-@media (min-width: 1800px) {
-  .library-view__grid {
-    grid-template-columns: repeat(6, 1fr);
-  }
-}
-
-@media (min-width: 2000px) {
-  .library-view__grid {
-    grid-template-columns: repeat(7, 1fr);
-  }
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
 }
 
 .add-library-card {
@@ -1923,10 +1900,10 @@ html[data-app-mode='reader'] .app-frame__content {
 
 .library-book-card__meta strong {
   font-family: var(--font-headline);
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 700;
   line-height: 1.3;
-  color: white;
+  color: rgba(231, 229, 228, 1);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
