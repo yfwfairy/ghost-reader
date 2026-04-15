@@ -56,10 +56,10 @@ jobs:
         run: bun run build
 
       - name: Package for x64 (Intel)
-        run: bunx electron-builder --mac --x64
+        run: bunx electron-builder --mac --x64 --publish never
 
       - name: Package for arm64 (Apple Silicon)
-        run: bunx electron-builder --mac --arm64
+        run: bunx electron-builder --mac --arm64 --publish never
 
       - name: List artifacts
         run: ls -lh dist/
