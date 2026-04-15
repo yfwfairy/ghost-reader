@@ -9,6 +9,25 @@ async function flushAsyncUi() {
   })
 }
 
+async function expectReaderLoaded() {
+  await waitFor(() => {
+    expect(window.api.readTxtFile).toHaveBeenCalledWith('/tmp/example.txt')
+  })
+  expect(await screen.findByText('第一段', {}, { timeout: 10_000 })).toBeInTheDocument()
+}
+
+async function openLibraryBook(title: string) {
+  const titleNode = (await screen.findAllByText(title))[0]
+  const openButton = titleNode.closest('button')
+  if (!openButton) {
+    throw new Error(`Could not find an open button for ${title}.`)
+  }
+  await act(async () => {
+    fireEvent.click(openButton)
+    await Promise.resolve()
+  })
+}
+
 // App 中 useSystemDarkMode 调用了 window.matchMedia
 beforeEach(() => {
   Object.defineProperty(window, 'matchMedia', {
@@ -137,9 +156,9 @@ describe('App single-window shell', () => {
     expect(document.querySelector('.app-frame')).toBeInTheDocument()
     expect(await screen.findByRole('button', { name: 'Open library view' })).toBeInTheDocument()
 
-    fireEvent.click((await screen.findAllByText('Example Book'))[0])
+    await openLibraryBook('Example Book')
 
-    expect(await screen.findByText('第一段')).toBeInTheDocument()
+    await expectReaderLoaded()
     expect(document.querySelector('.app-frame')).toBeInTheDocument()
     await waitFor(() => {
       expect(document.querySelector('.app-frame__title')).toHaveTextContent('Example Book')
@@ -162,8 +181,8 @@ describe('App single-window shell', () => {
     render(<App />)
 
     // 先从首页导航到阅读器
-    fireEvent.click((await screen.findAllByText('Example Book'))[0])
-    expect(await screen.findByText('第一段')).toBeInTheDocument()
+    await openLibraryBook('Example Book')
+    await expectReaderLoaded()
 
     fireEvent.click(screen.getByRole('button', { name: 'Back to bookshelf' }))
 
@@ -194,8 +213,8 @@ describe('App single-window shell', () => {
     render(<App />)
 
     // 先从首页导航到阅读器
-    fireEvent.click((await screen.findAllByText('Example Book'))[0])
-    expect(await screen.findByText('第一段')).toBeInTheDocument()
+    await openLibraryBook('Example Book')
+    await expectReaderLoaded()
 
     fireEvent.click(screen.getByRole('button', { name: 'Back to bookshelf' }))
 
@@ -225,7 +244,7 @@ describe('App single-window shell', () => {
       })
     })
 
-    expect(await screen.findByText('第一段')).toBeInTheDocument()
+    await expectReaderLoaded()
 
     fireEvent.click(screen.getByRole('button', { name: 'Back to bookshelf' }))
 
@@ -255,7 +274,7 @@ describe('App single-window shell', () => {
       })
     })
 
-    expect(await screen.findByText('第一段')).toBeInTheDocument()
+    await expectReaderLoaded()
 
     fireEvent.click(screen.getByRole('button', { name: 'Back to bookshelf' }))
 
@@ -286,6 +305,7 @@ describe('App single-window shell', () => {
     render(<App />)
 
     expect(await screen.findByRole('button', { name: 'Open library view' })).toBeInTheDocument()
+    await flushAsyncUi()
 
     act(() => {
       emitConfig({
@@ -300,7 +320,7 @@ describe('App single-window shell', () => {
       })
     })
 
-    expect(await screen.findByText('第一段')).toBeInTheDocument()
+    await expectReaderLoaded()
     await waitFor(() => {
       expect(document.querySelector('.app-frame__title')).toHaveTextContent('Example Book')
     })

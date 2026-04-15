@@ -45,6 +45,14 @@ function createRecentBook(overrides: Partial<BookshelfBook> = {}): BookshelfBook
   }
 }
 
+function formatShortDate(updatedAt: number) {
+  const date = new Date(updatedAt)
+  const y = String(date.getFullYear()).slice(2)
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
 async function flushAsyncUi() {
   await act(async () => {
     await Promise.resolve()
@@ -71,8 +79,8 @@ describe('RecentView', () => {
     expect(screen.getByText('Resuming your nocturnal drifts.')).toBeInTheDocument()
     expect(screen.getByText('Most Recent')).toBeInTheDocument()
     expect(screen.getByText('80%')).toBeInTheDocument()
-    // formatLastOpened 对超过 7 天的日期返回 YY-MM-DD 格式，两张卡片各一条
-    expect(screen.getAllByText(/Last opened \d{2}-03-1[01]/)).toHaveLength(2)
+    expect(screen.getByText(`Last opened ${formatShortDate(1710100000000)}`)).toBeInTheDocument()
+    expect(screen.getByText(`Last opened ${formatShortDate(1710000000000)}`)).toBeInTheDocument()
   })
 
   it('opens reader when a recent card is clicked', async () => {
