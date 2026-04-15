@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [feat/ghost-reader-v1, main]
+    branches: [main, feat/*]
   pull_request:
-    branches: [feat/ghost-reader-v1, main]
+    branches: [main]
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
