@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { contextBridge, ipcRenderer, webUtils } from 'electron'
 import type { AppConfig, GhostReaderApi } from '@shared/types'
 
 const api: GhostReaderApi = {
@@ -27,3 +27,8 @@ const api: GhostReaderApi = {
 }
 
 contextBridge.exposeInMainWorld('api', api)
+
+// 暴露 webUtils 给渲染进程，用于获取拖放文件的真实路径
+contextBridge.exposeInMainWorld('electronUtils', {
+  getPathForFile: (file: File) => webUtils.getPathForFile(file),
+})
