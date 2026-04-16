@@ -64,6 +64,8 @@ const en: Record<string, string> = {
   'library.addLabel': 'Add to Library',
   'library.dragHint': 'Drop to add',
   'library.dragHintSub': 'Supports .txt and .epub',
+  'library.searchResult': 'Found {0} matching book(s)',
+  'library.searchEmpty': 'No books match your search',
   'library.removeAria': 'Remove {0}',
 
   // Reader 页面

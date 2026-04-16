@@ -63,6 +63,8 @@ const zh: Record<string, string> = {
   'library.addLabel': '添加书籍',
   'library.dragHint': '拖放添加',
   'library.dragHintSub': '支持 .txt 和 .epub 格式',
+  'library.searchResult': '找到匹配的 {0} 本书',
+  'library.searchEmpty': '没有找到匹配的书籍',
   'library.removeAria': '移除 {0}',
 
   // Reader 页面
