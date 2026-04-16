@@ -491,11 +491,6 @@
   border-top-color: rgba(0, 0, 0, 0.06);
 }
 
-/* 浅色主题：bookshelf-status */
-[data-appearance="light"] .bookshelf-status {
-  background: linear-gradient(180deg, var(--bg-panel), rgba(236, 232, 234, 0.88));
-}
-
 html,
 body,
 #root {
@@ -1009,6 +1004,7 @@ button {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  max-width: 80%;
 }
 
 .app-frame__actions {
@@ -1351,11 +1347,7 @@ html[data-app-mode='reader'] .app-frame__content {
   margin: auto;
   max-width: 320px;
   text-align: center;
-  border: 1px solid var(--border-soft);
-  border-radius: 28px;
-  background: linear-gradient(180deg, var(--bg-panel), rgba(14, 14, 14, 0.88));
   padding: 32px;
-  box-shadow: var(--shadow-card), var(--surface-highlight);
 }
 
 .recent-view {
@@ -3638,6 +3630,68 @@ html[data-appearance='light'] .reader-guide__card {
 .font-picker__btn--merriweather {
   font-family: 'Merriweather', serif;
   font-size: 11px;
+}
+
+.font-picker__btn--noto-serif-sc {
+  font-family: 'Noto Serif SC', serif;
+}
+
+.font-picker__btn--noto-sans-sc {
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 12px;
+}
+
+.font-picker__btn--lxgw-wenkai {
+  font-family: 'LXGW WenKai', serif;
+}
+
+.font-picker__btn--tsanger {
+  font-family: 'TsangerZhoukeZhengdabangshu', serif;
+  font-size: 11px;
+}
+
+.font-picker__btn--yozai {
+  font-family: 'Yozai', sans-serif;
+}
+
+.font-picker__btn--guankiap {
+  font-family: 'GuanKiapTsingKhai-W', serif;
+}
+
+.font-picker__btn--moonstars {
+  font-family: 'Moon Stars Kai T HW', serif;
+}
+
+.font-picker__btn--lxgw-wenkai-tc {
+  font-family: 'LXGW WenKai TC', serif;
+}
+
+/* 字体选项卡 */
+.font-picker-tabs {
+  display: flex;
+  gap: 2px;
+}
+
+.font-picker-tabs__btn {
+  padding: 3px 8px;
+  font-size: 10px;
+  font-family: var(--font-label), system-ui, sans-serif;
+  color: rgba(var(--theme-text), 0.35);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.font-picker-tabs__btn:hover {
+  color: rgba(var(--theme-text), 0.55);
+}
+
+.font-picker-tabs__btn--active {
+  color: rgba(var(--theme-text), 0.8);
+  background: rgba(var(--theme-text), 0.06);
+  border-color: rgba(var(--theme-text), 0.1);
 }
 
 .font-picker__btn--active {

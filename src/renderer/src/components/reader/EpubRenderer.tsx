@@ -4,6 +4,17 @@ import type { ColorTheme, FontFamily, ReadingProgress, TocEntry } from '@shared/
 import { THEME_MAP } from '@shared/constants'
 import { useTranslation } from '../../hooks/useTranslation'
 
+// 字体 CDN 样式表，需注入到 EPUB iframe 中以使 @font-face 可用
+const FONT_STYLESHEETS = [
+  'https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Manrope:wght@200;400;600;700;800&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Noto+Serif+SC:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap',
+  'https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css',
+  'https://chinese-fonts-cdn.deno.dev/packages/cezkzdbs/dist/%E4%BB%93%E8%80%B3%E5%91%A8%E7%8F%82%E6%AD%A3%E5%A4%A7%E6%A6%9C%E4%B9%A6/result.css',
+  'https://chinese-fonts-cdn.deno.dev/packages/yozai/dist/Yozai-Regular/result.css',
+  'https://chinese-fonts-cdn.deno.dev/packages/GuanKiapTsingKhai/dist/GuanKiapTsingKhai-W/result.css',
+  'https://chinese-fonts-cdn.deno.dev/packages/moon-stars-kai/dist/MoonStarsKaiTHW-Regular/result.css',
+  'https://cdn.jsdelivr.net/npm/lxgw-wenkai-tc-webfont@1.7.0/style.css',
+]
+
 type EpubRendererProps = {
   bookData: ArrayBuffer
   fontSize: number
@@ -158,10 +169,24 @@ export function EpubRenderer({
       }))
     })
 
+    // 注入字体样式表到 EPUB iframe，使中文 @font-face 在 iframe 内可用
+    const hooks = rendition.hooks as unknown as {
+      content: { register: (fn: (contents: { document: Document }) => void) => void }
+    }
+    hooks.content.register((contents) => {
+      const doc = contents.document
+      FONT_STYLESHEETS.forEach((url) => {
+        const link = doc.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        doc.head.appendChild(link)
+      })
+    })
+
     // 使用 ref 中的最新值设置初始主题
     rendition.themes.default({
       body: {
-        'font-family': `${fontFamilyRef.current}, serif`,
+        'font-family': `'${fontFamilyRef.current}', serif !important`,
         'font-size': `${fontSizeRef.current}px`,
         'line-height': String(lineHeightRef.current),
         background: 'transparent',
@@ -339,7 +364,7 @@ export function EpubRenderer({
     }
     renditionRef.current.themes.default({
       body: {
-        'font-family': `${fontFamily}, serif`,
+        'font-family': `'${fontFamily}', serif !important`,
         'font-size': `${fontSize}px`,
         'line-height': String(lineHeight),
         background: 'transparent',

@@ -51,7 +51,7 @@ export function TxtRenderer({ content, config, savedProgress, scrollRef, onProgr
       style={{
         fontSize: `${config.fontSize}px`,
         lineHeight: config.lineHeight,
-        fontFamily: `${config.fontFamily}, serif`,
+        fontFamily: `'${config.fontFamily}', serif`,
         color: THEME_MAP[config.colorTheme].text,
       }}
     >
