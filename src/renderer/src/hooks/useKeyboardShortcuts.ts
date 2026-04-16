@@ -33,13 +33,14 @@ export function useKeyboardShortcuts({
 }: KeyboardShortcutsConfig) {
   // 用 ref 持有可变值，避免 effect 频繁重注册
   const immersiveRef = useRef(immersive)
-  immersiveRef.current = immersive
   const fontSizeRef = useRef(fontSize)
-  fontSizeRef.current = fontSize
   const onBackRef = useRef(onBack)
-  onBackRef.current = onBack
   const updateConfigRef = useRef(updateConfig)
-  updateConfigRef.current = updateConfig
+
+  useEffect(() => { immersiveRef.current = immersive }, [immersive])
+  useEffect(() => { fontSizeRef.current = fontSize }, [fontSize])
+  useEffect(() => { onBackRef.current = onBack }, [onBack])
+  useEffect(() => { updateConfigRef.current = updateConfig }, [updateConfig])
 
   useEffect(() => {
     if (!enabled) return
