@@ -44,6 +44,7 @@ export interface AppConfig {
   currentBookId: string | null
   alwaysOnTop: boolean
   language: Locale
+  onboardingCompleted: boolean
 }
 
 export interface GhostReaderApi {

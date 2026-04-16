@@ -129,6 +129,10 @@
 }
 
 /* 浅色主题：最近阅读标题 */
+[data-appearance="light"] .recent-view__header::before {
+  background: linear-gradient(270deg, rgba(241, 239, 242, 0.6), rgba(236, 232, 234, 0.6));
+}
+
 [data-appearance="light"] .recent-view__header h2 {
   color: #49454b;
 }
@@ -244,6 +248,10 @@
 }
 
 /* 浅色主题：library 标题 */
+[data-appearance="light"] .library-view__header::before {
+  background: linear-gradient(270deg, rgba(241, 239, 242, 0.6), rgba(236, 232, 234, 0.6));
+}
+
 [data-appearance="light"] .library-view__title {
   color: #49454b;
 }
@@ -522,6 +530,10 @@ body[data-app-mode='reader'],
 body[data-app-mode='reader'] #root {
   overflow: hidden;
   background: transparent;
+}
+
+p {
+  white-space: pre-line;
 }
 
 button {
@@ -1336,7 +1348,9 @@ html[data-app-mode='reader'] .app-frame__content {
 }
 
 .bookshelf-status {
-  width: 100%;
+  margin: auto;
+  max-width: 320px;
+  text-align: center;
   border: 1px solid var(--border-soft);
   border-radius: 28px;
   background: linear-gradient(180deg, var(--bg-panel), rgba(14, 14, 14, 0.88));
@@ -1358,16 +1372,31 @@ html[data-app-mode='reader'] .app-frame__content {
 }
 
 .recent-view__header {
-  margin-bottom: 48px;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: flex-end;
+  gap: 16px;
   position: sticky;
   top: 0;
   z-index: 5;
-  background: var(--bg-canvas);
-  padding-top: 48px;
-  padding-bottom: 16px;
+  padding: 48px 0px 20px 0px;
+  margin: 0;
+  background: transparent;
+}
+
+.recent-view__header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  height: 100%;
+  z-index: -1;
+  backdrop-filter: blur(10px) saturate(280%);
+  -webkit-backdrop-filter: blur(10px) saturate(280%);
+  background: linear-gradient(270deg, rgba(18, 18, 18, 0.6), rgba(15, 15, 15, 0.6));
+  pointer-events: none;
 }
 
 .recent-view__header-text {
@@ -2015,18 +2044,31 @@ html[data-app-mode='reader'] .app-frame__content {
 }
 
 .library-view__header {
-  margin-bottom: 48px;
   display: flex;
-  flex-wrap: nowrap;
   justify-content: space-between;
   align-items: flex-end;
   gap: 16px;
   position: sticky;
   top: 0;
   z-index: 5;
-  background: var(--bg-canvas);
-  padding-top: 48px;
-  padding-bottom: 16px;
+  padding: 48px 0px 20px 0px;
+  margin: 0;
+  background: transparent;
+}
+
+.library-view__header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  height: 100%;
+  z-index: -1;
+  backdrop-filter: blur(10px) saturate(280%);
+  -webkit-backdrop-filter: blur(10px) saturate(280%);
+  background: linear-gradient(270deg, rgba(18, 18, 18, 0.6), rgba(15, 15, 15, 0.6));
+  pointer-events: none;
 }
 
 .library-view__header-text {
@@ -2588,6 +2630,488 @@ html[data-app-mode='reader'] .app-frame__content {
   color: rgba(var(--theme-text), 0.5);
   letter-spacing: 0.05em;
   font-variant-numeric: tabular-nums;
+}
+
+/* ── 新手引导：聚光灯阶段 ── */
+
+/* 全屏点击阻断层（非交互步骤） */
+.spotlight-blocker {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+}
+
+/* 聚光灯孔洞 — box-shadow 创建暗色遮罩 */
+.spotlight-hole {
+  position: fixed;
+  z-index: 201;
+  border-radius: 12px;
+  box-shadow: 0 0 0 200vmax rgba(0, 0, 0, 0.55);
+  transition: top 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    left 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    width 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    height 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  animation: spotlight-in 0.3s ease;
+}
+
+@keyframes spotlight-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* Tooltip 浮层 */
+.spotlight-tooltip {
+  position: fixed;
+  z-index: 202;
+  pointer-events: auto;
+  min-width: 200px;
+  max-width: 300px;
+  padding: 16px 18px 14px;
+  background: rgba(var(--theme-bg), 0.92);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  animation: tooltip-enter 0.3s ease;
+}
+
+/* tooltip 入场动画 — 下方弹出 */
+.spotlight-tooltip--below {
+  animation: tooltip-enter-below 0.3s ease;
+}
+
+/* tooltip 入场动画 — 上方弹出 */
+.spotlight-tooltip--above {
+  animation: tooltip-enter-above 0.3s ease;
+}
+
+/* tooltip 右对齐时的入场动画 */
+.spotlight-tooltip--below.spotlight-tooltip--right {
+  animation: tooltip-enter-below-right 0.3s ease;
+}
+
+.spotlight-tooltip--above.spotlight-tooltip--right {
+  animation: tooltip-enter-above-right 0.3s ease;
+}
+
+@keyframes tooltip-enter-below {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes tooltip-enter-above {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes tooltip-enter-below-right {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes tooltip-enter-above-right {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.spotlight-tooltip__body {
+  margin-bottom: 12px;
+}
+
+.spotlight-tooltip__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(var(--theme-text), 0.9);
+  margin: 0 0 4px;
+}
+
+.spotlight-tooltip__desc {
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(var(--theme-text), 0.55);
+  margin: 0;
+}
+
+.spotlight-tooltip__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.spotlight-tooltip__skip {
+  background: none;
+  border: none;
+  color: rgba(var(--theme-text), 0.35);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
+}
+
+.spotlight-tooltip__skip:hover {
+  color: rgba(var(--theme-text), 0.6);
+  background: rgba(var(--theme-text), 0.06);
+}
+
+.spotlight-tooltip__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: rgba(var(--theme-text), 0.85);
+  background: rgba(var(--theme-text), 0.08);
+  border: 1px solid rgba(var(--theme-text), 0.1);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.spotlight-tooltip__btn:hover {
+  background: rgba(var(--theme-text), 0.14);
+  border-color: rgba(var(--theme-text), 0.18);
+}
+
+.spotlight-tooltip__btn .material-symbols-outlined {
+  font-size: 14px;
+}
+
+.spotlight-tooltip__hint {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(var(--theme-text), 0.5);
+  font-style: italic;
+  padding: 4px 8px;
+}
+
+/* ── 新手引导：沉浸退出步骤 ── */
+
+.immersive-exit-guide {
+  position: fixed;
+  inset: 0;
+  z-index: 202;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: guide-backdrop-in 0.4s ease;
+}
+
+/* epub 格式：高亮可点击退出的边缘区域 */
+.immersive-exit-guide__edge {
+  position: fixed;
+  z-index: 202;
+  pointer-events: none;
+  animation: edge-pulse 2s ease-in-out infinite;
+}
+
+.immersive-exit-guide__edge--left {
+  top: 36px;
+  left: 0;
+  width: 20px;
+  bottom: 0;
+  border-left: 2px solid rgb(192, 27, 27, 1);
+  background: linear-gradient(to right, rgb(192, 27, 27, 0.5), transparent);
+}
+
+.immersive-exit-guide__edge--right {
+  top: 36px;
+  right: 0;
+  width: 20px;
+  bottom: 0;
+  border-right: 2px solid rgba(192, 27, 27, 1);
+  background: linear-gradient(to left, rgba(192, 27, 27, 0.5), transparent);
+}
+
+.immersive-exit-guide__edge--bottom {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 20px;
+  border-bottom: 2px solid rgba(192, 27, 27, 1);
+  background: linear-gradient(to top, rgba(192, 27, 27, 0.5), transparent);
+}
+
+@keyframes edge-pulse {
+
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+.immersive-exit-guide__card {
+  pointer-events: auto;
+  text-align: center;
+  padding: 28px 32px 24px;
+  background: rgba(var(--theme-bg));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  max-width: 320px;
+  animation: guide-card-enter 0.35s ease;
+}
+
+.immersive-exit-guide__icon {
+  font-size: 36px;
+  color: rgba(var(--theme-text), 0.6);
+  margin-bottom: 8px;
+}
+
+.immersive-exit-guide__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(var(--theme-text), 0.85);
+  margin: 0 0 6px;
+}
+
+.immersive-exit-guide__desc {
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(var(--theme-text), 0.5);
+  margin: 0 0 12px;
+}
+
+/* ── 新手引导：快捷键卡片阶段 ── */
+
+@keyframes guide-backdrop-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes guide-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.reader-guide {
+  position: fixed;
+  inset: 0;
+  z-index: 203;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: guide-backdrop-in 0.3s ease;
+}
+
+.reader-guide__card {
+  position: relative;
+  width: 92%;
+  max-width: 400px;
+  padding: 36px 32px 28px;
+  background: rgba(var(--theme-bg), 0.92);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.reader-guide__card--enter {
+  animation: guide-card-enter 0.3s ease;
+}
+
+.reader-guide__card--exit {
+  opacity: 0.4;
+  transform: scale(0.97);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.reader-guide__skip {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: rgba(var(--theme-text), 0.4);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: color 0.2s, background 0.2s;
+}
+
+.reader-guide__skip:hover {
+  color: rgba(var(--theme-text), 0.7);
+  background: rgba(var(--theme-text), 0.06);
+}
+
+.reader-guide__icon {
+  font-size: 44px;
+  color: rgba(var(--theme-text), 0.7);
+  margin-bottom: 4px;
+}
+
+.reader-guide__title {
+  font-size: 18px;
+  font-weight: 600;
+  color: rgba(var(--theme-text), 0.9);
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+
+.reader-guide__desc {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: rgba(var(--theme-text), 0.55);
+  margin: 0;
+  max-width: 320px;
+}
+
+/* 引导文案中内联快捷键统一样式 */
+.spotlight-tooltip__desc kbd,
+.immersive-exit-guide__desc kbd,
+.reader-guide__desc kbd {
+  display: inline-block;
+  padding: 1px 6px;
+  font-size: 0.85em;
+  font-family: var(--font-label), system-ui, sans-serif;
+  font-weight: 500;
+  color: rgba(var(--theme-text), 0.75);
+  background: rgba(var(--theme-text), 0.08);
+  border: 1px solid rgba(var(--theme-text), 0.12);
+  border-radius: 4px;
+  vertical-align: baseline;
+  line-height: 1.4;
+  margin: 0 1px;
+}
+
+.reader-guide__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 12px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(var(--theme-text), 0.06);
+}
+
+.reader-guide__dots {
+  display: flex;
+  gap: 6px;
+}
+
+.reader-guide__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(var(--theme-text), 0.15);
+  transition: background 0.25s, transform 0.25s;
+}
+
+.reader-guide__dot--active {
+  background: rgba(var(--theme-text), 0.6);
+  transform: scale(1.25);
+}
+
+.reader-guide__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 20px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: rgba(var(--theme-text), 0.85);
+  background: rgba(var(--theme-text), 0.08);
+  border: 1px solid rgba(var(--theme-text), 0.1);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.reader-guide__btn:hover {
+  background: rgba(var(--theme-text), 0.14);
+  border-color: rgba(var(--theme-text), 0.18);
+}
+
+.reader-guide__btn-arrow {
+  font-size: 16px;
+}
+
+/* 浅色主题适配 */
+html[data-appearance='light'] .spotlight-hole {
+  box-shadow: 0 0 0 200vmax rgba(0, 0, 0, 0.4);
+}
+
+html[data-appearance='light'] .spotlight-tooltip {
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+html[data-appearance='light'] .immersive-exit-guide__card {
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+html[data-appearance='light'] .reader-guide {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+html[data-appearance='light'] .reader-guide__card {
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
 }
 
 /* 抽屉主体 */

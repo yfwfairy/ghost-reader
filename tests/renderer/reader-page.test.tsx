@@ -16,6 +16,7 @@ const baseConfig: AppConfig = {
   currentBookId: null,
   alwaysOnTop: false,
   language: 'en',
+  onboardingCompleted: false,
 }
 
 describe('ReaderPage', () => {

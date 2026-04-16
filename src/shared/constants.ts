@@ -18,6 +18,7 @@ export const DEFAULT_APP_CONFIG = {
   currentBookId: null,
   alwaysOnTop: false,
   language: 'en',
+  onboardingCompleted: false,
 } as const
 
 // 主题色定义：bg=背景, text=文字, accent=强调色

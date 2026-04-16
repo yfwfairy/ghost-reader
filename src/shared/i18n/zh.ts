@@ -111,6 +111,30 @@ const zh: Record<string, string> = {
   'app.immersive': '进入沉浸模式',
   'app.exitImmersive': '退出沉浸模式',
 
+  // 新手引导 — 聚光灯阶段
+  'guide.pinTitle': '置顶窗口',
+  'guide.pinDesc': '点击后阅读窗口会始终显示在最前面～',
+  'guide.backTitle': '返回书架',
+  'guide.backDesc': '从这里回到书架，挑选下一本书。',
+  'guide.fullscreenTitle': '沉浸模式',
+  'guide.fullscreenDesc': '点击试试全屏沉浸阅读！\n也可按 [⌘/Ctrl]+[F]。',
+  'guide.immersiveExitTitle': '退出沉浸',
+  'guide.immersiveExitDescTxt': '点击阅读区域或按 [ESC] 即可退出。',
+  'guide.immersiveExitDescEpub': '点击高亮的边缘区域或按 [ESC] 即可退出。',
+  'guide.chaptersTitle': '章节目录',
+  'guide.chaptersDesc': '点击打开目录，快速跳转章节。',
+  'guide.appearanceTitle': '外观设置',
+  'guide.appearanceDesc': '调整字体、字号、主题色等阅读偏好。',
+  // 新手引导 — 快捷键卡片阶段
+  'guide.step1Title': '翻页浏览',
+  'guide.step1Desc': '[PageUp] / [PageDown] 逐行滚动\n[←] / [→] 切换章节',
+  'guide.step2Title': '更多快捷键',
+  'guide.step2Desc': '[⌘/Ctrl] + [B] 返回书架\n[⌘/Ctrl] + [+]/[-] 调节字号',
+  'guide.next': '下一步',
+  'guide.skip': '跳过',
+  'guide.tryIt': '试一试',
+  'guide.finish': '开始阅读',
+
   // Error Boundary
   'error.readerTitle': '阅读器崩溃了',
   'error.readerDescription': '渲染时出现了意外错误，你可以返回书架。',

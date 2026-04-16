@@ -15,6 +15,7 @@ describe('SettingsPanel', () => {
     currentBookId: null as string | null,
     alwaysOnTop: false,
     language: 'en' as const,
+    onboardingCompleted: false,
   }
 
   it('renders three navigation tabs: Appearance, Language, Shortcuts', () => {

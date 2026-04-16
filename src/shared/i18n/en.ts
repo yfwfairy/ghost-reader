@@ -112,6 +112,30 @@ const en: Record<string, string> = {
   'app.immersive': 'Enter immersive mode',
   'app.exitImmersive': 'Exit immersive mode',
 
+  // 新手引导 — 聚光灯阶段
+  'guide.pinTitle': 'Pin Window',
+  'guide.pinDesc': 'Tap to keep the reader always on top~',
+  'guide.backTitle': 'Back to Bookshelf',
+  'guide.backDesc': 'Return here to pick your next book.',
+  'guide.fullscreenTitle': 'Immersive Mode',
+  'guide.fullscreenDesc': 'Tap to try immersive reading!\nOr press [⌘/Ctrl]+[F].',
+  'guide.immersiveExitTitle': 'Exit Immersive',
+  'guide.immersiveExitDescTxt': 'Click the reading area or press [ESC] to exit.',
+  'guide.immersiveExitDescEpub': 'Click the highlighted edges or press [ESC] to exit.',
+  'guide.chaptersTitle': 'Table of Contents',
+  'guide.chaptersDesc': 'Open the chapter list to jump to any chapter.',
+  'guide.appearanceTitle': 'Display Settings',
+  'guide.appearanceDesc': 'Adjust font, size, theme, and more.',
+  // 新手引导 — 快捷键卡片阶段
+  'guide.step1Title': 'Navigate Pages',
+  'guide.step1Desc': '[PageUp] / [PageDown] to scroll\n[←] / [→] to switch chapters',
+  'guide.step2Title': 'More Shortcuts',
+  'guide.step2Desc': '[⌘/Ctrl] + [B] to return to bookshelf\n[⌘/Ctrl] + [+]/[-] to adjust font size',
+  'guide.next': 'Next',
+  'guide.skip': 'Skip',
+  'guide.tryIt': 'Try it',
+  'guide.finish': 'Start Reading',
+
   // Error Boundary
   'error.readerTitle': 'Reader crashed',
   'error.readerDescription': 'Something went wrong while rendering. You can return to the bookshelf.',

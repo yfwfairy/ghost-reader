@@ -4,6 +4,7 @@ import { THEME_MAP, hexToRgbTriplet } from '@shared/constants'
 import { useConfig } from '../../hooks/useConfig'
 import { useTranslation } from '../../hooks/useTranslation'
 import { EpubRenderer } from './EpubRenderer'
+import { ReaderGuide } from './ReaderGuide'
 import { ReaderLayout } from './ReaderLayout'
 import { TxtRenderer } from './TxtRenderer'
 
@@ -23,7 +24,7 @@ type ReaderPageProps = {
 }
 
 export function ReaderPage({ backRef, readerActionsRef, onBack, onTitleChange, immersive = false, onExitImmersive }: ReaderPageProps) {
-  const { config, fallbackConfig, loading } = useConfig()
+  const { config, fallbackConfig, loading, updateConfig } = useConfig()
   const { t } = useTranslation()
   const [book, setBook] = useState<BookRecord | null>(null)
   const [progress, setProgress] = useState<ReadingProgress | null>(null)
@@ -274,6 +275,7 @@ export function ReaderPage({ backRef, readerActionsRef, onBack, onTitleChange, i
   }, [book?.title, onTitleChange, t])
 
   return (
+    <>
     <ReaderLayout title={readerTitle} meta={readerMeta} toc={toc} progress={book?.format === 'epub' ? currentChapterPercent : (progress?.percentage ?? null)} chapterProgressMap={book?.format === 'epub' ? chapterProgressRef.current : undefined} currentChapterHref={currentChapterHref} immersive={immersive} onExitImmersive={onExitImmersive} onChapterSelect={book?.format === 'epub' ? (href: string) => {
       // 立即更新当前章节 href（包含 fragment），以便目录精确匹配子项
       setCurrentChapterHref(href)
@@ -348,5 +350,11 @@ export function ReaderPage({ backRef, readerActionsRef, onBack, onTitleChange, i
         />
       ) : null}
     </ReaderLayout>
+
+    {/* 新手引导 — 书籍加载完成且未完成引导时显示 */}
+    {!bookLoading && book && !activeConfig.onboardingCompleted && (
+      <ReaderGuide immersive={immersive} bookFormat={book?.format} onComplete={() => void updateConfig({ onboardingCompleted: true })} />
+    )}
+  </>
   )
 }
