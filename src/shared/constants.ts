@@ -11,7 +11,7 @@ export const DEFAULT_APP_CONFIG = {
   fontSize: 16,
   lineHeight: 1.8,
   fontFamily: 'Newsreader',
-  glassIntensity: 85,
+  brightness: 80,
   colorTheme: 'obsidian',
   appearance: 'dark',
   appearanceFollowSystem: false,

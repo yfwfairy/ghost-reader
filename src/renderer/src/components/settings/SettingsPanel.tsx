@@ -260,8 +260,7 @@ export function SettingsPanel({ config, onSave, onClose }: SettingsPanelProps) {
                 <div className="settings-shortcut-row">
                   <span>{t('settings.shortcutFontSize')}</span>
                   <div className="settings-shortcut-keys">
-                    <kbd>⌘/Ctrl</kbd><span>+</span><kbd>=</kbd>
-                    <kbd>⌘/Ctrl</kbd><span>+</span><kbd>-</kbd>
+                    <kbd>⌘/Ctrl</kbd><span>+</span><kbd>+</kbd><span>/</span><kbd>-</kbd>
                   </div>
                 </div>
               </div>

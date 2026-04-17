@@ -9,7 +9,7 @@ const baseConfig: AppConfig = {
   fontSize: 18,
   lineHeight: 1.9,
   fontFamily: 'Newsreader',
-  glassIntensity: 85,
+  brightness: 100,
   colorTheme: 'obsidian',
   appearance: 'dark',
   appearanceFollowSystem: false,

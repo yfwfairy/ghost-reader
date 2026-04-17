@@ -47,8 +47,8 @@ export function ReaderLayout({
     return () => document.removeEventListener('keydown', handleEsc)
   }, [drawerOpen])
 
-  // glassIntensity 映射为蒙版透明度（0-100 → 0-0.6）
-  const maskOpacity = (activeConfig.glassIntensity / 100) * 0.6
+  // brightness 映射为蒙版透明度（100=全亮无遮罩, 20=最暗）
+  const maskOpacity = ((100 - activeConfig.brightness) / 100) * 0.8
 
   function handleNavClick(tab: DrawerTab) {
     if (drawerOpen && drawerTab === tab) {
@@ -67,13 +67,19 @@ export function ReaderLayout({
           onClick={immersive ? onExitImmersive : undefined}
         >
           <div className="reader-page__content">{children}</div>
-          {/* 内容蒙版，由 Glass Intensity 控制 */}
+          {/* 亮度蒙版，由 brightness 控制 */}
           <div
             className="reader-page__glass-mask"
             style={{ opacity: maskOpacity }}
           />
         </div>
       </section>
+
+      {/* 抽屉背景渐变模糊遮罩 */}
+      <div
+        className={`reader-drawer-backdrop ${drawerOpen && !immersive ? 'reader-drawer-backdrop--visible' : ''}`}
+        onClick={() => setDrawerOpen(false)}
+      />
 
       {/* 抽屉弹窗 */}
       <ReaderDrawer

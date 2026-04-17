@@ -55,7 +55,9 @@ function AppInner() {
   const [homeView, setHomeView] = useState<HomeView>('library')
   const [readerTitle, setReaderTitle] = useState(t('app.readerTitle'))
   const [immersive, setImmersive] = useState(false)
-  const lastObservedBookId = useRef<string | null | undefined>(undefined)
+  // 哨兵值：区分"未初始化"和"无书籍（undefined）"
+  const NOT_INITIALIZED = useRef(Symbol('not-initialized'))
+  const lastObservedBookId = useRef<string | null | undefined | symbol>(NOT_INITIALIZED.current)
   const readerBackRef = useRef<(() => void | Promise<void>) | null>(null)
   const readerActionsRef = useRef<ReaderActions | null>(null)
   const activeConfig = config ?? fallbackConfig
@@ -95,7 +97,7 @@ function AppInner() {
     const previousBookId = lastObservedBookId.current
     lastObservedBookId.current = currentBookId
 
-    if (previousBookId === undefined) {
+    if (previousBookId === NOT_INITIALIZED.current) {
       // 始终从首页进入，不自动恢复阅读器
       setPage('home')
       void window.api.setMinWindowSize(800, 450)

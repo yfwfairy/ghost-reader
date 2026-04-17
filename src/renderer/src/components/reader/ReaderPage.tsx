@@ -3,7 +3,6 @@ import type { BookRecord, ReadingProgress, TocEntry } from '@shared/types'
 import { THEME_MAP, hexToRgbTriplet } from '@shared/constants'
 import { useConfig } from '../../hooks/useConfig'
 import { useTranslation } from '../../hooks/useTranslation'
-import errorIllustration from '../../assets/error-illustration.png'
 import staticTexture from '../../assets/static-texture.png'
 import { EpubRenderer } from './EpubRenderer'
 import { ReaderGuide } from './ReaderGuide'
@@ -290,140 +289,132 @@ export function ReaderPage({ backRef, readerActionsRef, onBack, onTitleChange, i
 
   return (
     <>
-    <ReaderLayout title={readerTitle} meta={readerMeta} toc={toc} progress={book?.format === 'epub' ? currentChapterPercent : (progress?.percentage ?? null)} chapterProgressMap={book?.format === 'epub' ? chapterProgressRef.current : undefined} currentChapterHref={currentChapterHref} immersive={immersive} onExitImmersive={onExitImmersive} onChapterSelect={book?.format === 'epub' ? (href: string) => {
-      // 立即更新当前章节 href（包含 fragment），以便目录精确匹配子项
-      setCurrentChapterHref(href)
-      const savedPct = chapterProgressRef.current[href]
-        ?? chapterProgressRef.current[href.split('#')[0]]
-        ?? 0
-      epubDisplayRef.current?.(href, savedPct > 0 ? savedPct : undefined)
-    } : undefined}>
-      {loading || bookLoading ? (
-        <div className="reader-empty">
-          {/* 背景光晕 */}
-          <div className="reader-empty__glow" />
-          <div className="reader-empty__card">
-            <div className="reader-empty__card-back" />
-            <div className="reader-empty__card-front">
-              <div className="reader-empty__static">
-                <img src={staticTexture} alt="" aria-hidden="true" />
-              </div>
-              <div className="reader-empty__card-content">
-                <span className="material-symbols-outlined reader-empty__icon">auto_stories</span>
-              </div>
-            </div>
-          </div>
-          <h2 className="reader-empty__label">{t('reader.preparingLabel')}</h2>
-          {/* 全屏噪点纹理叠加 */}
-          <div className="reader-empty__noise-overlay">
-            <img src={errorIllustration} alt="" aria-hidden="true" />
-          </div>
-        </div>
-      ) : bookError || !book ? (
-        <div className="reader-empty">
-          {/* 背景光晕 */}
-          <div className="reader-empty__glow" />
-          {/* 碎裂书本卡片 */}
-          <div className="reader-empty__card">
-            <div className="reader-empty__card-back" />
-            <div className="reader-empty__card-front">
-              {/* 静态噪点纹理 */}
-              <div className="reader-empty__static">
-                <img src={staticTexture} alt="" aria-hidden="true" />
-              </div>
-              {/* 书本图标 + 交叉线 */}
-              <div className="reader-empty__card-content">
-                <span className="material-symbols-outlined reader-empty__icon">auto_stories</span>
-                <div className="reader-empty__cross-lines">
-                  <div className="reader-empty__cross-line" />
-                  <div className="reader-empty__cross-line" />
+      <ReaderLayout title={readerTitle} meta={readerMeta} toc={toc} progress={book?.format === 'epub' ? currentChapterPercent : (progress?.percentage ?? null)} chapterProgressMap={book?.format === 'epub' ? chapterProgressRef.current : undefined} currentChapterHref={currentChapterHref} immersive={immersive} onExitImmersive={onExitImmersive} onChapterSelect={book?.format === 'epub' ? (href: string) => {
+        // 立即更新当前章节 href（包含 fragment），以便目录精确匹配子项
+        setCurrentChapterHref(href)
+        const savedPct = chapterProgressRef.current[href]
+          ?? chapterProgressRef.current[href.split('#')[0]]
+          ?? 0
+        epubDisplayRef.current?.(href, savedPct > 0 ? savedPct : undefined)
+      } : undefined}>
+        {loading || bookLoading ? (
+          <div className="reader-empty">
+            {/* 背景光晕 */}
+            <div className="reader-empty__glow" />
+            <div className="reader-empty__card">
+              <div className="reader-empty__card-back" />
+              <div className="reader-empty__card-front">
+                <div className="reader-empty__static">
+                  <img src={staticTexture} alt="" aria-hidden="true" />
+                </div>
+                <div className="reader-empty__card-content">
+                  <span className="material-symbols-outlined reader-empty__icon">auto_stories</span>
                 </div>
               </div>
             </div>
-            {/* 浮动碎片装饰 */}
-            <div className="reader-empty__fragment reader-empty__fragment--cloud">
-              <span className="material-symbols-outlined">cloud</span>
-            </div>
-            <div className="reader-empty__fragment reader-empty__fragment--texture">
-              <span className="material-symbols-outlined">texture</span>
+            <h2 className="reader-empty__label">{t('reader.preparingLabel')}</h2>
+            {/* 全屏噪点纹理叠加 */}
+            <div className="reader-empty__noise-overlay">
+              <img src={staticTexture} alt="" aria-hidden="true" />
             </div>
           </div>
-          <h2 className="reader-empty__label">{t('reader.errorLabel')}</h2>
-          <p className="reader-empty__hint">{t('reader.errorHint')}</p>
-          <button className="reader-empty__action" type="button" onClick={handleBackToBookshelf}>
-            {t('reader.backToShelf')}
-          </button>
-          {config?.currentBookId && (
-            <button className="reader-empty__secondary" type="button" onClick={async () => {
-              await window.api.removeBook(config.currentBookId!)
-              await updateConfig({ currentBookId: undefined })
-              onBack()
-            }}>
-              {t('reader.removeFromShelf')}
+        ) : bookError || !book ? (
+          <div className="reader-empty">
+            {/* 背景光晕 */}
+            <div className="reader-empty__glow" />
+            {/* 碎裂书本卡片 */}
+            <div className="reader-empty__card">
+              <div className="reader-empty__card-back" />
+              <div className="reader-empty__card-front">
+                {/* 静态噪点纹理 */}
+                <div className="reader-empty__static">
+                  <img src={staticTexture} alt="" aria-hidden="true" />
+                </div>
+                {/* 书本图标 + 交叉线 */}
+                <div className="reader-empty__card-content">
+                  <span className="material-symbols-outlined reader-empty__icon">auto_stories</span>
+                  <div className="reader-empty__cross-lines">
+                    <div className="reader-empty__cross-line" />
+                    <div className="reader-empty__cross-line" />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <h2 className="reader-empty__label">{t('reader.errorLabel')}</h2>
+            <p className="reader-empty__hint">{t('reader.errorHint')}</p>
+            <button className="reader-empty__action" type="button" onClick={handleBackToBookshelf}>
+              {t('reader.backToShelf')}
             </button>
-          )}
-          {/* 全屏噪点纹理叠加 */}
-          <div className="reader-empty__noise-overlay">
-            <img src={errorIllustration} alt="" aria-hidden="true" />
+            {config?.currentBookId && (
+              <button className="reader-empty__secondary" type="button" onClick={async () => {
+                await window.api.removeBook(config.currentBookId!)
+                await updateConfig({ currentBookId: undefined })
+              }}>
+                {t('reader.removeFromShelf')}
+              </button>
+            )}
+            {/* 全屏噪点纹理叠加 */}
+            <div className="reader-empty__noise-overlay">
+              <img src={staticTexture} alt="" aria-hidden="true" />
+            </div>
           </div>
-        </div>
-      ) : book.format === 'txt' ? (
-        <TxtRenderer
-          content={txtContent}
-          config={{
-            fontSize: activeConfig.fontSize,
-            lineHeight: activeConfig.lineHeight,
-            fontFamily: activeConfig.fontFamily,
-            colorTheme: activeConfig.colorTheme,
-          }}
-          savedProgress={progress}
-          scrollRef={txtScrollRef}
-          onProgressUpdate={saveProgressLater}
-        />
-      ) : book.format === 'epub' && epubData ? (
-        <EpubRenderer
-          bookData={epubData}
-          fontSize={activeConfig.fontSize}
-          lineHeight={activeConfig.lineHeight}
-          fontFamily={activeConfig.fontFamily}
-          colorTheme={activeConfig.colorTheme}
-          savedCfi={progress?.epubCfi}
-          displayRef={epubDisplayRef}
-          chapterNavRef={epubChapterNavRef}
-          onTocLoaded={setToc}
-          onChapterScroll={handleChapterScroll}
-          onSpineReady={(hrefs) => { spineHrefsRef.current = hrefs }}
-          onProgressUpdate={(patch) => {
-            if (!book) {
-              return
-            }
+        ) : book.format === 'txt' ? (
+          <TxtRenderer
+            content={txtContent}
+            config={{
+              fontSize: activeConfig.fontSize,
+              lineHeight: activeConfig.lineHeight,
+              fontFamily: activeConfig.fontFamily,
+              colorTheme: activeConfig.colorTheme,
+            }}
+            savedProgress={progress}
+            scrollRef={txtScrollRef}
+            onProgressUpdate={saveProgressLater}
+          />
+        ) : book.format === 'epub' && epubData ? (
+          <EpubRenderer
+            bookData={epubData}
+            fontSize={activeConfig.fontSize}
+            lineHeight={activeConfig.lineHeight}
+            fontFamily={activeConfig.fontFamily}
+            colorTheme={activeConfig.colorTheme}
+            savedCfi={progress?.epubCfi}
+            displayRef={epubDisplayRef}
+            chapterNavRef={epubChapterNavRef}
+            onTocLoaded={setToc}
+            onChapterScroll={handleChapterScroll}
+            onSpineReady={(hrefs) => { spineHrefsRef.current = hrefs }}
+            onProgressUpdate={(patch) => {
+              if (!book) {
+                return
+              }
 
-            // 用章节进度加权平均计算全书进度
-            const spineHrefs = spineHrefsRef.current
-            let weightedPct = patch.percentage
-            if (spineHrefs.length > 0) {
-              const sum = spineHrefs.reduce((acc, href) =>
-                acc + (chapterProgressRef.current[href] ?? 0), 0)
-              weightedPct = Math.round(sum / spineHrefs.length)
-            }
+              // 用章节进度加权平均计算全书进度
+              const spineHrefs = spineHrefsRef.current
+              let weightedPct = patch.percentage
+              if (spineHrefs.length > 0) {
+                const sum = spineHrefs.reduce((acc, href) =>
+                  acc + (chapterProgressRef.current[href] ?? 0), 0)
+                weightedPct = Math.round(sum / spineHrefs.length)
+              }
 
-            const nextProgress: ReadingProgress = {
-              bookId: book.id,
-              ...patch,
-              percentage: weightedPct,
-              chapterProgress: chapterProgressRef.current,
-            }
-            setProgress(nextProgress)
-            void window.api.saveProgress(nextProgress)
-          }}
-        />
-      ) : null}
-    </ReaderLayout>
+              const nextProgress: ReadingProgress = {
+                bookId: book.id,
+                ...patch,
+                percentage: weightedPct,
+                chapterProgress: chapterProgressRef.current,
+              }
+              setProgress(nextProgress)
+              void window.api.saveProgress(nextProgress)
+            }}
+          />
+        ) : null}
+      </ReaderLayout>
 
-    {/* 新手引导 — 书籍加载完成且未完成引导时显示 */}
-    {!bookLoading && book && !activeConfig.onboardingCompleted && (
-      <ReaderGuide immersive={immersive} bookFormat={book?.format} onComplete={() => void updateConfig({ onboardingCompleted: true })} />
-    )}
-  </>
+      {/* 新手引导 — 书籍加载完成且未完成引导时显示 */}
+      {!bookLoading && book && !activeConfig.onboardingCompleted && (
+        <ReaderGuide immersive={immersive} bookFormat={book?.format} onComplete={() => void updateConfig({ onboardingCompleted: true })} />
+      )}
+    </>
   )
 }

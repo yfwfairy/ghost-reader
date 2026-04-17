@@ -29,7 +29,7 @@ export interface TocEntry {
 }
 
 export type Locale = 'en' | 'zh' | 'zh-TW'
-export type FontFamily = 'Newsreader' | 'Manrope' | 'Inter' | 'Lora' | 'Merriweather' | 'Noto Serif SC' | 'Noto Sans SC' | 'LXGW WenKai' | 'TsangerZhoukeZhengdabangshu' | 'Yozai' | 'GuanKiapTsingKhai-W' | 'Moon Stars Kai T HW' | 'LXGW WenKai TC'
+export type FontFamily = 'Newsreader' | 'Manrope' | 'Inter' | 'Lora' | 'Merriweather' | 'Noto Serif SC' | 'Noto Sans SC' | 'LXGW WenKai' | 'ShangTuDongGuanTi-Xi' | 'Yozai' | 'GuanKiapTsingKhai-W' | 'Moon Stars Kai T HW' | 'LXGW WenKai TC'
 export type ColorTheme = 'obsidian' | 'parchment' | 'midnight' | 'onyx' | 'ember' | 'forest' | 'ocean' | 'slate'
 export type AppearanceMode = 'dark' | 'light'
 
@@ -37,7 +37,7 @@ export interface AppConfig {
   fontSize: number
   lineHeight: number
   fontFamily: FontFamily
-  glassIntensity: number
+  brightness: number
   colorTheme: ColorTheme
   appearance: AppearanceMode
   appearanceFollowSystem: boolean

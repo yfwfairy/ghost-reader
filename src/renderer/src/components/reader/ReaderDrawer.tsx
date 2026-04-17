@@ -24,7 +24,7 @@ const FONT_GROUPS: Record<FontTab, { value: FontFamily; label: string; className
     { value: 'Noto Serif SC', label: '思源宋体', className: 'font-picker__btn--noto-serif-sc' },
     { value: 'Noto Sans SC', label: '思源黑体', className: 'font-picker__btn--noto-sans-sc' },
     { value: 'LXGW WenKai', label: '霞鹜文楷', className: 'font-picker__btn--lxgw-wenkai' },
-    { value: 'TsangerZhoukeZhengdabangshu', label: '仓耳正大榜书', className: 'font-picker__btn--tsanger' },
+    { value: 'ShangTuDongGuanTi-Xi', label: '上图东观体', className: 'font-picker__btn--stdgt' },
     { value: 'Yozai', label: '悠哉体', className: 'font-picker__btn--yozai' },
   ],
   'zh-TW': [
@@ -327,17 +327,28 @@ export function ReaderDrawer({ open, activeTab, onTabChange: _onTabChange, onClo
                     ))}
                   </div>
                 </div>
-                <div className="font-picker">
-                  {FONT_GROUPS[fontTab].map((opt) => (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      className={`font-picker__btn ${opt.className} ${activeConfig.fontFamily === opt.value ? 'font-picker__btn--active' : ''}`}
-                      onClick={() => void updateConfig({ fontFamily: opt.value })}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
+                <div className="font-picker-slider">
+                  <div
+                    className="font-picker-slider__track"
+                    style={{ transform: `translateX(-${FONT_TAB_ORDER.indexOf(fontTab) * 100}%)` }}
+                  >
+                    {FONT_TAB_ORDER.map((tab) => (
+                      <div key={tab} className="font-picker-slider__panel">
+                        <div className="font-picker">
+                          {FONT_GROUPS[tab].map((opt) => (
+                            <button
+                              key={opt.value}
+                              type="button"
+                              className={`font-picker__btn ${opt.className} ${activeConfig.fontFamily === opt.value ? 'font-picker__btn--active' : ''}`}
+                              onClick={() => void updateConfig({ fontFamily: opt.value })}
+                            >
+                              {opt.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -360,11 +371,11 @@ export function ReaderDrawer({ open, activeTab, onTabChange: _onTabChange, onClo
                   />
                 </div>
 
-                {/* Glass Intensity */}
+                {/* 亮度 */}
                 <div className="appearance-section">
                   <div className="appearance-section__header">
-                    <label className="appearance-section__label">{t('appearance.glassIntensity')}</label>
-                    <span className="appearance-section__value">{activeConfig.glassIntensity}%</span>
+                    <label className="appearance-section__label">{t('appearance.brightness')}</label>
+                    <span className="appearance-section__value">{activeConfig.brightness}%</span>
                   </div>
                   <input
                     className="appearance-control__slider"
@@ -372,8 +383,8 @@ export function ReaderDrawer({ open, activeTab, onTabChange: _onTabChange, onClo
                     min={20}
                     max={100}
                     step={1}
-                    value={activeConfig.glassIntensity}
-                    onChange={(e) => void updateConfig({ glassIntensity: Number(e.target.value) })}
+                    value={activeConfig.brightness}
+                    onChange={(e) => void updateConfig({ brightness: Number(e.target.value) })}
                   />
                 </div>
               </div>
