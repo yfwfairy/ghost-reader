@@ -6,6 +6,7 @@ type StoreShape = {
   config: AppConfig
   books: BookRecord[]
   progress: ReadingProgress[]
+  locations: Record<string, string>
 }
 
 let store: Store<StoreShape> | null = null
@@ -52,6 +53,7 @@ function getStore() {
       config: { ...DEFAULT_APP_CONFIG },
       books: [],
       progress: [],
+      locations: {},
     },
   })
 
@@ -75,4 +77,16 @@ export const libraryStore = {
 export const progressStore = {
   getAll: () => cloneValue(getStore().get('progress')),
   setAll: (rows: ReadingProgress[]) => getStore().set('progress', rows),
+}
+
+export const locationsStore = {
+  get: (bookId: string) => getStore().get('locations')[bookId] ?? null,
+  set: (bookId: string, data: string) => {
+    const current = getStore().get('locations')
+    getStore().set('locations', { ...current, [bookId]: data })
+  },
+  remove: (bookId: string) => {
+    const { [bookId]: _, ...rest } = getStore().get('locations')
+    getStore().set('locations', rest)
+  },
 }

@@ -21,8 +21,8 @@ export function AddToLibraryCard({ onImport }: AddToLibraryCardProps) {
         <span className="add-library-card__label">{t('library.addLabel')}</span>
       </button>
       <div className="add-library-card__placeholder">
-        <strong>Placeholder</strong>
-        <span>Placeholder</span>
+        <strong>{t('library.dragHint')}</strong>
+        <span>{t('library.dragHintSub')}</span>
       </div>
     </div>
   )

@@ -1,4 +1,4 @@
-import { useState, type PropsWithChildren } from 'react'
+import { useEffect, useState, type PropsWithChildren } from 'react'
 import type { TocEntry } from '@shared/types'
 import { useConfig } from '../../hooks/useConfig'
 import { useTranslation } from '../../hooks/useTranslation'
@@ -34,8 +34,21 @@ export function ReaderLayout({
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [drawerTab, setDrawerTab] = useState<DrawerTab>('chapters')
 
-  // glassIntensity 映射为蒙版透明度（0-100 → 0-0.6）
-  const maskOpacity = (activeConfig.glassIntensity / 100) * 0.6
+  // ESC 关闭抽屉（阻止冒泡，防止 App 级 ESC 同时退出沉浸模式）
+  useEffect(() => {
+    if (!drawerOpen) return
+    function handleEsc(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        e.stopPropagation()
+        setDrawerOpen(false)
+      }
+    }
+    document.addEventListener('keydown', handleEsc)
+    return () => document.removeEventListener('keydown', handleEsc)
+  }, [drawerOpen])
+
+  // brightness 映射为蒙版透明度（100=全亮无遮罩, 20=最暗）
+  const maskOpacity = ((100 - activeConfig.brightness) / 100) * 0.8
 
   function handleNavClick(tab: DrawerTab) {
     if (drawerOpen && drawerTab === tab) {
@@ -54,13 +67,19 @@ export function ReaderLayout({
           onClick={immersive ? onExitImmersive : undefined}
         >
           <div className="reader-page__content">{children}</div>
-          {/* 内容蒙版，由 Glass Intensity 控制 */}
+          {/* 亮度蒙版，由 brightness 控制 */}
           <div
             className="reader-page__glass-mask"
             style={{ opacity: maskOpacity }}
           />
         </div>
       </section>
+
+      {/* 抽屉背景渐变模糊遮罩 */}
+      <div
+        className={`reader-drawer-backdrop ${drawerOpen && !immersive ? 'reader-drawer-backdrop--visible' : ''}`}
+        onClick={() => setDrawerOpen(false)}
+      />
 
       {/* 抽屉弹窗 */}
       <ReaderDrawer

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import type { ColorTheme, FontFamily, ReadingProgress } from '@shared/types'
 import { THEME_MAP } from '@shared/constants'
 
@@ -11,12 +11,19 @@ type TxtRendererProps = {
     colorTheme: ColorTheme
   }
   savedProgress?: ReadingProgress | null
+  scrollRef?: React.RefObject<HTMLDivElement | null>
   onProgressUpdate: (patch: Pick<ReadingProgress, 'txtScrollTop' | 'percentage' | 'updatedAt'>) => void
 }
 
-export function TxtRenderer({ content, config, savedProgress, onProgressUpdate }: TxtRendererProps) {
+export function TxtRenderer({ content, config, savedProgress, scrollRef, onProgressUpdate }: TxtRendererProps) {
   const paragraphs = useMemo(() => content.split(/\n\s*\n/).filter(Boolean), [content])
   const containerRef = useRef<HTMLDivElement | null>(null)
+
+  // 合并内部 containerRef 和外部 scrollRef
+  const setRef = useCallback((node: HTMLDivElement | null) => {
+    containerRef.current = node
+    if (scrollRef) scrollRef.current = node
+  }, [scrollRef])
 
   useEffect(() => {
     if (!containerRef.current || typeof savedProgress?.txtScrollTop !== 'number') {
@@ -28,7 +35,7 @@ export function TxtRenderer({ content, config, savedProgress, onProgressUpdate }
 
   return (
     <div
-      ref={containerRef}
+      ref={setRef}
       data-testid="txt-renderer"
       className="txt-renderer"
       onScroll={(event) => {
@@ -44,7 +51,7 @@ export function TxtRenderer({ content, config, savedProgress, onProgressUpdate }
       style={{
         fontSize: `${config.fontSize}px`,
         lineHeight: config.lineHeight,
-        fontFamily: `${config.fontFamily}, serif`,
+        fontFamily: `'${config.fontFamily}', serif`,
         color: THEME_MAP[config.colorTheme].text,
       }}
     >

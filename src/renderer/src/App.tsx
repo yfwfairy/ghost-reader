@@ -1,9 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useCallback, useRef, useState } from 'react'
 import { AppFrame } from './components/chrome/AppFrame'
 import { BookshelfPage } from './components/bookshelf/BookshelfPage'
 import { ReaderPage } from './components/reader/ReaderPage'
+import type { ReaderActions } from './components/reader/ReaderPage'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { useConfig } from './hooks/useConfig'
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { I18nProvider } from './hooks/I18nProvider'
 import { useTranslation } from './hooks/useTranslation'
 import './styles/global.css'
@@ -13,17 +15,18 @@ export type AppPage = 'home' | 'reader'
 
 // 阅读器崩溃降级 UI
 function ReaderErrorFallback({ onBack }: { onBack: () => void }) {
+  const { t } = useTranslation()
   return (
     <div className="error-fallback">
       <span className="error-fallback__icon material-symbols-outlined" aria-hidden="true">
         error_outline
       </span>
-      <h2 className="error-fallback__title">Reader crashed</h2>
+      <h2 className="error-fallback__title">{t('error.readerTitle')}</h2>
       <p className="error-fallback__description">
-        Something went wrong while rendering. You can return to the bookshelf.
+        {t('error.readerDescription')}
       </p>
       <button className="error-fallback__btn" type="button" onClick={onBack}>
-        Back to bookshelf
+        {t('error.backToShelf')}
       </button>
     </div>
   )
@@ -46,15 +49,34 @@ function useSystemDarkMode(enabled: boolean) {
 }
 
 function AppInner() {
-  const { config, fallbackConfig } = useConfig()
+  const { config, fallbackConfig, updateConfig } = useConfig()
   const { t } = useTranslation()
   const [page, setPage] = useState<AppPage>('home')
   const [homeView, setHomeView] = useState<HomeView>('library')
   const [readerTitle, setReaderTitle] = useState(t('app.readerTitle'))
   const [immersive, setImmersive] = useState(false)
-  const lastObservedBookId = useRef<string | null | undefined>(undefined)
+  // 哨兵值：区分"未初始化"和"无书籍（undefined）"
+  const NOT_INITIALIZED = useRef(Symbol('not-initialized'))
+  const lastObservedBookId = useRef<string | null | undefined | symbol>(NOT_INITIALIZED.current)
   const readerBackRef = useRef<(() => void | Promise<void>) | null>(null)
+  const readerActionsRef = useRef<ReaderActions | null>(null)
   const activeConfig = config ?? fallbackConfig
+
+  // 返回书架的回调（用于快捷键和 AppFrame）
+  const handleBackToHome = useCallback(() => {
+    void readerBackRef.current?.()
+  }, [])
+
+  // 阅读器键盘快捷键
+  useKeyboardShortcuts({
+    enabled: page === 'reader',
+    immersive,
+    setImmersive,
+    readerActionsRef,
+    onBack: handleBackToHome,
+    fontSize: activeConfig.fontSize,
+    updateConfig,
+  })
 
   // 跟随系统 or 手动选择
   const systemDark = useSystemDarkMode(activeConfig.appearanceFollowSystem)
@@ -75,7 +97,7 @@ function AppInner() {
     const previousBookId = lastObservedBookId.current
     lastObservedBookId.current = currentBookId
 
-    if (previousBookId === undefined) {
+    if (previousBookId === NOT_INITIALIZED.current) {
       // 始终从首页进入，不自动恢复阅读器
       setPage('home')
       void window.api.setMinWindowSize(800, 450)
@@ -132,6 +154,7 @@ function AppInner() {
         >
           <ReaderPage
             backRef={readerBackRef}
+            readerActionsRef={readerActionsRef}
             onBack={() => {
               void window.api.setAlwaysOnTop(false)
               setImmersive(false)

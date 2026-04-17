@@ -3,6 +3,7 @@ import type { ColorTheme, FontFamily, TocEntry } from '@shared/types'
 import { THEME_MAP } from '@shared/constants'
 import { useConfig } from '../../hooks/useConfig'
 import { useTranslation } from '../../hooks/useTranslation'
+import { loadFont } from '../../utils/font-loader'
 
 export type DrawerTab = 'chapters' | 'appearance'
 
@@ -17,13 +18,37 @@ type ReaderDrawerProps = {
   onChapterSelect?: (href: string) => void
 }
 
-const FONT_OPTIONS: { value: FontFamily; className: string }[] = [
-  { value: 'Newsreader', className: 'font-picker__btn--newsreader' },
-  { value: 'Manrope', className: 'font-picker__btn--manrope' },
-  { value: 'Inter', className: 'font-picker__btn--inter' },
-  { value: 'Lora', className: 'font-picker__btn--lora' },
-  { value: 'Merriweather', className: 'font-picker__btn--merriweather' },
-]
+type FontTab = 'zh' | 'zh-TW' | 'en'
+
+const FONT_GROUPS: Record<FontTab, { value: FontFamily; label: string; className: string }[]> = {
+  zh: [
+    { value: 'Noto Serif SC', label: '思源宋体', className: 'font-picker__btn--noto-serif-sc' },
+    { value: 'Noto Sans SC', label: '思源黑体', className: 'font-picker__btn--noto-sans-sc' },
+    { value: 'LXGW WenKai', label: '霞鹜文楷', className: 'font-picker__btn--lxgw-wenkai' },
+    { value: 'ShangTuDongGuanTi-Xi', label: '上图东观体', className: 'font-picker__btn--stdgt' },
+    { value: 'Yozai', label: '悠哉体', className: 'font-picker__btn--yozai' },
+  ],
+  'zh-TW': [
+    { value: 'GuanKiapTsingKhai-W', label: '原俠正楷', className: 'font-picker__btn--guankiap' },
+    { value: 'Moon Stars Kai T HW', label: '月星楷', className: 'font-picker__btn--moonstars' },
+    { value: 'LXGW WenKai TC', label: '霞鶩文楷', className: 'font-picker__btn--lxgw-wenkai-tc' },
+  ],
+  en: [
+    { value: 'Newsreader', label: 'Newsreader', className: 'font-picker__btn--newsreader' },
+    { value: 'Manrope', label: 'Manrope', className: 'font-picker__btn--manrope' },
+    { value: 'Inter', label: 'Inter', className: 'font-picker__btn--inter' },
+    { value: 'Lora', label: 'Lora', className: 'font-picker__btn--lora' },
+    { value: 'Merriweather', label: 'Merriweather', className: 'font-picker__btn--merriweather' },
+  ],
+}
+
+const FONT_TAB_LABELS: Record<FontTab, string> = {
+  zh: '中文',
+  'zh-TW': '繁體',
+  en: 'English',
+}
+
+const FONT_TAB_ORDER: FontTab[] = ['zh', 'zh-TW', 'en']
 
 const THEME_KEYS: ColorTheme[] = [
   'obsidian', 'parchment', 'midnight', 'onyx',
@@ -79,6 +104,7 @@ export function ReaderDrawer({ open, activeTab, onTabChange: _onTabChange, onClo
   const [selectedBookIndex, setSelectedBookIndex] = useState(0)
   const [expandedChapterId, setExpandedChapterId] = useState<string | null>(null)
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
+  const [fontTab, setFontTab] = useState<FontTab>('zh')
 
   const anthology = isAnthologyToc(toc)
   const activeToc = anthology ? (toc[selectedBookIndex]?.subitems ?? []) : toc
@@ -285,20 +311,48 @@ export function ReaderDrawer({ open, activeTab, onTabChange: _onTabChange, onClo
 
           {activeTab === 'appearance' && (
             <div className="reader-drawer__pane reader-drawer__pane--appearance">
-              {/* 字体选择 */}
+              {/* 字体选择：选项卡分组 */}
               <div className="appearance-section">
-                <label className="appearance-section__label">{t('appearance.typography')}</label>
-                <div className="font-picker">
-                  {FONT_OPTIONS.map((opt) => (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      className={`font-picker__btn ${opt.className} ${activeConfig.fontFamily === opt.value ? 'font-picker__btn--active' : ''}`}
-                      onClick={() => void updateConfig({ fontFamily: opt.value })}
-                    >
-                      {opt.value}
-                    </button>
-                  ))}
+                <div className="appearance-section__header">
+                  <label className="appearance-section__label">{t('appearance.typography')}</label>
+                  <div className="font-picker-tabs">
+                    {FONT_TAB_ORDER.map((tab) => (
+                      <button
+                        key={tab}
+                        type="button"
+                        className={`font-picker-tabs__btn ${fontTab === tab ? 'font-picker-tabs__btn--active' : ''}`}
+                        onClick={() => setFontTab(tab)}
+                      >
+                        {FONT_TAB_LABELS[tab]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="font-picker-slider">
+                  <div
+                    className="font-picker-slider__track"
+                    style={{ transform: `translateX(-${FONT_TAB_ORDER.indexOf(fontTab) * 100}%)` }}
+                  >
+                    {FONT_TAB_ORDER.map((tab) => (
+                      <div key={tab} className="font-picker-slider__panel">
+                        <div className="font-picker">
+                          {FONT_GROUPS[tab].map((opt) => (
+                            <button
+                              key={opt.value}
+                              type="button"
+                              className={`font-picker__btn ${opt.className} ${activeConfig.fontFamily === opt.value ? 'font-picker__btn--active' : ''}`}
+                              onClick={() => {
+                                loadFont(opt.value)
+                                void updateConfig({ fontFamily: opt.value })
+                              }}
+                            >
+                              {opt.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -321,11 +375,11 @@ export function ReaderDrawer({ open, activeTab, onTabChange: _onTabChange, onClo
                   />
                 </div>
 
-                {/* Glass Intensity */}
+                {/* 亮度 */}
                 <div className="appearance-section">
                   <div className="appearance-section__header">
-                    <label className="appearance-section__label">{t('appearance.glassIntensity')}</label>
-                    <span className="appearance-section__value">{activeConfig.glassIntensity}%</span>
+                    <label className="appearance-section__label">{t('appearance.brightness')}</label>
+                    <span className="appearance-section__value">{activeConfig.brightness}%</span>
                   </div>
                   <input
                     className="appearance-control__slider"
@@ -333,15 +387,29 @@ export function ReaderDrawer({ open, activeTab, onTabChange: _onTabChange, onClo
                     min={20}
                     max={100}
                     step={1}
-                    value={activeConfig.glassIntensity}
-                    onChange={(e) => void updateConfig({ glassIntensity: Number(e.target.value) })}
+                    value={activeConfig.brightness}
+                    onChange={(e) => void updateConfig({ brightness: Number(e.target.value) })}
                   />
                 </div>
               </div>
 
               {/* 主题色 */}
               <div className="appearance-section">
-                <label className="appearance-section__label">{t('appearance.colorTheme')}</label>
+                <div className="appearance-section__header">
+                  <label className="appearance-section__label">{t('appearance.colorTheme')}</label>
+                  {/* 纹理背景开关 */}
+                  <button
+                    type="button"
+                    className={`noise-toggle ${activeConfig.noiseTexture ? 'noise-toggle--active' : ''}`}
+                    onClick={() => void updateConfig({ noiseTexture: !activeConfig.noiseTexture })}
+                    aria-label={t('appearance.noiseTexture')}
+                  >
+                    <span className="material-symbols-outlined" aria-hidden="true">
+                      {activeConfig.noiseTexture ? 'visibility' : 'visibility_off'}
+                    </span>
+                    <span className="noise-toggle__label">{t('appearance.noiseTexture')}</span>
+                  </button>
+                </div>
                 <div className="theme-picker">
                   {THEME_KEYS.map((key) => {
                     const theme = THEME_MAP[key]

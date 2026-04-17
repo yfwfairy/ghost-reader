@@ -8,13 +8,15 @@ describe('SettingsPanel', () => {
     fontSize: 16,
     lineHeight: 1.8,
     fontFamily: 'Newsreader' as const,
-    glassIntensity: 85,
+    brightness: 100,
     colorTheme: 'obsidian' as const,
     appearance: 'dark' as const,
     appearanceFollowSystem: false,
     currentBookId: null as string | null,
     alwaysOnTop: false,
     language: 'en' as const,
+    onboardingCompleted: false,
+    noiseTexture: true,
   }
 
   it('renders three navigation tabs: Appearance, Language, Shortcuts', () => {

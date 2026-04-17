@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { contextBridge, ipcRenderer, webUtils } from 'electron'
 import type { AppConfig, GhostReaderApi } from '@shared/types'
 
 const api: GhostReaderApi = {
@@ -24,6 +24,13 @@ const api: GhostReaderApi = {
   openFileDialog: () => ipcRenderer.invoke('file:open-dialog'),
   setAlwaysOnTop: (value) => ipcRenderer.invoke('window:set-always-on-top', value),
   setMinWindowSize: (width, height) => ipcRenderer.invoke('window:set-min-size', width, height),
+  getLocations: (bookId) => ipcRenderer.invoke('locations:get', bookId),
+  saveLocations: (bookId, data) => ipcRenderer.invoke('locations:set', bookId, data),
 }
 
 contextBridge.exposeInMainWorld('api', api)
+
+// 暴露 webUtils 给渲染进程，用于获取拖放文件的真实路径
+contextBridge.exposeInMainWorld('electronUtils', {
+  getPathForFile: (file: File) => webUtils.getPathForFile(file),
+})

@@ -29,7 +29,7 @@ export interface TocEntry {
 }
 
 export type Locale = 'en' | 'zh' | 'zh-TW'
-export type FontFamily = 'Newsreader' | 'Manrope' | 'Inter' | 'Lora' | 'Merriweather'
+export type FontFamily = 'Newsreader' | 'Manrope' | 'Inter' | 'Lora' | 'Merriweather' | 'Noto Serif SC' | 'Noto Sans SC' | 'LXGW WenKai' | 'ShangTuDongGuanTi-Xi' | 'Yozai' | 'GuanKiapTsingKhai-W' | 'Moon Stars Kai T HW' | 'LXGW WenKai TC'
 export type ColorTheme = 'obsidian' | 'parchment' | 'midnight' | 'onyx' | 'ember' | 'forest' | 'ocean' | 'slate'
 export type AppearanceMode = 'dark' | 'light'
 
@@ -37,13 +37,15 @@ export interface AppConfig {
   fontSize: number
   lineHeight: number
   fontFamily: FontFamily
-  glassIntensity: number
+  brightness: number
   colorTheme: ColorTheme
   appearance: AppearanceMode
   appearanceFollowSystem: boolean
   currentBookId: string | null
   alwaysOnTop: boolean
   language: Locale
+  onboardingCompleted: boolean
+  noiseTexture: boolean
 }
 
 export interface GhostReaderApi {
@@ -61,4 +63,6 @@ export interface GhostReaderApi {
   openFileDialog: () => Promise<string[]>
   setAlwaysOnTop: (value: boolean) => Promise<AppConfig>
   setMinWindowSize: (width: number, height: number) => Promise<void>
+  getLocations: (bookId: string) => Promise<string | null>
+  saveLocations: (bookId: string, locations: string) => Promise<void>
 }

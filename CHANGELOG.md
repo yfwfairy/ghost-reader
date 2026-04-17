@@ -4,6 +4,24 @@
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-04-17
+
+### Added
+
+- 拖放导入
+- 键盘快捷键绑定（↑↓ 滚行、章节翻页、沉浸模式切换等）
+- 书架搜索功能（实时过滤书名 / 作者）
+- 阅读器沉浸式新手引导（首次打开书籍时展示操作提示）
+- 字体选择器分组
+- 阅读器加载 / 错误占位 UI（静态噪点动画卡片）
+- 主题专属噪点纹理叠加层 + 外观面板纹理开关
+
+### Performance
+
+- 字体按需加载 + React.lazy 代码分割 + epubjs 动态导入
+- EPUB locations 缓存 + 进度保存防抖
+- Vite 构建优化（manualChunks）+ 窗口启动优化
+
 ## [0.1.0] - 2026-04-15
 
 ### Added
@@ -20,5 +38,6 @@
 - macOS 双架构打包（Intel + Apple Silicon）
 - GitHub Actions 自动化构建发布
 
-[unreleased]: https://github.com/yfwfairy/ghost-reader/compare/v0.1.0...HEAD
+[unreleased]: https://github.com/yfwfairy/ghost-reader/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/yfwfairy/ghost-reader/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/yfwfairy/ghost-reader/releases/tag/v0.1.0

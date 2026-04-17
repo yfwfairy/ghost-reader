@@ -9,7 +9,7 @@ import { SidebarNav } from './SidebarNav'
 
 function getDroppedPaths(fileList: FileList) {
   return Array.from(fileList)
-    .map((file) => (file as File & { path?: string }).path)
+    .map((file) => window.electronUtils.getPathForFile(file))
     .filter((path): path is string => Boolean(path))
 }
 
@@ -31,6 +31,8 @@ export function BookshelfPage({ activeView, onChangeView, onOpenReader }: Booksh
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT)
   const resizing = useRef(false)
+  // 计数器解决 dragEnter/dragLeave 在子元素间切换时的闪烁问题
+  const dragCounter = useRef(0)
 
   const handleResizeStart = useCallback((event: React.MouseEvent) => {
     event.preventDefault()
@@ -69,22 +71,7 @@ export function BookshelfPage({ activeView, onChangeView, onOpenReader }: Booksh
   }
 
   return (
-    <div
-      className={`bookshelf-page ${dragActive ? 'bookshelf-page--drag' : ''}`}
-      onDragOver={(event) => {
-        event.preventDefault()
-        setDragActive(true)
-      }}
-      onDragLeave={() => setDragActive(false)}
-      onDrop={async (event) => {
-        event.preventDefault()
-        setDragActive(false)
-        const paths = getDroppedPaths(event.dataTransfer.files)
-        if (paths.length > 0) {
-          await addBooks(paths)
-        }
-      }}
-    >
+    <div className="bookshelf-page">
       <SidebarNav
         activeView={activeView}
         onChangeView={onChangeView}
@@ -97,7 +84,33 @@ export function BookshelfPage({ activeView, onChangeView, onOpenReader }: Booksh
         role="separator"
         aria-orientation="vertical"
       />
-      <main className="bookshelf-content">
+      <main
+        className="bookshelf-content"
+        onDragEnter={(event) => {
+          event.preventDefault()
+          dragCounter.current++
+          setDragActive(true)
+        }}
+        onDragOver={(event) => {
+          event.preventDefault()
+        }}
+        onDragLeave={() => {
+          dragCounter.current--
+          if (dragCounter.current <= 0) {
+            dragCounter.current = 0
+            setDragActive(false)
+          }
+        }}
+        onDrop={async (event) => {
+          event.preventDefault()
+          dragCounter.current = 0
+          setDragActive(false)
+          const paths = getDroppedPaths(event.dataTransfer.files)
+          if (paths.length > 0) {
+            await addBooks(paths)
+          }
+        }}
+      >
         <div className="bookshelf-content__drag-bar" />
         {loading ? (
           <p className="bookshelf-status">{t('app.loading')}</p>
@@ -110,6 +123,43 @@ export function BookshelfPage({ activeView, onChangeView, onOpenReader }: Booksh
             onRemove={removeBook}
             onImport={handleImport}
           />
+        )}
+        {/* 拖放蒙版 */}
+        {dragActive && (
+          <div className="drop-overlay">
+            <div className="drop-zone-icon">
+              {/* 浮动文件组 */}
+              <div className="floating-files">
+                <div className="file-ghost file-1">
+                  <span className="material-symbols-outlined">description</span>
+                </div>
+                <div className="file-ghost file-2">
+                  <span className="material-symbols-outlined">menu_book</span>
+                </div>
+                <div className="file-ghost file-3">
+                  <span className="material-symbols-outlined">text_snippet</span>
+                </div>
+              </div>
+              {/* 动态箭头 */}
+              <div className="drop-arrow">
+                <span className="material-symbols-outlined">arrow_downward</span>
+                <div className="arrow-trail" />
+              </div>
+              {/* 发光容器 */}
+              <div className="glow-sink">
+                <div className="sink-inner">
+                  <span className="material-symbols-outlined">archive</span>
+                </div>
+                <div className="sink-ring ring-1" />
+                <div className="sink-ring ring-2" />
+              </div>
+              {/* 提示文字 */}
+              <div className="drop-hint">
+                <span>{t('library.dragHint')}</span>
+                <span>{t('library.dragHintSub')}</span>
+              </div>
+            </div>
+          </div>
         )}
       </main>
       {settingsOpen ? (

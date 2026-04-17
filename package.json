@@ -1,6 +1,6 @@
 {
   "name": "ghost-reader",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A ghostly reading companion for TXT and EPUB books",
   "author": "Yves F. Yang",
   "private": true,
@@ -38,6 +38,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "jsdom": "^26.0.0",
+    "terser": "^5.46.1",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.58.2",
     "vite": "^6.2.0",

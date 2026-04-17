@@ -11,13 +11,15 @@ export const DEFAULT_APP_CONFIG = {
   fontSize: 16,
   lineHeight: 1.8,
   fontFamily: 'Newsreader',
-  glassIntensity: 85,
+  brightness: 80,
   colorTheme: 'obsidian',
   appearance: 'dark',
   appearanceFollowSystem: false,
   currentBookId: null,
   alwaysOnTop: false,
   language: 'en',
+  onboardingCompleted: false,
+  noiseTexture: true,
 } as const
 
 // 主题色定义：bg=背景, text=文字, accent=强调色

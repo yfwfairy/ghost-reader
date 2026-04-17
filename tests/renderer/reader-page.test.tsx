@@ -9,13 +9,15 @@ const baseConfig: AppConfig = {
   fontSize: 18,
   lineHeight: 1.9,
   fontFamily: 'Newsreader',
-  glassIntensity: 85,
+  brightness: 100,
   colorTheme: 'obsidian',
   appearance: 'dark',
   appearanceFollowSystem: false,
   currentBookId: null,
   alwaysOnTop: false,
   language: 'en',
+  onboardingCompleted: false,
+  noiseTexture: true,
 }
 
 describe('ReaderPage', () => {
@@ -56,7 +58,8 @@ describe('ReaderPage', () => {
 
     render(<ReaderPage onBack={vi.fn()} />)
 
-    expect(await screen.findByText('No book selected.')).toBeInTheDocument()
+    expect(await screen.findByText('Failed to load book')).toBeInTheDocument()
+    expect(await screen.findByText('The book may be corrupted or deleted')).toBeInTheDocument();
     expect(handleConfigChange).not.toBeNull()
 
     act(() => {
