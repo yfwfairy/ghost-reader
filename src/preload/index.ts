@@ -24,6 +24,8 @@ const api: GhostReaderApi = {
   openFileDialog: () => ipcRenderer.invoke('file:open-dialog'),
   setAlwaysOnTop: (value) => ipcRenderer.invoke('window:set-always-on-top', value),
   setMinWindowSize: (width, height) => ipcRenderer.invoke('window:set-min-size', width, height),
+  getLocations: (bookId) => ipcRenderer.invoke('locations:get', bookId),
+  saveLocations: (bookId, data) => ipcRenderer.invoke('locations:set', bookId, data),
 }
 
 contextBridge.exposeInMainWorld('api', api)

@@ -4,6 +4,7 @@ import { buildBookRecord, pickSupportedPaths, readEpubFile, readTxtFile } from '
 import {
   configStore,
   libraryStore,
+  locationsStore,
   progressStore,
   removeBookAndProgress,
   upsertBook,
@@ -54,6 +55,7 @@ export function registerIpcHandlers(windowManager: WindowManagerBridge) {
     const cleaned = removeBookAndProgress(libraryStore.get(), progressStore.getAll(), bookId)
     libraryStore.set(cleaned.books)
     progressStore.setAll(cleaned.progress)
+    locationsStore.remove(bookId)
   })
 
   registerHandler('progress:reset', (_event, bookId: string) => {
@@ -88,6 +90,9 @@ export function registerIpcHandlers(windowManager: WindowManagerBridge) {
     const buffer = await readEpubFile(filePath)
     return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength)
   })
+
+  registerHandler('locations:get', (_event, bookId: string) => locationsStore.get(bookId))
+  registerHandler('locations:set', (_event, bookId: string, data: string) => locationsStore.set(bookId, data))
 
   registerHandler('window:set-always-on-top', (_event, value: boolean) =>
     windowManager.setMainWindowAlwaysOnTop(value),

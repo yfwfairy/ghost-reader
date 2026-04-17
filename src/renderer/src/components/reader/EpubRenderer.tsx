@@ -6,6 +6,7 @@ import { useTranslation } from '../../hooks/useTranslation'
 import { loadFontIntoDocument } from '../../utils/font-loader'
 
 type EpubRendererProps = {
+  bookId: string
   bookData: ArrayBuffer
   fontSize: number
   lineHeight: number
@@ -33,6 +34,7 @@ function mapNavItems(items: { id: string; href: string; label: string; subitems?
 }
 
 export function EpubRenderer({
+  bookId,
   bookData,
   fontSize,
   lineHeight,
@@ -213,21 +215,28 @@ export function EpubRenderer({
       // 生成位置索引以获取精确的全书进度百分比
       // （epubjs 的 location.start.percentage 依赖此步骤，否则永远返回 0）
       book.ready
-        .then(() => {
+        .then(async () => {
           // 收集 spine hrefs 用于加权全书进度计算
           const spine = book.spine as unknown as { each: (fn: (item: { href: string }) => void) => void }
           const hrefs: string[] = []
           spine.each((item) => hrefs.push(item.href))
           handleSpineReady(hrefs)
 
-          return (book.locations as unknown as { generate: (chars: number) => Promise<string[]> }).generate(1600)
+          // 尝试从缓存加载 locations，避免重复 CPU 密集生成
+          const cached = await window.api.getLocations(bookId)
+          if (cached) {
+            ;(book.locations as unknown as { load: (data: string) => void }).load(cached)
+          } else {
+            const generated = await (book.locations as unknown as { generate: (chars: number) => Promise<string[]> }).generate(1600)
+            void window.api.saveLocations(bookId, JSON.stringify(generated))
+          }
         })
         .then(() => {
           if (cancelled) return
             // 重新上报当前位置，此时 percentage 基于精确的 locations
             ; (rendition as unknown as { reportLocation: () => void }).reportLocation()
         })
-        .catch(() => { /* 忽略 locations 生成失败 */ })
+        .catch(() => { /* 忽略 locations 生成/加载失败 */ })
 
       // 章节变更 + 进度上报
       let lastRelocatedIdx = -1
@@ -345,7 +354,7 @@ export function EpubRenderer({
       localRendition?.destroy()
       localBook?.destroy()
     }
-  }, [bookData])
+  }, [bookId, bookData])
 
   // 主题热更新（不重建 rendition）
   useEffect(() => {

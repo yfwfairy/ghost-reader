@@ -69,6 +69,7 @@ describe('EpubRenderer', () => {
     await act(async () => {
       result = render(
         <EpubRenderer
+          bookId="test-book-id"
           bookData={bookData}
           fontSize={18}
           lineHeight={1.8}
@@ -85,6 +86,7 @@ describe('EpubRenderer', () => {
     await act(async () => {
       result!.rerender(
         <EpubRenderer
+          bookId="test-book-id"
           bookData={bookData}
           fontSize={18}
           lineHeight={1.8}
@@ -106,6 +108,7 @@ describe('EpubRenderer', () => {
     await act(async () => {
       result = render(
         <EpubRenderer
+          bookId="test-book-id"
           bookData={bookData}
           fontSize={18}
           lineHeight={1.8}
@@ -124,6 +127,7 @@ describe('EpubRenderer', () => {
     await act(async () => {
       result!.rerender(
         <EpubRenderer
+          bookId="test-book-id"
           bookData={bookData}
           fontSize={18}
           lineHeight={1.8}

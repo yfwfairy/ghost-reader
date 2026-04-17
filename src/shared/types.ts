@@ -62,4 +62,6 @@ export interface GhostReaderApi {
   openFileDialog: () => Promise<string[]>
   setAlwaysOnTop: (value: boolean) => Promise<AppConfig>
   setMinWindowSize: (width: number, height: number) => Promise<void>
+  getLocations: (bookId: string) => Promise<string | null>
+  saveLocations: (bookId: string, locations: string) => Promise<void>
 }
