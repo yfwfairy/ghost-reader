@@ -57,7 +57,8 @@ describe('ReaderPage', () => {
 
     render(<ReaderPage onBack={vi.fn()} />)
 
-    expect(await screen.findByText('No book selected.')).toBeInTheDocument()
+    expect(await screen.findByText('Failed to load book')).toBeInTheDocument()
+    expect(await screen.findByText('The book may be corrupted or deleted')).toBeInTheDocument();
     expect(handleConfigChange).not.toBeNull()
 
     act(() => {

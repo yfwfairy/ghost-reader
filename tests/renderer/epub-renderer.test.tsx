@@ -15,11 +15,17 @@ const {
   const renditionOn = vi.fn()
   const renditionDisplay = vi.fn()
   const themesDefault = vi.fn()
+  const hooksRegister = vi.fn()
   const renderTo = vi.fn(() => ({
     themes: { default: themesDefault },
     display: renditionDisplay,
     on: renditionOn,
     destroy: renditionDestroy,
+    hooks: {
+      content: {
+        register: hooksRegister,
+      },
+    },
   }))
   const bookDestroy = vi.fn()
   const spineEach = vi.fn()
