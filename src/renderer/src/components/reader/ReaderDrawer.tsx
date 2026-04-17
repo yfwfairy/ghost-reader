@@ -3,6 +3,7 @@ import type { ColorTheme, FontFamily, TocEntry } from '@shared/types'
 import { THEME_MAP } from '@shared/constants'
 import { useConfig } from '../../hooks/useConfig'
 import { useTranslation } from '../../hooks/useTranslation'
+import { loadFont } from '../../utils/font-loader'
 
 export type DrawerTab = 'chapters' | 'appearance'
 
@@ -340,7 +341,10 @@ export function ReaderDrawer({ open, activeTab, onTabChange: _onTabChange, onClo
                               key={opt.value}
                               type="button"
                               className={`font-picker__btn ${opt.className} ${activeConfig.fontFamily === opt.value ? 'font-picker__btn--active' : ''}`}
-                              onClick={() => void updateConfig({ fontFamily: opt.value })}
+                              onClick={() => {
+                                loadFont(opt.value)
+                                void updateConfig({ fontFamily: opt.value })
+                              }}
                             >
                               {opt.label}
                             </button>

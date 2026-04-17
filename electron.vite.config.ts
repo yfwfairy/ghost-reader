@@ -22,5 +22,15 @@ export default defineConfig({
         '@shared': resolve(__dirname, 'src/shared'),
       },
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'react-vendor': ['react', 'react-dom'],
+            'epub-engine': ['epubjs'],
+          },
+        },
+      },
+    },
   },
 })

@@ -1,13 +1,15 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import type { BookRecord, ReadingProgress, TocEntry } from '@shared/types'
 import { THEME_MAP, hexToRgbTriplet } from '@shared/constants'
 import { useConfig } from '../../hooks/useConfig'
 import { useTranslation } from '../../hooks/useTranslation'
+import { loadFont } from '../../utils/font-loader'
 import staticTexture from '../../assets/static-texture.png'
-import { EpubRenderer } from './EpubRenderer'
-import { ReaderGuide } from './ReaderGuide'
 import { ReaderLayout } from './ReaderLayout'
-import { TxtRenderer } from './TxtRenderer'
+
+const EpubRenderer = lazy(() => import('./EpubRenderer').then(m => ({ default: m.EpubRenderer })))
+const TxtRenderer = lazy(() => import('./TxtRenderer').then(m => ({ default: m.TxtRenderer })))
+const ReaderGuide = lazy(() => import('./ReaderGuide').then(m => ({ default: m.ReaderGuide })))
 
 export type ReaderActions = {
   scrollLine: (direction: 'up' | 'down') => void
@@ -78,6 +80,11 @@ export function ReaderPage({ backRef, readerActionsRef, onBack, onTitleChange, i
       delete document.documentElement.dataset.colorTheme
     }
   }, [])
+
+  // 进入阅读器时按需加载当前阅读字体
+  useEffect(() => {
+    loadFont(activeConfig.fontFamily)
+  }, [activeConfig.fontFamily])
 
   // 同步 colorTheme 到 CSS 变量和 HTML 属性
   useEffect(() => {
@@ -359,61 +366,67 @@ export function ReaderPage({ backRef, readerActionsRef, onBack, onTitleChange, i
             </div>
           </div>
         ) : book.format === 'txt' ? (
-          <TxtRenderer
-            content={txtContent}
-            config={{
-              fontSize: activeConfig.fontSize,
-              lineHeight: activeConfig.lineHeight,
-              fontFamily: activeConfig.fontFamily,
-              colorTheme: activeConfig.colorTheme,
-            }}
-            savedProgress={progress}
-            scrollRef={txtScrollRef}
-            onProgressUpdate={saveProgressLater}
-          />
+          <Suspense fallback={null}>
+            <TxtRenderer
+              content={txtContent}
+              config={{
+                fontSize: activeConfig.fontSize,
+                lineHeight: activeConfig.lineHeight,
+                fontFamily: activeConfig.fontFamily,
+                colorTheme: activeConfig.colorTheme,
+              }}
+              savedProgress={progress}
+              scrollRef={txtScrollRef}
+              onProgressUpdate={saveProgressLater}
+            />
+          </Suspense>
         ) : book.format === 'epub' && epubData ? (
-          <EpubRenderer
-            bookData={epubData}
-            fontSize={activeConfig.fontSize}
-            lineHeight={activeConfig.lineHeight}
-            fontFamily={activeConfig.fontFamily}
-            colorTheme={activeConfig.colorTheme}
-            savedCfi={progress?.epubCfi}
-            displayRef={epubDisplayRef}
-            chapterNavRef={epubChapterNavRef}
-            onTocLoaded={setToc}
-            onChapterScroll={handleChapterScroll}
-            onSpineReady={(hrefs) => { spineHrefsRef.current = hrefs }}
-            onProgressUpdate={(patch) => {
-              if (!book) {
-                return
-              }
+          <Suspense fallback={null}>
+            <EpubRenderer
+              bookData={epubData}
+              fontSize={activeConfig.fontSize}
+              lineHeight={activeConfig.lineHeight}
+              fontFamily={activeConfig.fontFamily}
+              colorTheme={activeConfig.colorTheme}
+              savedCfi={progress?.epubCfi}
+              displayRef={epubDisplayRef}
+              chapterNavRef={epubChapterNavRef}
+              onTocLoaded={setToc}
+              onChapterScroll={handleChapterScroll}
+              onSpineReady={(hrefs) => { spineHrefsRef.current = hrefs }}
+              onProgressUpdate={(patch) => {
+                if (!book) {
+                  return
+                }
 
-              // 用章节进度加权平均计算全书进度
-              const spineHrefs = spineHrefsRef.current
-              let weightedPct = patch.percentage
-              if (spineHrefs.length > 0) {
-                const sum = spineHrefs.reduce((acc, href) =>
-                  acc + (chapterProgressRef.current[href] ?? 0), 0)
-                weightedPct = Math.round(sum / spineHrefs.length)
-              }
+                // 用章节进度加权平均计算全书进度
+                const spineHrefs = spineHrefsRef.current
+                let weightedPct = patch.percentage
+                if (spineHrefs.length > 0) {
+                  const sum = spineHrefs.reduce((acc, href) =>
+                    acc + (chapterProgressRef.current[href] ?? 0), 0)
+                  weightedPct = Math.round(sum / spineHrefs.length)
+                }
 
-              const nextProgress: ReadingProgress = {
-                bookId: book.id,
-                ...patch,
-                percentage: weightedPct,
-                chapterProgress: chapterProgressRef.current,
-              }
-              setProgress(nextProgress)
-              void window.api.saveProgress(nextProgress)
-            }}
-          />
+                const nextProgress: ReadingProgress = {
+                  bookId: book.id,
+                  ...patch,
+                  percentage: weightedPct,
+                  chapterProgress: chapterProgressRef.current,
+                }
+                setProgress(nextProgress)
+                void window.api.saveProgress(nextProgress)
+              }}
+            />
+          </Suspense>
         ) : null}
       </ReaderLayout>
 
       {/* 新手引导 — 书籍加载完成且未完成引导时显示 */}
       {!bookLoading && book && !activeConfig.onboardingCompleted && (
-        <ReaderGuide immersive={immersive} bookFormat={book?.format} onComplete={() => void updateConfig({ onboardingCompleted: true })} />
+        <Suspense fallback={null}>
+          <ReaderGuide immersive={immersive} bookFormat={book?.format} onComplete={() => void updateConfig({ onboardingCompleted: true })} />
+        </Suspense>
       )}
     </>
   )
