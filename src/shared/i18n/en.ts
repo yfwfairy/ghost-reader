@@ -85,6 +85,10 @@ const en: Record<string, string> = {
   'reader.noChapters': 'No chapters available.',
   'reader.prevChapter': 'Previous Chapter',
   'reader.nextChapter': 'Next Chapter',
+  'reader.preparingLabel': 'Preparing...',
+  'reader.errorLabel': 'Failed to load book',
+  'reader.errorHint': 'The book may be corrupted or deleted',
+  'reader.removeFromShelf': 'Remove From Shelf',
 
   // 抽屉弹窗
   'drawer.titleChapters': 'Table of Contents',
@@ -97,7 +101,7 @@ const en: Record<string, string> = {
   'appearance.typography': 'Typography',
   'appearance.fontSize': 'Font Size',
   'appearance.lineHeight': 'Line Height',
-  'appearance.glassIntensity': 'Glass Intensity',
+  'appearance.brightness': 'Brightness',
   'appearance.colorTheme': 'Color Theme',
 
   // App 通用

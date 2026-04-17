@@ -3,6 +3,8 @@ import type { BookRecord, ReadingProgress, TocEntry } from '@shared/types'
 import { THEME_MAP, hexToRgbTriplet } from '@shared/constants'
 import { useConfig } from '../../hooks/useConfig'
 import { useTranslation } from '../../hooks/useTranslation'
+import errorIllustration from '../../assets/error-illustration.png'
+import staticTexture from '../../assets/static-texture.png'
 import { EpubRenderer } from './EpubRenderer'
 import { ReaderGuide } from './ReaderGuide'
 import { ReaderLayout } from './ReaderLayout'
@@ -31,6 +33,7 @@ export function ReaderPage({ backRef, readerActionsRef, onBack, onTitleChange, i
   const [txtContent, setTxtContent] = useState('')
   const [epubData, setEpubData] = useState<ArrayBuffer | null>(null)
   const [bookLoading, setBookLoading] = useState(true)
+  const [bookError, setBookError] = useState(false)
   const [toc, setToc] = useState<TocEntry[]>([])
   const [_isNavigatingBack, setIsNavigatingBack] = useState(false)
   const saveTimer = useRef<number | ReturnType<typeof setTimeout> | null>(null)
@@ -90,6 +93,7 @@ export function ReaderPage({ backRef, readerActionsRef, onBack, onTitleChange, i
   useEffect(() => {
     if (loading) {
       setBookLoading(true)
+      setBookError(false)
       setBook(null)
       setProgress(null)
       setTxtContent('')
@@ -99,6 +103,7 @@ export function ReaderPage({ backRef, readerActionsRef, onBack, onTitleChange, i
 
     if (!config?.currentBookId) {
       setBookLoading(false)
+      setBookError(false)
       setBook(null)
       setProgress(null)
       setTxtContent('')
@@ -108,44 +113,53 @@ export function ReaderPage({ backRef, readerActionsRef, onBack, onTitleChange, i
 
     let cancelled = false
     setBookLoading(true)
+    setBookError(false)
 
     async function loadCurrentBook() {
-      const books = await window.api.getAllBooks()
-      const currentBook = books.find((candidate) => candidate.id === config?.currentBookId) ?? null
+      try {
+        const books = await window.api.getAllBooks()
+        const currentBook = books.find((candidate) => candidate.id === config?.currentBookId) ?? null
 
-      if (cancelled) {
-        return
-      }
+        if (cancelled) {
+          return
+        }
 
-      setBook(currentBook)
+        setBook(currentBook)
 
-      if (!currentBook) {
-        setProgress(null)
-        setTxtContent('')
-        setEpubData(null)
-        setBookLoading(false)
-        return
-      }
-
-      const nextProgress = await window.api.getProgress(currentBook.id)
-      if (cancelled) {
-        return
-      }
-
-      setProgress(nextProgress)
-
-      if (currentBook.format === 'txt') {
-        const content = await window.api.readTxtFile(currentBook.filePath)
-        if (!cancelled) {
-          setTxtContent(content)
+        if (!currentBook) {
+          setProgress(null)
+          setTxtContent('')
           setEpubData(null)
           setBookLoading(false)
+          return
         }
-      } else {
-        const data = await window.api.readEpubFile(currentBook.filePath)
+
+        const nextProgress = await window.api.getProgress(currentBook.id)
+        if (cancelled) {
+          return
+        }
+
+        setProgress(nextProgress)
+
+        if (currentBook.format === 'txt') {
+          const content = await window.api.readTxtFile(currentBook.filePath)
+          if (!cancelled) {
+            setTxtContent(content)
+            setEpubData(null)
+            setBookLoading(false)
+          }
+        } else {
+          const data = await window.api.readEpubFile(currentBook.filePath)
+          if (!cancelled) {
+            setEpubData(data)
+            setTxtContent('')
+            setBookLoading(false)
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load book:', err)
         if (!cancelled) {
-          setEpubData(data)
-          setTxtContent('')
+          setBookError(true)
           setBookLoading(false)
         }
       }
@@ -286,17 +300,72 @@ export function ReaderPage({ backRef, readerActionsRef, onBack, onTitleChange, i
     } : undefined}>
       {loading || bookLoading ? (
         <div className="reader-empty">
-          <p className="reader-empty__eyebrow">{t('reader.eyebrow')}</p>
-          <h1 className="reader-empty__title">{t('reader.title')}</h1>
-          <p className="reader-empty__subtitle">{t('reader.preparingSubtitle')}</p>
-          <p className="reader-empty__message">{t('reader.preparingMessage')}</p>
+          {/* 背景光晕 */}
+          <div className="reader-empty__glow" />
+          <div className="reader-empty__card">
+            <div className="reader-empty__card-back" />
+            <div className="reader-empty__card-front">
+              <div className="reader-empty__static">
+                <img src={staticTexture} alt="" aria-hidden="true" />
+              </div>
+              <div className="reader-empty__card-content">
+                <span className="material-symbols-outlined reader-empty__icon">auto_stories</span>
+              </div>
+            </div>
+          </div>
+          <h2 className="reader-empty__label">{t('reader.preparingLabel')}</h2>
+          {/* 全屏噪点纹理叠加 */}
+          <div className="reader-empty__noise-overlay">
+            <img src={errorIllustration} alt="" aria-hidden="true" />
+          </div>
         </div>
-      ) : !book ? (
+      ) : bookError || !book ? (
         <div className="reader-empty">
-          <p className="reader-empty__eyebrow">{t('reader.eyebrow')}</p>
-          <h1 className="reader-empty__title">{t('reader.title')}</h1>
-          <p className="reader-empty__subtitle">{t('reader.noBookSubtitle')}</p>
-          <p className="reader-empty__message">{t('reader.noBookMessage')}</p>
+          {/* 背景光晕 */}
+          <div className="reader-empty__glow" />
+          {/* 碎裂书本卡片 */}
+          <div className="reader-empty__card">
+            <div className="reader-empty__card-back" />
+            <div className="reader-empty__card-front">
+              {/* 静态噪点纹理 */}
+              <div className="reader-empty__static">
+                <img src={staticTexture} alt="" aria-hidden="true" />
+              </div>
+              {/* 书本图标 + 交叉线 */}
+              <div className="reader-empty__card-content">
+                <span className="material-symbols-outlined reader-empty__icon">auto_stories</span>
+                <div className="reader-empty__cross-lines">
+                  <div className="reader-empty__cross-line" />
+                  <div className="reader-empty__cross-line" />
+                </div>
+              </div>
+            </div>
+            {/* 浮动碎片装饰 */}
+            <div className="reader-empty__fragment reader-empty__fragment--cloud">
+              <span className="material-symbols-outlined">cloud</span>
+            </div>
+            <div className="reader-empty__fragment reader-empty__fragment--texture">
+              <span className="material-symbols-outlined">texture</span>
+            </div>
+          </div>
+          <h2 className="reader-empty__label">{t('reader.errorLabel')}</h2>
+          <p className="reader-empty__hint">{t('reader.errorHint')}</p>
+          <button className="reader-empty__action" type="button" onClick={handleBackToBookshelf}>
+            {t('reader.backToShelf')}
+          </button>
+          {config?.currentBookId && (
+            <button className="reader-empty__secondary" type="button" onClick={async () => {
+              await window.api.removeBook(config.currentBookId!)
+              await updateConfig({ currentBookId: undefined })
+              onBack()
+            }}>
+              {t('reader.removeFromShelf')}
+            </button>
+          )}
+          {/* 全屏噪点纹理叠加 */}
+          <div className="reader-empty__noise-overlay">
+            <img src={errorIllustration} alt="" aria-hidden="true" />
+          </div>
         </div>
       ) : book.format === 'txt' ? (
         <TxtRenderer

@@ -84,6 +84,10 @@ const zh: Record<string, string> = {
   'reader.noChapters': '暂无章节。',
   'reader.prevChapter': '上一章',
   'reader.nextChapter': '下一章',
+  'reader.preparingLabel': '准备中...',
+  'reader.errorLabel': '书本加载失败',
+  'reader.errorHint': '书本可能被损坏或删除',
+  'reader.removeFromShelf': '从书架删除',
 
   // 抽屉弹窗
   'drawer.titleChapters': '目录',
@@ -96,7 +100,7 @@ const zh: Record<string, string> = {
   'appearance.typography': '字体',
   'appearance.fontSize': '字号',
   'appearance.lineHeight': '行高',
-  'appearance.glassIntensity': '玻璃透明度',
+  'appearance.brightness': '亮度',
   'appearance.colorTheme': '主题色',
 
   // App 通用

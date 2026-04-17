@@ -84,6 +84,10 @@ const zhTW: Record<string, string> = {
   'reader.noChapters': '暫無章節。',
   'reader.prevChapter': '上一章',
   'reader.nextChapter': '下一章',
+  'reader.preparingLabel': '準備中...',
+  'reader.errorLabel': '書本載入失敗',
+  'reader.errorHint': '書本可能被損壞或刪除',
+  'reader.removeFromShelf': '從書架刪除',
 
   // 抽屜彈窗
   'drawer.titleChapters': '目錄',
@@ -96,7 +100,7 @@ const zhTW: Record<string, string> = {
   'appearance.typography': '字體',
   'appearance.fontSize': '字號',
   'appearance.lineHeight': '行高',
-  'appearance.glassIntensity': '玻璃透明度',
+  'appearance.brightness': '亮度',
   'appearance.colorTheme': '主題色',
 
   // App 通用

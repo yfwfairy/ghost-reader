@@ -2470,7 +2470,7 @@ html[data-app-mode='reader'] .app-frame__content {
   transition: background 0.3s ease;
 }
 
-/* Glass Intensity 蒙版：覆盖在阅读内容上方 */
+/* 亮度蒙版：覆盖在阅读内容上方，brightness 越低越暗 */
 .reader-page__glass-mask {
   position: absolute;
   inset: 0;
@@ -2493,36 +2493,189 @@ html[data-app-mode='reader'] .app-frame__content {
 }
 
 .reader-empty {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
   flex: 1;
+  gap: 0;
+  padding: 48px 24px;
+  overflow: hidden;
 }
 
-.reader-empty__eyebrow {
-  margin: 0 0 10px;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 12px;
+/* 背景径向光晕 */
+.reader-empty__glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 480px;
+  height: 480px;
+  background: rgba(var(--theme-accent), 0.05);
+  border-radius: 50%;
+  filter: blur(100px);
+  pointer-events: none;
 }
 
-.reader-empty__title {
+/* ── 堆叠卡片容器 ── */
+.reader-empty__card {
+  position: relative;
+  width: 160px;
+  height: 210px;
+  margin-bottom: 36px;
+  flex-shrink: 0;
+}
+
+/* 后层卡片：倾斜 + 缩小 */
+.reader-empty__card-back {
+  position: absolute;
+  inset: 0;
+  background: rgba(var(--theme-text), 0.04);
+  backdrop-filter: blur(48px);
+  -webkit-backdrop-filter: blur(48px);
+  border-radius: 10px;
+  transform: rotate(-6deg) scale(0.95);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* 前层卡片：反向倾斜 */
+.reader-empty__card-front {
+  position: absolute;
+  inset: 0;
+  background: rgba(var(--theme-text), 0.06);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border-radius: 10px;
+  transform: rotate(3deg);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* 卡片内静态噪点纹理 */
+.reader-empty__static {
+  position: absolute;
+  inset: 0;
+  opacity: 0.2;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+.reader-empty__static img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1);
+}
+
+/* 卡片内容（图标 + 交叉线） */
+.reader-empty__card-content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reader-empty__icon {
+  font-size: 56px;
+  color: #eff8ff;
+  text-shadow: 0 0 20px rgba(239, 248, 255, 0.3);
+  opacity: 0.6;
+}
+
+/* ── 标题：大号粗体无衬线，发光效果 ── */
+.reader-empty__label {
+  margin: 0 0 12px;
   font-size: 32px;
+  font-weight: 800;
+  font-family: var(--font-headline), sans-serif;
+  color: rgba(var(--theme-text), 0.96);
   letter-spacing: -0.04em;
+  line-height: 1.1;
+  text-shadow: 0 0 10px rgba(239, 248, 255, 0.3);
 }
 
-.reader-empty__subtitle {
-  margin: 10px 0 0;
-  color: var(--text-secondary);
-  font-size: 14px;
+/* 副标题 */
+.reader-empty__hint {
+  margin: 0;
+  font-size: 15px;
+  font-family: var(--font-body), serif;
+  color: rgba(var(--theme-text), 0.55);
+  line-height: 1.6;
+  max-width: 320px;
 }
 
-.reader-empty__message {
-  margin: 24px 0 0;
-  color: var(--text-secondary);
+/* ── 主按钮：项目一致的玻璃磨砂风格 ── */
+.reader-empty__action {
+  margin-top: 36px;
+  padding: 14px 36px;
+  font-size: 11px;
+  font-family: var(--font-headline), system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 500ms ease;
+}
+
+.reader-empty__action:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  letter-spacing: 0.35em;
+  color: white;
+}
+
+.reader-empty__action:active {
+  transform: scale(0.98);
+}
+
+/* 次要链接按钮：从书架删除 */
+.reader-empty__secondary {
+  margin-top: 16px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-family: var(--font-headline), system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(var(--theme-text), 0.4);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.reader-empty__secondary:hover {
+  color: rgba(var(--theme-text), 0.7);
+  border-bottom-color: rgba(var(--theme-text), 0.2);
+}
+
+/* 全屏噪点纹理叠加层 */
+.reader-empty__noise-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 70;
+  opacity: 0.15;
+  filter: contrast(1.25);
+  mix-blend-mode: overlay;
+}
+
+.reader-empty__noise-overlay img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 /* 阅读器底部导航栏 */
@@ -3106,6 +3259,26 @@ html[data-appearance='light'] .reader-guide__card {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
 }
 
+/* 抽屉背景渐变模糊遮罩 */
+.reader-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 54;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 50%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 50%);
+  background: rgba(0, 0, 0, 0.8);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reader-drawer-backdrop--visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 /* 抽屉主体 */
 .reader-drawer {
   position: fixed;
@@ -3645,9 +3818,8 @@ html[data-appearance='light'] .reader-guide__card {
   font-family: 'LXGW WenKai', serif;
 }
 
-.font-picker__btn--tsanger {
-  font-family: 'TsangerZhoukeZhengdabangshu', serif;
-  font-size: 11px;
+.font-picker__btn--stdgt {
+  font-family: 'ShangTuDongGuanTi-Xi', serif;
 }
 
 .font-picker__btn--yozai {
@@ -3664,6 +3836,21 @@ html[data-appearance='light'] .reader-guide__card {
 
 .font-picker__btn--lxgw-wenkai-tc {
   font-family: 'LXGW WenKai TC', serif;
+}
+
+/* 字体选项卡滑动容器 */
+.font-picker-slider {
+  overflow: hidden;
+}
+
+.font-picker-slider__track {
+  display: flex;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.font-picker-slider__panel {
+  flex: 0 0 100%;
+  min-width: 0;
 }
 
 /* 字体选项卡 */
@@ -3755,7 +3942,7 @@ html[data-appearance='light'] .reader-guide__card {
 }
 
 .theme-swatch:hover {
-  border-color: rgba(var(--theme-accent), 0.4);
+  border-color: rgba(var(--theme-accent), 0.2);
   transform: scale(1.08);
 }
 
@@ -3765,7 +3952,7 @@ html[data-appearance='light'] .reader-guide__card {
 
 .theme-swatch--active {
   border-color: rgb(var(--theme-accent));
-  box-shadow: 0 0 0 3px rgba(var(--theme-accent), 0.25);
+  box-shadow: 0 0 0 2px rgba(148, 148, 148, 0.3);
 }
 
 .theme-swatch__letter {
