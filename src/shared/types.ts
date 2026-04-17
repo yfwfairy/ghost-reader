@@ -45,6 +45,7 @@ export interface AppConfig {
   alwaysOnTop: boolean
   language: Locale
   onboardingCompleted: boolean
+  noiseTexture: boolean
 }
 
 export interface GhostReaderApi {

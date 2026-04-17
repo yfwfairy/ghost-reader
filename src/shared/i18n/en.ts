@@ -103,6 +103,7 @@ const en: Record<string, string> = {
   'appearance.lineHeight': 'Line Height',
   'appearance.brightness': 'Brightness',
   'appearance.colorTheme': 'Color Theme',
+  'appearance.noiseTexture': 'Texture',
 
   // App 通用
   'app.title': 'Ghost Reader',

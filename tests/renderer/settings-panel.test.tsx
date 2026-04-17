@@ -16,6 +16,7 @@ describe('SettingsPanel', () => {
     alwaysOnTop: false,
     language: 'en' as const,
     onboardingCompleted: false,
+    noiseTexture: true,
   }
 
   it('renders three navigation tabs: Appearance, Language, Shortcuts', () => {

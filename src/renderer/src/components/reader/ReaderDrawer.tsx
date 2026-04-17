@@ -395,7 +395,21 @@ export function ReaderDrawer({ open, activeTab, onTabChange: _onTabChange, onClo
 
               {/* 主题色 */}
               <div className="appearance-section">
-                <label className="appearance-section__label">{t('appearance.colorTheme')}</label>
+                <div className="appearance-section__header">
+                  <label className="appearance-section__label">{t('appearance.colorTheme')}</label>
+                  {/* 纹理背景开关 */}
+                  <button
+                    type="button"
+                    className={`noise-toggle ${activeConfig.noiseTexture ? 'noise-toggle--active' : ''}`}
+                    onClick={() => void updateConfig({ noiseTexture: !activeConfig.noiseTexture })}
+                    aria-label={t('appearance.noiseTexture')}
+                  >
+                    <span className="material-symbols-outlined" aria-hidden="true">
+                      {activeConfig.noiseTexture ? 'visibility' : 'visibility_off'}
+                    </span>
+                    <span className="noise-toggle__label">{t('appearance.noiseTexture')}</span>
+                  </button>
+                </div>
                 <div className="theme-picker">
                   {THEME_KEYS.map((key) => {
                     const theme = THEME_MAP[key]

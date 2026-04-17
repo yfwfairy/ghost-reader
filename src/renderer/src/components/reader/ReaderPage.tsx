@@ -5,6 +5,7 @@ import { useConfig } from '../../hooks/useConfig'
 import { useTranslation } from '../../hooks/useTranslation'
 import { loadFont } from '../../utils/font-loader'
 import staticTexture from '../../assets/static-texture.png'
+import { NOISE_MAP } from '../../assets/noise'
 import { ReaderLayout } from './ReaderLayout'
 
 const EpubRenderer = lazy(() => import('./EpubRenderer').then(m => ({ default: m.EpubRenderer })))
@@ -422,6 +423,14 @@ export function ReaderPage({ backRef, readerActionsRef, onBack, onTitleChange, i
           </Suspense>
         ) : null}
       </ReaderLayout>
+
+      {/* 全屏噪点纹理叠加 */}
+      {activeConfig.noiseTexture && (
+        <div
+          className="reader-empty__noise-overlay"
+          style={{ backgroundImage: `url(${NOISE_MAP[activeConfig.colorTheme]})` }}
+        />
+      )}
 
       {/* 新手引导 — 书籍加载完成且未完成引导时显示 */}
       {!bookLoading && book && !activeConfig.onboardingCompleted && (

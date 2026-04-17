@@ -102,6 +102,7 @@ const zhTW: Record<string, string> = {
   'appearance.lineHeight': '行高',
   'appearance.brightness': '亮度',
   'appearance.colorTheme': '主題色',
+  'appearance.noiseTexture': '紋理背景',
 
   // App 通用
   'app.title': 'Ghost Reader',

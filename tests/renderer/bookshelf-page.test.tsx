@@ -16,6 +16,7 @@ const baseConfig: AppConfig = {
   alwaysOnTop: false,
   language: 'en',
   onboardingCompleted: false,
+  noiseTexture: true,
 }
 
 function setupApi(options?: {
