@@ -383,6 +383,7 @@ export function ReaderPage({ backRef, readerActionsRef, onBack, onTitleChange, i
         ) : book.format === 'epub' && epubData ? (
           <Suspense fallback={null}>
             <EpubRenderer
+              bookId={book.id}
               bookData={epubData}
               fontSize={activeConfig.fontSize}
               lineHeight={activeConfig.lineHeight}

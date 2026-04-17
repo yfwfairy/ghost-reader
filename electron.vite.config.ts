@@ -23,6 +23,16 @@ export default defineConfig({
       },
     },
     build: {
+      // 启用 CSS 代码分割，配合 React.lazy 按需加载样式
+      cssCodeSplit: true,
+      // 生产环境移除 console.log / debugger
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: true,
+          drop_debugger: true,
+        },
+      },
       rollupOptions: {
         output: {
           manualChunks: {

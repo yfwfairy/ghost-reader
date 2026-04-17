@@ -10,6 +10,7 @@ export class WindowManager {
   createBookshelfWindow() {
     const saved = configStore.get()
     this.bookshelfWindow = new BrowserWindow({
+      show: false, // 初始不显示，等内容就绪后再展示，避免白屏闪烁
       width: DEFAULT_WINDOW_SIZE.width,
       height: DEFAULT_WINDOW_SIZE.height,
       minWidth: 280,
@@ -22,6 +23,11 @@ export class WindowManager {
       webPreferences: {
         preload: `${__dirname}/../preload/index.js`,
       },
+    })
+
+    // 内容加载完成后再显示窗口，消除启动白屏
+    this.bookshelfWindow.once('ready-to-show', () => {
+      this.bookshelfWindow?.show()
     })
 
     const target = resolveBookshelfWindowLoad(__dirname, process.env.ELECTRON_RENDERER_URL)
