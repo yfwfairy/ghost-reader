@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Ghost Reader — A Ghostly Reading Companion</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;500;700;800&amp;family=Newsreader:ital,opsz,wght@0,6..72,200;0,6..72,400;0,6..72,700;1,6..72,400&amp;display=swap"
+    rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-bright": "#2c2c2c",
+            "on-primary-container": "#d0d0d0",
+            "tertiary-fixed-dim": "#c2def0",
+            "inverse-on-surface": "#565554",
+            "secondary-container": "#3b3b3d",
+            "on-tertiary-fixed": "#2c4655",
+            "primary-container": "#454747",
+            "secondary": "#9f9da0",
+            "background": "#0e0e0e",
+            "surface-tint": "#c6c6c7",
+            "outline-variant": "#484848",
+            "on-background": "#e7e5e4",
+            "surface-dim": "#0e0e0e",
+            "on-tertiary-container": "#3e5868",
+            "on-primary": "#3f4041",
+            "on-tertiary": "#466170",
+            "on-surface": "#e7e5e4",
+            "inverse-surface": "#fcf8f8",
+            "on-secondary-fixed": "#3f3f41",
+            "primary-fixed-dim": "#d4d4d4",
+            "primary": "#c6c6c7",
+            "tertiary-fixed": "#d0ecff",
+            "tertiary-dim": "#c2def0",
+            "surface-container-lowest": "#000000",
+            "secondary-dim": "#9f9da0",
+            "on-primary-fixed": "#3e4040",
+            "primary-fixed": "#e2e2e2",
+            "outline": "#767575",
+            "inverse-primary": "#5e5f60",
+            "surface": "#0e0e0e",
+            "primary-dim": "#b8b9b9",
+            "on-tertiary-fixed-variant": "#486272",
+            "on-secondary-fixed-variant": "#5c5b5d",
+            "surface-variant": "#252626",
+            "secondary-fixed": "#e4e2e4",
+            "on-secondary": "#202022",
+            "tertiary-container": "#d0ecff",
+            "error-container": "#7f2927",
+            "surface-container-low": "#131313",
+            "tertiary": "#eff8ff",
+            "on-secondary-container": "#c1bec1",
+            "on-primary-fixed-variant": "#5a5c5c",
+            "secondary-fixed-dim": "#d6d4d6",
+            "surface-container-highest": "#252626",
+            "on-error-container": "#ff9993",
+            "on-error": "#490106",
+            "surface-container": "#191a1a",
+            "on-surface-variant": "#acabaa",
+            "error": "#ee7d77",
+            "error-dim": "#bb5551",
+            "surface-container-high": "#1f2020"
+          },
+          borderRadius: {
+            DEFAULT: "1rem",
+            lg: "2rem",
+            xl: "3rem",
+            full: "9999px"
+          },
+          fontFamily: {
+            headline: ["Manrope", "sans-serif"],
+            body: ["Newsreader", "serif"],
+            label: ["Manrope", "sans-serif"]
+          }
+        },
+      },
+    }
+  </script>
+  <style>
+    :root {
+      --glow-color: rgba(198, 198, 199, 0.15);
+    }
+
+    body {
+      background-color: #0e0e0e;
+      color: #e7e5e4;
+      font-family: 'Manrope', sans-serif;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .glass-jelly {
+      background: linear-gradient(135deg, rgba(198, 198, 199, 0.1) 0%, rgba(69, 71, 71, 0.4) 100%);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-top: 1px solid rgba(226, 222, 222, 0.15);
+    }
+
+    .obsidian-gradient {
+      background: radial-gradient(circle at 50% -20%, #1f2020 0%, #0e0e0e 70%);
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+    }
+
+    /* 噪点覆盖层 */
+    .noise-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 100;
+      opacity: 0.25;
+      background-image: url('assets/noise-obsidian.png');
+      background-repeat: repeat;
+      mix-blend-mode: overlay;
+    }
+
+    /* 幽灵光晕 */
+    .ambient-glow {
+      position: absolute;
+      top: -20vh;
+      left: 10vw;
+      width: 60vw;
+      height: 60vw;
+      background: radial-gradient(circle, var(--glow-color) 0%, transparent 60%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: -1;
+      filter: blur(80px);
+      animation: float-glow 20s ease-in-out infinite alternate;
+    }
+
+    .glow-bottom {
+      top: auto;
+      bottom: -30vh;
+      left: 30vw;
+      width: 50vw;
+      height: 50vw;
+      animation-duration: 25s;
+      animation-delay: -5s;
+    }
+
+    @keyframes float-glow {
+      0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.8;
+      }
+
+      50% {
+        transform: translate(10vw, 5vh) scale(1.1);
+        opacity: 1;
+      }
+
+      100% {
+        transform: translate(-5vw, 15vh) scale(0.9);
+        opacity: 0.7;
+      }
+    }
+
+    /* 导航栏 */
+    .navbar {
+      transition: background 0.3s ease, border-color 0.3s ease;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    /* 截图卡片 macOS 窗口风格 */
+    .screenshot-card {
+      position: relative;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      border: 1px solid rgba(72, 72, 72, 0.1);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      background: #131313;
+      transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .screenshot-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6);
+    }
+
+    .screenshot-card img {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+
+    .screenshot-card:hover img {
+      transform: scale(1.02);
+    }
+
+    .screenshot-dots {
+      position: absolute;
+      top: 1rem;
+      left: 1.5rem;
+      z-index: 10;
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .screenshot-dots span {
+      width: 0.75rem;
+      height: 0.75rem;
+      border-radius: 50%;
+    }
+
+    /* 滚动渐入动画 */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .reveal.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* 下载按钮发光特效 */
+    @keyframes btn-glow {
+      0% {
+        box-shadow: 0 0 0 0 rgba(198, 198, 199, 0);
+      }
+
+      15% {
+        box-shadow: 0 0 20px 4px rgba(198, 198, 199, 0.35);
+      }
+
+      50% {
+        box-shadow: 0 0 30px 8px rgba(198, 198, 199, 0.2);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(198, 198, 199, 0);
+      }
+    }
+
+    .download-btn.glow {
+      animation: btn-glow 3s ease-out;
+    }
+  </style>
+</head>
+
+<body class="selection:bg-tertiary-fixed-dim selection:text-on-tertiary-fixed">
+
+  <!-- Navbar -->
+  <nav class="navbar fixed top-0 w-full z-50 bg-[#0e0e0e]/60 backdrop-blur-3xl">
+    <div class="flex items-center px-12 py-6 max-w-screen-2xl mx-auto">
+      <span class="text-2xl font-bold tracking-tighter text-[#eff8ff] font-headline">Ghost Reader</span>
+    </div>
+  </nav>
+
+  <main class="relative">
+    <!-- 背景特效层 -->
+    <div class="noise-overlay"></div>
+    <div class="ambient-glow"></div>
+
+    <!-- Hero Section -->
+    <section class="obsidian-gradient pt-48 pb-24 px-6 md:px-12 relative z-10">
+      <div class="max-w-5xl mx-auto text-center reveal">
+        <h1 class="font-body text-5xl md:text-6xl font-light tracking-tight text-on-background mb-6">
+          The Art of <span class="italic">Digital Archiving.</span>
+        </h1>
+        <p
+          class="font-headline text-base md:text-lg text-on-surface-variant max-w-2xl mx-auto mb-10 font-light tracking-wide leading-relaxed">
+          An immersive sanctuary for your local library. </br>Carved from Obsidian, whispered in glass.
+        </p>
+        <div id="download"
+          class="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-6">
+          <a href="https://github.com/yfwfairy/ghost-reader/releases/download/v0.2.0/Ghost.Reader-0.2.0-x64.dmg"
+            class="download-btn glass-jelly group flex items-center space-x-4 min-w-[260px] px-10 py-5 rounded-full border border-outline-variant/20 hover:bg-surface-bright/20 transition-all duration-500 no-underline text-on-surface">
+            <span class="material-symbols-outlined text-2xl">desktop_mac</span>
+            <div class="text-left">
+              <p class="text-[10px] uppercase tracking-widest opacity-60">Download for</p>
+              <p class="font-headline font-bold tracking-wide">macOS Intel</p>
+            </div>
+          </a>
+          <a href="https://github.com/yfwfairy/ghost-reader/releases/download/v0.2.0/Ghost.Reader-0.2.0-arm64.dmg"
+            class="download-btn glass-jelly group flex items-center space-x-4 min-w-[260px] px-10 py-5 rounded-full border border-outline-variant/20 hover:bg-surface-bright/20 transition-all duration-500 no-underline text-on-surface">
+            <span class="material-symbols-outlined text-2xl text-primary">memory</span>
+            <div class="text-left">
+              <p class="text-[10px] uppercase tracking-widest opacity-60">Download for</p>
+              <p class="font-headline font-bold tracking-wide">macOS Apple Silicon</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Feature 展示区 -->
+    <section class="py-20 px-6 md:px-12 bg-background relative z-10">
+      <div class="max-w-6xl mx-auto space-y-24">
+
+        <!-- Feature 1: The Curator's Home — 截图左，文字右 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center reveal"
+          style="transition-delay: 0.1s;">
+          <div class="screenshot-card">
+            <div class="screenshot-dots">
+              <span style="background:#ff5f56"></span>
+              <span style="background:#ffbd2e"></span>
+              <span style="background:#27c93f"></span>
+            </div>
+            <img src="screenshots/recent.png" alt="Ghost Reader bookshelf — recent reads with progress cards"
+              loading="lazy" />
+          </div>
+          <div>
+            <h2 class="font-body text-3xl md:text-4xl text-on-background mb-4">The Curator's Home</h2>
+            <p class="font-headline text-base text-on-surface-variant font-light leading-relaxed">
+              Organize your collection in a library built for focus. A minimalist grid layout that highlights cover art
+              and reading progress.
+            </p>
+          </div>
+        </div>
+
+        <!-- Feature 2: Immersive Reader — 文字左，截图右 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center reveal"
+          style="transition-delay: 0.2s;">
+          <div class="md:order-2">
+            <div class="screenshot-card">
+              <div class="screenshot-dots">
+                <span style="background:#ff5f56"></span>
+                <span style="background:#ffbd2e"></span>
+                <span style="background:#27c93f"></span>
+              </div>
+              <img src="screenshots/reader.png" alt="Ghost Reader EPUB reader — chapter navigation drawer"
+                loading="lazy" />
+            </div>
+          </div>
+          <div class="md:order-1">
+            <h2 class="font-body text-3xl md:text-4xl text-on-background mb-4">Immersive Reader</h2>
+            <p class="font-headline text-base text-on-surface-variant font-light leading-relaxed">
+              Zero interface, pure story. Typography that adapts to your environment and a distraction-free mode carved
+              from digital obsidian.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-24 bg-background relative overflow-hidden">
+      <div class="ambient-glow glow-bottom"></div>
+      <div class="max-w-3xl mx-auto text-center relative z-10 px-6 reveal">
+        <h2 class="font-body text-4xl md:text-5xl text-on-background mb-6">Ready to <span class="italic">Ghost
+            Read?</span></h2>
+        <p class="font-headline text-base text-on-surface-variant mb-10 opacity-70">Join thousands of curators who have
+          found their digital sanctuary.</p>
+        <a id="cta-btn" href="#download"
+          class="inline-block bg-primary text-on-primary px-12 py-4 rounded-full font-headline font-bold text-lg hover:shadow-[0_0_30px_rgba(198,198,199,0.3)] transition-all no-underline cursor-pointer">
+          Get Ghost Reader for Free
+        </a>
+        <p class="mt-8 font-headline text-sm text-on-surface-variant opacity-50">
+          Looking for older versions?
+          <a href="https://github.com/yfwfairy/ghost-reader/releases" target="_blank" rel="noopener"
+            class="underline hover:text-primary transition-colors">
+            Browse all releases →
+          </a>
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-[#0e0e0e] w-full py-16 border-t border-[#484848]/15">
+    <div
+      class="flex flex-col md:flex-row justify-between items-center px-12 space-y-8 md:space-y-0 max-w-screen-2xl mx-auto">
+      <div class="flex flex-col items-center md:items-start space-y-4">
+        <span class="text-lg font-black text-[#454747] font-headline tracking-tighter uppercase">Ghost Reader</span>
+        <p class="text-[#c6c6c7] text-xs uppercase tracking-widest">© 2026 Ghost Reader. Carved from Obsidian.</p>
+      </div>
+      <div class="flex space-x-12">
+        <a class="text-[#767575] text-xs uppercase tracking-widest hover:text-[#c6c6c7] transition-colors duration-300"
+          href="https://github.com/yfwfairy/ghost-reader/issues" target="_blank" rel="noopener">
+          Issues
+        </a>
+        <a class="text-[#767575] text-xs uppercase tracking-widest hover:text-[#c6c6c7] transition-colors duration-300"
+          href="https://github.com/yfwfairy/ghost-reader" target="_blank" rel="noopener">
+          Github
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 动画脚本 -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // 滚动渐入 — IntersectionObserver
+      const observer = new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('active');
+            obs.unobserve(entry.target);
+          }
+        });
+      }, { root: null, rootMargin: '0px', threshold: 0.15 });
+
+      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+      // 导航栏滚动效果
+      const navbar = document.querySelector('.navbar');
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+          navbar.style.background = 'rgba(14, 14, 14, 0.85)';
+          navbar.style.borderBottomColor = 'rgba(255, 255, 255, 0.12)';
+        } else {
+          navbar.style.background = 'rgba(14, 14, 14, 0.6)';
+          navbar.style.borderBottomColor = 'rgba(255, 255, 255, 0.08)';
+        }
+      });
+
+      // 幽灵光晕跟随鼠标微动
+      const glow = document.querySelector('.ambient-glow:not(.glow-bottom)');
+      if (glow) {
+        document.addEventListener('mousemove', (e) => {
+          const x = (e.clientX / window.innerWidth - 0.5) * 5;
+          const y = (e.clientY / window.innerHeight - 0.5) * 5;
+          glow.style.marginLeft = x + 'vw';
+          glow.style.marginTop = y + 'vh';
+        });
+      }
+
+      // CTA 按钮点击 → 滚动到顶部 + 下载按钮发光
+      const ctaBtn = document.getElementById('cta-btn');
+      if (ctaBtn) {
+        ctaBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          setTimeout(() => {
+            document.querySelectorAll('.download-btn').forEach(btn => {
+              btn.classList.remove('glow');
+              void btn.offsetWidth; // 强制重排以重新触发动画
+              btn.classList.add('glow');
+              setTimeout(() => btn.classList.remove('glow'), 3000);
+            });
+          }, 400);
+        });
+      }
+    });
+  </script>
+</body>
+
+</html>
