@@ -17,6 +17,9 @@ const baseConfig: AppConfig = {
   language: 'en',
   onboardingCompleted: false,
   noiseTexture: true,
+  pageMargin: 10,
+  fontWeight: 400,
+  opacity: 100,
 }
 
 function setupApi(options?: {
@@ -46,6 +49,7 @@ function setupApi(options?: {
       importBooks: vi.fn().mockResolvedValue([]),
       removeBook: vi.fn(),
       openFileDialog: vi.fn().mockResolvedValue([]),
+      getAppVersion: vi.fn().mockResolvedValue('0.2.0'),
       setAlwaysOnTop,
       getProgress: vi
         .fn()

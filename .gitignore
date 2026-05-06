@@ -5,3 +5,4 @@ out/
 dist/
 .typecheck/
 .DS_Store
+.superpowers/

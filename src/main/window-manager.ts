@@ -14,7 +14,7 @@ export class WindowManager {
       width: DEFAULT_WINDOW_SIZE.width,
       height: DEFAULT_WINDOW_SIZE.height,
       minWidth: 280,
-      minHeight: 200,
+      minHeight: 100,
       title: 'Ghost Reader',
       titleBarStyle: 'hiddenInset',
       vibrancy: 'under-window',
@@ -64,6 +64,37 @@ export class WindowManager {
     if (newWidth !== currentWidth || newHeight !== currentHeight) {
       this.bookshelfWindow.setSize(newWidth, newHeight)
     }
+  }
+
+  setWindowOpacity(value: number): AppConfig {
+    const clamped = Math.max(0, Math.min(1, value))
+    const next = configStore.set({ opacity: Math.round(clamped * 100) })
+    this.applyOpacity(clamped)
+    this.broadcastConfig()
+    return next
+  }
+
+  previewWindowOpacity(value: number) {
+    const clamped = Math.max(0, Math.min(1, value))
+    this.applyOpacity(clamped)
+  }
+
+  private applyOpacity(clamped: number) {
+    if (!this.bookshelfWindow) return
+    if (clamped < 1) {
+      this.bookshelfWindow.setVibrancy(null)
+      this.bookshelfWindow.setOpacity(clamped)
+    } else {
+      this.bookshelfWindow.setOpacity(1)
+      this.bookshelfWindow.setVibrancy('under-window')
+    }
+  }
+
+  setTrafficLightVisible(visible: boolean) {
+    if (!this.bookshelfWindow) {
+      return
+    }
+    this.bookshelfWindow.setWindowButtonVisibility(visible)
   }
 
   broadcastConfig() {

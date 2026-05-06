@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom/vitest'
 import { fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { SettingsPanel } from '../../src/renderer/src/components/settings/SettingsPanel'
 
 describe('SettingsPanel', () => {
@@ -17,7 +17,19 @@ describe('SettingsPanel', () => {
     language: 'en' as const,
     onboardingCompleted: false,
     noiseTexture: true,
+    pageMargin: 10,
+    fontWeight: 400,
+    opacity: 100,
   }
+
+  beforeEach(() => {
+    Object.defineProperty(window, 'api', {
+      configurable: true,
+      value: {
+        getAppVersion: vi.fn(() => new Promise(() => {})),
+      },
+    })
+  })
 
   it('renders three navigation tabs: Appearance, Language, Shortcuts', () => {
     render(
@@ -86,5 +98,16 @@ describe('SettingsPanel', () => {
 
     expect(onSave).not.toHaveBeenCalled()
     expect(onClose).toHaveBeenCalledTimes(1)
+  })
+
+  it('loads and renders the bridged app version', async () => {
+    window.api.getAppVersion = vi.fn().mockResolvedValue('0.2.0')
+
+    render(
+      <SettingsPanel config={defaultConfig} onSave={vi.fn()} onClose={vi.fn()} />,
+    )
+
+    expect(window.api.getAppVersion).toHaveBeenCalledTimes(1)
+    expect(await screen.findByText('v0.2.0')).toBeInTheDocument()
   })
 })

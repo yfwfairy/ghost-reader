@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import type { ColorTheme, FontFamily, ReadingProgress } from '@shared/types'
-import { THEME_MAP } from '@shared/constants'
+import type { FontFamily, ReadingProgress } from '@shared/types'
 
 type TxtRendererProps = {
   content: string
@@ -8,7 +7,8 @@ type TxtRendererProps = {
     fontSize: number
     lineHeight: number
     fontFamily: FontFamily
-    colorTheme: ColorTheme
+    fontWeight: number
+    themeTextColor: string
   }
   savedProgress?: ReadingProgress | null
   scrollRef?: React.RefObject<HTMLDivElement | null>
@@ -52,7 +52,8 @@ export function TxtRenderer({ content, config, savedProgress, scrollRef, onProgr
         fontSize: `${config.fontSize}px`,
         lineHeight: config.lineHeight,
         fontFamily: `'${config.fontFamily}', serif`,
-        color: THEME_MAP[config.colorTheme].text,
+        fontWeight: config.fontWeight,
+        color: config.themeTextColor,
       }}
     >
       {paragraphs.map((paragraph, index) => (

@@ -1,6 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import type { BookRecord, ReadingProgress, TocEntry } from '@shared/types'
-import { THEME_MAP, hexToRgbTriplet } from '@shared/constants'
+import { resolveTheme, hexToRgbTriplet } from '@shared/constants'
 import { useConfig } from '../../hooks/useConfig'
 import { useTranslation } from '../../hooks/useTranslation'
 import { loadFont } from '../../utils/font-loader'
@@ -79,8 +79,17 @@ export function ReaderPage({ backRef, readerActionsRef, onBack, onTitleChange, i
       delete document.documentElement.dataset.appMode
       delete document.body.dataset.appMode
       delete document.documentElement.dataset.colorTheme
+      void window.api.setWindowOpacity(1)
     }
   }, [])
+
+  // 进入阅读器时应用已保存的窗口透明度
+  useEffect(() => {
+    const opacity = activeConfig.opacity ?? 100
+    if (opacity < 100) {
+      void window.api.setWindowOpacity(opacity / 100)
+    }
+  }, [activeConfig.opacity])
 
   // 进入阅读器时按需加载当前阅读字体
   useEffect(() => {
@@ -88,14 +97,16 @@ export function ReaderPage({ backRef, readerActionsRef, onBack, onTitleChange, i
   }, [activeConfig.fontFamily])
 
   // 同步 colorTheme 到 CSS 变量和 HTML 属性
+  const themeColors = resolveTheme(activeConfig)
+
   useEffect(() => {
-    const theme = THEME_MAP[activeConfig.colorTheme]
     const root = document.documentElement
     root.dataset.colorTheme = activeConfig.colorTheme
-    root.style.setProperty('--theme-bg', hexToRgbTriplet(theme.bg))
-    root.style.setProperty('--theme-text', hexToRgbTriplet(theme.text))
-    root.style.setProperty('--theme-accent', hexToRgbTriplet(theme.accent))
-  }, [activeConfig.colorTheme])
+    root.style.setProperty('--theme-bg', hexToRgbTriplet(themeColors.bg))
+    root.style.setProperty('--theme-text', hexToRgbTriplet(themeColors.text))
+    root.style.setProperty('--theme-accent', hexToRgbTriplet(themeColors.accent))
+    root.style.setProperty('--reader-h-margin', `${activeConfig.pageMargin}px`)
+  }, [activeConfig.colorTheme, activeConfig.customThemeBg, activeConfig.customThemeText, activeConfig.pageMargin, themeColors])
 
   useEffect(() => {
     if (loading) {
@@ -374,7 +385,8 @@ export function ReaderPage({ backRef, readerActionsRef, onBack, onTitleChange, i
                 fontSize: activeConfig.fontSize,
                 lineHeight: activeConfig.lineHeight,
                 fontFamily: activeConfig.fontFamily,
-                colorTheme: activeConfig.colorTheme,
+                fontWeight: activeConfig.fontWeight,
+                themeTextColor: themeColors.text,
               }}
               savedProgress={progress}
               scrollRef={txtScrollRef}
@@ -389,7 +401,8 @@ export function ReaderPage({ backRef, readerActionsRef, onBack, onTitleChange, i
               fontSize={activeConfig.fontSize}
               lineHeight={activeConfig.lineHeight}
               fontFamily={activeConfig.fontFamily}
-              colorTheme={activeConfig.colorTheme}
+              fontWeight={activeConfig.fontWeight}
+              themeTextColor={themeColors.text}
               savedCfi={progress?.epubCfi}
               displayRef={epubDisplayRef}
               chapterNavRef={epubChapterNavRef}
@@ -428,7 +441,7 @@ export function ReaderPage({ backRef, readerActionsRef, onBack, onTitleChange, i
       {activeConfig.noiseTexture && (
         <div
           className="reader-empty__noise-overlay"
-          style={{ backgroundImage: `url(${NOISE_MAP[activeConfig.colorTheme]})` }}
+          style={{ backgroundImage: `url(${NOISE_MAP[activeConfig.colorTheme] ?? NOISE_MAP.obsidian})` }}
         />
       )}
 

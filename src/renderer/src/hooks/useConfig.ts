@@ -34,7 +34,7 @@ export function useConfig() {
 
   return {
     config,
-    fallbackConfig: { ...DEFAULT_APP_CONFIG },
+    fallbackConfig: { ...DEFAULT_APP_CONFIG } as AppConfig,
     loading: config === null,
     updateConfig,
   }

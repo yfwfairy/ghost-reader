@@ -87,6 +87,8 @@ describe('App single-window shell', () => {
         openFileDialog: vi.fn().mockResolvedValue([]),
         setAlwaysOnTop: vi.fn(),
         setMinWindowSize: vi.fn(),
+        setWindowOpacity: vi.fn(),
+        setTrafficLightVisible: vi.fn(),
         readEpubFile: vi.fn().mockResolvedValue(new ArrayBuffer(0)),
       },
     })
@@ -136,6 +138,8 @@ describe('App single-window shell', () => {
         openFileDialog: vi.fn().mockResolvedValue([]),
         setAlwaysOnTop: vi.fn(),
         setMinWindowSize: vi.fn(),
+        setWindowOpacity: vi.fn(),
+        setTrafficLightVisible: vi.fn(),
         readEpubFile: vi.fn().mockResolvedValue(new ArrayBuffer(0)),
       },
     })
@@ -367,6 +371,8 @@ describe('App single-window shell', () => {
         openFileDialog: vi.fn().mockResolvedValue([]),
         setAlwaysOnTop,
         setMinWindowSize: vi.fn(),
+        setWindowOpacity: vi.fn(),
+        setTrafficLightVisible: vi.fn(),
         readEpubFile: vi.fn().mockResolvedValue(new ArrayBuffer(0)),
       },
     })

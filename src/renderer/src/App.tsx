@@ -88,6 +88,11 @@ function AppInner() {
     document.documentElement.dataset.appearance = effectiveAppearance
   }, [effectiveAppearance])
 
+  // 沉浸模式同步 macOS 红绿灯按钮可见性
+  useEffect(() => {
+    void window.api.setTrafficLightVisible(!immersive)
+  }, [immersive])
+
   useEffect(() => {
     if (config === null) {
       return
@@ -111,7 +116,7 @@ function AppInner() {
     setReaderTitle(t('app.readerTitle'))
     setPage(currentBookId ? 'reader' : 'home')
     if (currentBookId) {
-      void window.api.setMinWindowSize(300, 200)
+      void window.api.setMinWindowSize(300, 100)
     } else {
       void window.api.setMinWindowSize(800, 450)
     }
@@ -134,7 +139,7 @@ function AppInner() {
           onOpenReader={() => {
             setReaderTitle(t('app.readerTitle'))
             setPage('reader')
-            void window.api.setMinWindowSize(300, 200)
+            void window.api.setMinWindowSize(300, 100)
           }}
         />
       ) : (
@@ -143,13 +148,13 @@ function AppInner() {
             void window.api.setAlwaysOnTop(false)
             setImmersive(false)
             setPage('home')
-            void window.api.setMinWindowSize(800, 450)
+            void window.api.setMinWindowSize(800, 400)
           }} />}
           onReset={() => {
             void window.api.setAlwaysOnTop(false)
             setImmersive(false)
             setPage('home')
-            void window.api.setMinWindowSize(800, 450)
+            void window.api.setMinWindowSize(800, 400)
           }}
         >
           <ReaderPage

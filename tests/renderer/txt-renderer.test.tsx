@@ -10,7 +10,7 @@ describe('TxtRenderer', () => {
     render(
       <TxtRenderer
         content={'第一段\n\n第二段'}
-        config={{ fontSize: 16, lineHeight: 1.8, fontFamily: 'Newsreader', colorTheme: 'obsidian' }}
+        config={{ fontSize: 16, lineHeight: 1.8, fontFamily: 'Newsreader', fontWeight: 400, themeTextColor: '#e7e5e4' }}
         savedProgress={{ bookId: '1', percentage: 0, updatedAt: 1, txtScrollTop: 0 }}
         onProgressUpdate={onProgress}
       />,

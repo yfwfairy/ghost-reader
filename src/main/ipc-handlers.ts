@@ -1,4 +1,4 @@
-import { dialog, ipcMain } from 'electron'
+import { app, dialog, ipcMain } from 'electron'
 import type { AppConfig, ReadingProgress } from '@shared/types'
 import { buildBookRecord, pickSupportedPaths, readEpubFile, readTxtFile } from './file-service'
 import {
@@ -12,8 +12,11 @@ import {
 
 type WindowManagerBridge = {
   setMainWindowAlwaysOnTop: (value: boolean) => AppConfig
+  setWindowOpacity: (value: number) => AppConfig
+  previewWindowOpacity: (value: number) => void
   broadcastConfig: () => void
   setMinimumSize: (width: number, height: number) => void
+  setTrafficLightVisible: (visible: boolean) => void
 }
 
 function registerHandler<Args extends unknown[], ReturnValue>(
@@ -25,14 +28,20 @@ function registerHandler<Args extends unknown[], ReturnValue>(
 }
 
 export function registerIpcHandlers(windowManager: WindowManagerBridge) {
+  registerHandler('app:get-version', () => app.getVersion())
   registerHandler('config:get', () => configStore.get())
   registerHandler('config:set', (_event, patch: Partial<AppConfig>) => {
-    const { alwaysOnTop, ...rest } = patch
+    const { alwaysOnTop, opacity, ...rest } = patch
     const hasNonWindowConfigPatch = Object.keys(rest).length > 0
 
     let next = hasNonWindowConfigPatch
       ? configStore.set(rest as Partial<AppConfig>)
       : configStore.get()
+
+    if (opacity !== undefined) {
+      next = windowManager.setWindowOpacity(opacity / 100)
+      return next
+    }
 
     if (alwaysOnTop !== undefined) {
       next = windowManager.setMainWindowAlwaysOnTop(alwaysOnTop)
@@ -98,7 +107,15 @@ export function registerIpcHandlers(windowManager: WindowManagerBridge) {
     windowManager.setMainWindowAlwaysOnTop(value),
   )
 
+  registerHandler('window:set-opacity', (_event, value: number) => {
+    windowManager.previewWindowOpacity(value)
+  })
+
   registerHandler('window:set-min-size', (_event, width: number, height: number) => {
     windowManager.setMinimumSize(width, height)
+  })
+
+  registerHandler('window:set-traffic-light-visible', (_event, visible: boolean) => {
+    windowManager.setTrafficLightVisible(visible)
   })
 }

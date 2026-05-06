@@ -4,6 +4,32 @@
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-05-06
+
+### Added
+
+- 自定义主题色：ColorTheme 新增 custom 类型，支持自由选择背景色和文字色
+- CustomThemePanel 取色面板组件（拾色器 + HEX 输入 + 系统取色器）
+- resolveTheme / lerpColor 主题解析工具函数
+- Ghost 设置面板：左右预览布局 + draft 状态 + Apply/Cancel 操作模式
+- 窗口透明度控制（80%~100%），通过 BrowserWindow.setOpacity() 原生实现
+- 沉浸模式隐藏 macOS 红绿灯按钮
+- i18n 新增自定义主题色、透明度相关翻译
+
+### Changed
+
+- 外观面板重构为「基础设置」和「Ghost 设置」两大分区
+- TxtRenderer / EpubRenderer 改用 themeTextColor prop 替代 THEME_MAP 查找
+- ReaderPage 使用 resolveTheme 统一驱动 CSS 变量
+- NOISE_MAP 类型改为 Partial，不含 custom 键
+- AppConfig 新增 customThemeBg、customThemeText、fontWeight、pageMargin、opacity 字段
+
+### Fixed
+
+- 自定义色块背景覆盖 + 取色面板自适应布局
+- 沉浸模式下章节导航按钮阻止冒泡，避免退出沉浸模式
+- 阅读器最小窗口高度和内容区 padding
+
 ## [0.2.0] - 2026-04-17
 
 ### Added
@@ -38,6 +64,7 @@
 - macOS 双架构打包（Intel + Apple Silicon）
 - GitHub Actions 自动化构建发布
 
-[unreleased]: https://github.com/yfwfairy/ghost-reader/compare/v0.2.0...HEAD
+[unreleased]: https://github.com/yfwfairy/ghost-reader/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/yfwfairy/ghost-reader/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/yfwfairy/ghost-reader/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/yfwfairy/ghost-reader/releases/tag/v0.1.0

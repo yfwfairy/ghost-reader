@@ -48,8 +48,11 @@ describe('ipc handlers always-on-top routing', () => {
         ...DEFAULT_APP_CONFIG,
         alwaysOnTop: value,
       })),
+      setWindowOpacity: vi.fn(),
+      previewWindowOpacity: vi.fn(),
       broadcastConfig: vi.fn(),
       setMinimumSize: vi.fn(),
+      setTrafficLightVisible: vi.fn(),
     }
 
     registerIpcHandlers(windowManager)
@@ -114,8 +117,11 @@ describe('ipc handlers always-on-top routing', () => {
         fontSize: 21,
         alwaysOnTop: value,
       })),
+      setWindowOpacity: vi.fn(),
+      previewWindowOpacity: vi.fn(),
       broadcastConfig: vi.fn(),
       setMinimumSize: vi.fn(),
+      setTrafficLightVisible: vi.fn(),
     }
 
     registerIpcHandlers(windowManager)
@@ -174,8 +180,11 @@ describe('ipc handlers always-on-top routing', () => {
         ...DEFAULT_APP_CONFIG,
         alwaysOnTop: value,
       })),
+      setWindowOpacity: vi.fn(),
+      previewWindowOpacity: vi.fn(),
       broadcastConfig: vi.fn(),
       setMinimumSize: vi.fn(),
+      setTrafficLightVisible: vi.fn(),
     }
 
     registerIpcHandlers(windowManager)
@@ -187,5 +196,70 @@ describe('ipc handlers always-on-top routing', () => {
 
     expect(windowManager.setMainWindowAlwaysOnTop).toHaveBeenCalledWith(false)
     expect(result).toEqual(expect.objectContaining({ alwaysOnTop: false }))
+  })
+
+  it('returns the packaged app version through app:get-version', async () => {
+    vi.resetModules()
+
+    const handlers = new Map<string, (...args: unknown[]) => unknown>()
+    const ipcMain = {
+      removeHandler: vi.fn(),
+      handle: vi.fn((channel: string, handler: (...args: unknown[]) => unknown) => {
+        handlers.set(channel, handler)
+      }),
+    }
+    const getVersion = vi.fn(() => '0.2.0')
+
+    vi.doMock('electron', () => ({
+      app: { getVersion },
+      dialog: { showOpenDialog: vi.fn() },
+      ipcMain,
+    }))
+    vi.doMock('../../src/main/store', () => ({
+      configStore: {
+        get: vi.fn(() => DEFAULT_APP_CONFIG),
+        set: vi.fn(),
+      },
+      libraryStore: {
+        get: vi.fn(() => []),
+        set: vi.fn(),
+      },
+      locationsStore: {
+        get: vi.fn(),
+        set: vi.fn(),
+        remove: vi.fn(),
+      },
+      progressStore: {
+        getAll: vi.fn(() => []),
+        setAll: vi.fn(),
+      },
+      removeBookAndProgress: vi.fn(() => ({ books: [], progress: [] })),
+      upsertBook: vi.fn(),
+    }))
+    vi.doMock('../../src/main/file-service', () => ({
+      buildBookRecord: vi.fn(),
+      pickSupportedPaths: vi.fn((paths: string[]) => paths),
+      readTxtFile: vi.fn(),
+      readEpubFile: vi.fn(),
+    }))
+
+    const { registerIpcHandlers } = await import('../../src/main/ipc-handlers')
+
+    registerIpcHandlers({
+      setMainWindowAlwaysOnTop: vi.fn(() => DEFAULT_APP_CONFIG),
+      setWindowOpacity: vi.fn(),
+      previewWindowOpacity: vi.fn(),
+      broadcastConfig: vi.fn(),
+      setMinimumSize: vi.fn(),
+      setTrafficLightVisible: vi.fn(),
+    })
+
+    const handler = handlers.get('app:get-version')
+    expect(handler).toBeTypeOf('function')
+
+    const result = await handler?.({})
+
+    expect(getVersion).toHaveBeenCalledTimes(1)
+    expect(result).toBe('0.2.0')
   })
 })

@@ -4,6 +4,7 @@ import { THEME_MAP } from '@shared/constants'
 import { useConfig } from '../../hooks/useConfig'
 import { useTranslation } from '../../hooks/useTranslation'
 import { loadFont } from '../../utils/font-loader'
+import { CustomThemePanel } from './CustomThemePanel'
 
 export type DrawerTab = 'chapters' | 'appearance'
 
@@ -50,7 +51,15 @@ const FONT_TAB_LABELS: Record<FontTab, string> = {
 
 const FONT_TAB_ORDER: FontTab[] = ['zh', 'zh-TW', 'en']
 
-const THEME_KEYS: ColorTheme[] = [
+const FONT_WEIGHT_OPTIONS: { value: number; labelKey: string }[] = [
+  { value: 400, labelKey: 'appearance.fontWeight.regular' },
+  { value: 500, labelKey: 'appearance.fontWeight.medium' },
+  { value: 600, labelKey: 'appearance.fontWeight.semibold' },
+  { value: 700, labelKey: 'appearance.fontWeight.bold' },
+  { value: 800, labelKey: 'appearance.fontWeight.extrabold' },
+]
+
+const THEME_KEYS: Exclude<ColorTheme, 'custom'>[] = [
   'obsidian', 'parchment', 'midnight', 'onyx',
   'ember', 'forest', 'ocean', 'slate',
 ]
@@ -105,6 +114,51 @@ export function ReaderDrawer({ open, activeTab, onTabChange: _onTabChange, onClo
   const [expandedChapterId, setExpandedChapterId] = useState<string | null>(null)
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
   const [fontTab, setFontTab] = useState<FontTab>('zh')
+  const [appearanceTab, setAppearanceTab] = useState<'basic' | 'ghost'>('basic')
+
+  // Ghost 面板 draft state — 不实时更新阅读器，仅更新预览
+  const [draftBg, setDraftBg] = useState(activeConfig.customThemeBg ?? '#121212')
+  const [draftText, setDraftText] = useState(activeConfig.customThemeText ?? '#e7e5e4')
+  const [draftFontSize, setDraftFontSize] = useState(activeConfig.fontSize)
+  const [draftMargin, setDraftMargin] = useState(activeConfig.pageMargin)
+  const [draftBrightness, setDraftBrightness] = useState(activeConfig.brightness)
+  const [draftOpacity, setDraftOpacity] = useState(activeConfig.opacity)
+
+  // 切换到 Ghost tab 时，将 draft 重置为当前 config
+  useEffect(() => {
+    if (appearanceTab === 'ghost') {
+      setDraftBg(activeConfig.customThemeBg ?? '#121212')
+      setDraftText(activeConfig.customThemeText ?? '#e7e5e4')
+      setDraftFontSize(activeConfig.fontSize)
+      setDraftMargin(activeConfig.pageMargin)
+      setDraftBrightness(activeConfig.brightness)
+      setDraftOpacity(activeConfig.opacity)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appearanceTab])
+
+  const resetDraft = () => {
+    setDraftBg(activeConfig.customThemeBg ?? '#121212')
+    setDraftText(activeConfig.customThemeText ?? '#e7e5e4')
+    setDraftFontSize(activeConfig.fontSize)
+    setDraftMargin(activeConfig.pageMargin)
+    setDraftBrightness(activeConfig.brightness)
+    setDraftOpacity(activeConfig.opacity)
+    void window.api.setWindowOpacity(activeConfig.opacity / 100)
+  }
+
+  const applyGhostSettings = () => {
+    void updateConfig({
+      colorTheme: 'custom',
+      customThemeBg: draftBg,
+      customThemeText: draftText,
+      fontSize: draftFontSize,
+      pageMargin: draftMargin,
+      brightness: draftBrightness,
+      opacity: draftOpacity,
+      noiseTexture: false,
+    })
+  }
 
   const anthology = isAnthologyToc(toc)
   const activeToc = anthology ? (toc[selectedBookIndex]?.subitems ?? []) : toc
@@ -311,123 +365,235 @@ export function ReaderDrawer({ open, activeTab, onTabChange: _onTabChange, onClo
 
           {activeTab === 'appearance' && (
             <div className="reader-drawer__pane reader-drawer__pane--appearance">
-              {/* 字体选择：选项卡分组 */}
-              <div className="appearance-section">
-                <div className="appearance-section__header">
-                  <label className="appearance-section__label">{t('appearance.typography')}</label>
-                  <div className="font-picker-tabs">
-                    {FONT_TAB_ORDER.map((tab) => (
-                      <button
-                        key={tab}
-                        type="button"
-                        className={`font-picker-tabs__btn ${fontTab === tab ? 'font-picker-tabs__btn--active' : ''}`}
-                        onClick={() => setFontTab(tab)}
-                      >
-                        {FONT_TAB_LABELS[tab]}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div className="font-picker-slider">
-                  <div
-                    className="font-picker-slider__track"
-                    style={{ transform: `translateX(-${FONT_TAB_ORDER.indexOf(fontTab) * 100}%)` }}
-                  >
-                    {FONT_TAB_ORDER.map((tab) => (
-                      <div key={tab} className="font-picker-slider__panel">
-                        <div className="font-picker">
-                          {FONT_GROUPS[tab].map((opt) => (
-                            <button
-                              key={opt.value}
-                              type="button"
-                              className={`font-picker__btn ${opt.className} ${activeConfig.fontFamily === opt.value ? 'font-picker__btn--active' : ''}`}
-                              onClick={() => {
-                                loadFont(opt.value)
-                                void updateConfig({ fontFamily: opt.value })
-                              }}
-                            >
-                              {opt.label}
-                            </button>
-                          ))}
-                        </div>
+              {/* 内部选项卡：Basic / Ghost */}
+              <div className="appearance-tabs">
+                <button
+                  type="button"
+                  className={`appearance-tabs__btn ${appearanceTab === 'basic' ? 'appearance-tabs__btn--active' : ''}`}
+                  onClick={() => setAppearanceTab('basic')}
+                >
+                  {t('appearance.basicSettings')}
+                </button>
+                <button
+                  type="button"
+                  className={`appearance-tabs__btn ${appearanceTab === 'ghost' ? 'appearance-tabs__btn--active' : ''}`}
+                  onClick={() => setAppearanceTab('ghost')}
+                >
+                  {t('appearance.ghostSettings')}
+                </button>
+              </div>
+
+              {appearanceTab === 'basic' && (
+                <>
+                  {/* 字体选择 */}
+                  <div className="appearance-section">
+                    <div className="appearance-section__header">
+                      <label className="appearance-section__label">{t('appearance.typography')}</label>
+                      <div className="font-picker-tabs">
+                        {FONT_TAB_ORDER.map((tab) => (
+                          <button
+                            key={tab}
+                            type="button"
+                            className={`font-picker-tabs__btn ${fontTab === tab ? 'font-picker-tabs__btn--active' : ''}`}
+                            onClick={() => setFontTab(tab)}
+                          >
+                            {FONT_TAB_LABELS[tab]}
+                          </button>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* 字号 + Glass Intensity 两列 */}
-              <div className="appearance-grid">
-                {/* 字号 */}
-                <div className="appearance-section">
-                  <div className="appearance-section__header">
-                    <label className="appearance-section__label">{t('appearance.fontSize')}</label>
-                    <span className="appearance-section__value">{activeConfig.fontSize}PX</span>
-                  </div>
-                  <input
-                    className="appearance-control__slider"
-                    type="range"
-                    min={10}
-                    max={30}
-                    step={1}
-                    value={activeConfig.fontSize}
-                    onChange={(e) => void updateConfig({ fontSize: Number(e.target.value) })}
-                  />
-                </div>
-
-                {/* 亮度 */}
-                <div className="appearance-section">
-                  <div className="appearance-section__header">
-                    <label className="appearance-section__label">{t('appearance.brightness')}</label>
-                    <span className="appearance-section__value">{activeConfig.brightness}%</span>
-                  </div>
-                  <input
-                    className="appearance-control__slider"
-                    type="range"
-                    min={20}
-                    max={100}
-                    step={1}
-                    value={activeConfig.brightness}
-                    onChange={(e) => void updateConfig({ brightness: Number(e.target.value) })}
-                  />
-                </div>
-              </div>
-
-              {/* 主题色 */}
-              <div className="appearance-section">
-                <div className="appearance-section__header">
-                  <label className="appearance-section__label">{t('appearance.colorTheme')}</label>
-                  {/* 纹理背景开关 */}
-                  <button
-                    type="button"
-                    className={`noise-toggle ${activeConfig.noiseTexture ? 'noise-toggle--active' : ''}`}
-                    onClick={() => void updateConfig({ noiseTexture: !activeConfig.noiseTexture })}
-                    aria-label={t('appearance.noiseTexture')}
-                  >
-                    <span className="material-symbols-outlined" aria-hidden="true">
-                      {activeConfig.noiseTexture ? 'visibility' : 'visibility_off'}
-                    </span>
-                    <span className="noise-toggle__label">{t('appearance.noiseTexture')}</span>
-                  </button>
-                </div>
-                <div className="theme-picker">
-                  {THEME_KEYS.map((key) => {
-                    const theme = THEME_MAP[key]
-                    return (
-                      <button
-                        key={key}
-                        type="button"
-                        className={`theme-swatch ${activeConfig.colorTheme === key ? 'theme-swatch--active' : ''}`}
-                        style={{ backgroundColor: theme.bg }}
-                        onClick={() => void updateConfig({ colorTheme: key })}
-                        aria-label={key}
+                    </div>
+                    <div className="font-picker-slider">
+                      <div
+                        className="font-picker-slider__track"
+                        style={{ transform: `translateX(-${FONT_TAB_ORDER.indexOf(fontTab) * 100}%)` }}
                       >
-                        <span className="theme-swatch__letter" style={{ color: theme.text }}>A</span>
+                        {FONT_TAB_ORDER.map((tab) => (
+                          <div key={tab} className="font-picker-slider__panel">
+                            <div className="font-picker">
+                              {FONT_GROUPS[tab].map((opt) => (
+                                <button
+                                  key={opt.value}
+                                  type="button"
+                                  className={`font-picker__btn ${opt.className} ${activeConfig.fontFamily === opt.value ? 'font-picker__btn--active' : ''}`}
+                                  onClick={() => {
+                                    loadFont(opt.value)
+                                    void updateConfig({ fontFamily: opt.value })
+                                  }}
+                                >
+                                  {opt.label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="appearance-divider" />
+
+                  {/* 字体粗细 */}
+                  <div className="appearance-section">
+                    <div className="appearance-section__header">
+                      <label className="appearance-section__label">{t('appearance.fontWeight')}</label>
+                    </div>
+                    <div className="font-weight-picker">
+                      {FONT_WEIGHT_OPTIONS.map((opt) => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          className={`font-weight-picker__btn ${activeConfig.fontWeight === opt.value ? 'font-weight-picker__btn--active' : ''}`}
+                          style={{ fontWeight: opt.value }}
+                          onClick={() => void updateConfig({ fontWeight: opt.value })}
+                        >
+                          {t(opt.labelKey)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="appearance-divider" />
+
+                  {/* 预设主题色 */}
+                  <div className="appearance-section">
+                    <div className="appearance-section__header">
+                      <label className="appearance-section__label">{t('appearance.colorTheme')}</label>
+                      <button
+                        type="button"
+                        className={`noise-toggle ${activeConfig.noiseTexture ? 'noise-toggle--active' : ''}`}
+                        onClick={() => void updateConfig({ noiseTexture: !activeConfig.noiseTexture })}
+                        aria-label={t('appearance.noiseTexture')}
+                      >
+                        <span className="material-symbols-outlined" aria-hidden="true">
+                          {activeConfig.noiseTexture ? 'visibility' : 'visibility_off'}
+                        </span>
+                        <span className="noise-toggle__label">{t('appearance.noiseTexture')}</span>
                       </button>
-                    )
-                  })}
+                    </div>
+                    <div className="theme-picker">
+                      {THEME_KEYS.map((key) => {
+                        const theme = THEME_MAP[key]
+                        return (
+                          <button
+                            key={key}
+                            type="button"
+                            className={`theme-swatch ${activeConfig.colorTheme === key ? 'theme-swatch--active' : ''}`}
+                            style={{ backgroundColor: theme.bg }}
+                            onClick={() => {
+                              void updateConfig({ colorTheme: key })
+                            }}
+                            aria-label={key}
+                          >
+                            <span className="theme-swatch__letter" style={{ color: theme.text }}>A</span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {appearanceTab === 'ghost' && (
+                <div className="ghost-panel">
+                  {/* 上部：左右布局 */}
+                  <div className="ghost-panel__content">
+                    {/* 左侧：预览 + 取色 */}
+                    <div className="ghost-panel__left">
+                      <CustomThemePanel
+                        bg={draftBg}
+                        text={draftText}
+                        onBgChange={setDraftBg}
+                        onTextChange={setDraftText}
+                        previewFontSize={draftFontSize}
+                        previewBrightness={draftBrightness}
+                        previewOpacity={draftOpacity}
+                        previewMargin={draftMargin}
+                      />
+                    </div>
+
+                    {/* 右侧：四个滑块 */}
+                    <div className="ghost-panel__right">
+                      <div className="ghost-panel__slider-item">
+                        <div className="ghost-panel__slider-header">
+                          <label className="ghost-panel__slider-label">{t('appearance.fontSize')}</label>
+                          <span className="ghost-panel__slider-value">{draftFontSize}PX</span>
+                        </div>
+                        <input
+                          className="appearance-control__slider"
+                          type="range"
+                          min={10}
+                          max={30}
+                          step={1}
+                          value={draftFontSize}
+                          onChange={(e) => setDraftFontSize(Number(e.target.value))}
+                        />
+                      </div>
+
+                      <div className="ghost-panel__slider-item">
+                        <div className="ghost-panel__slider-header">
+                          <label className="ghost-panel__slider-label">{t('appearance.pageMargin')}</label>
+                          <span className="ghost-panel__slider-value">{draftMargin}PX</span>
+                        </div>
+                        <input
+                          className="appearance-control__slider"
+                          type="range"
+                          min={2}
+                          max={64}
+                          step={1}
+                          value={draftMargin}
+                          onChange={(e) => setDraftMargin(Number(e.target.value))}
+                        />
+                      </div>
+
+                      <div className="ghost-panel__slider-item">
+                        <div className="ghost-panel__slider-header">
+                          <label className="ghost-panel__slider-label">{t('appearance.brightness')}</label>
+                          <span className="ghost-panel__slider-value">{draftBrightness}%</span>
+                        </div>
+                        <input
+                          className="appearance-control__slider"
+                          type="range"
+                          min={20}
+                          max={100}
+                          step={1}
+                          value={draftBrightness}
+                          onChange={(e) => setDraftBrightness(Number(e.target.value))}
+                        />
+                      </div>
+
+                      <div className="ghost-panel__slider-item">
+                        <div className="ghost-panel__slider-header">
+                          <label className="ghost-panel__slider-label">{t('appearance.opacity')}</label>
+                          <span className="ghost-panel__slider-value">{draftOpacity}%</span>
+                        </div>
+                        <input
+                          className="appearance-control__slider"
+                          type="range"
+                          min={80}
+                          max={100}
+                          step={1}
+                          value={draftOpacity}
+                          onChange={(e) => {
+                            const v = Number(e.target.value)
+                            setDraftOpacity(v)
+                            void window.api.setWindowOpacity(v / 100)
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 下部：操作按钮 */}
+                  <div className="ghost-panel__actions">
+                    <button type="button" className="ghost-panel__btn ghost-panel__btn--cancel" onClick={resetDraft}>
+                      {t('appearance.customPanel.cancel')}
+                    </button>
+                    <button type="button" className="ghost-panel__btn ghost-panel__btn--apply" onClick={applyGhostSettings}>
+                      {t('appearance.customPanel.apply')}
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
         </div>

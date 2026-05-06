@@ -30,7 +30,7 @@ export interface TocEntry {
 
 export type Locale = 'en' | 'zh' | 'zh-TW'
 export type FontFamily = 'Newsreader' | 'Manrope' | 'Inter' | 'Lora' | 'Merriweather' | 'Noto Serif SC' | 'Noto Sans SC' | 'LXGW WenKai' | 'ShangTuDongGuanTi-Xi' | 'Yozai' | 'GuanKiapTsingKhai-W' | 'Moon Stars Kai T HW' | 'LXGW WenKai TC'
-export type ColorTheme = 'obsidian' | 'parchment' | 'midnight' | 'onyx' | 'ember' | 'forest' | 'ocean' | 'slate'
+export type ColorTheme = 'obsidian' | 'parchment' | 'midnight' | 'onyx' | 'ember' | 'forest' | 'ocean' | 'slate' | 'custom'
 export type AppearanceMode = 'dark' | 'light'
 
 export interface AppConfig {
@@ -46,10 +46,17 @@ export interface AppConfig {
   language: Locale
   onboardingCompleted: boolean
   noiseTexture: boolean
+  customThemeBg?: string
+  customThemeText?: string
+  fontWeight: number
+  pageMargin: number
+  opacity: number
+  recentCustomThemes?: { bg: string; text: string }[]
 }
 
 export interface GhostReaderApi {
   getConfig: () => Promise<AppConfig>
+  getAppVersion: () => Promise<string>
   setConfig: (patch: Partial<AppConfig>) => Promise<AppConfig>
   onConfigChanged: (listener: (config: AppConfig) => void) => () => void
   getAllBooks: () => Promise<BookRecord[]>
@@ -62,7 +69,9 @@ export interface GhostReaderApi {
   saveProgress: (payload: ReadingProgress) => Promise<ReadingProgress>
   openFileDialog: () => Promise<string[]>
   setAlwaysOnTop: (value: boolean) => Promise<AppConfig>
+  setWindowOpacity: (value: number) => Promise<void>
   setMinWindowSize: (width: number, height: number) => Promise<void>
+  setTrafficLightVisible: (visible: boolean) => Promise<void>
   getLocations: (bookId: string) => Promise<string | null>
   saveLocations: (bookId: string, locations: string) => Promise<void>
 }

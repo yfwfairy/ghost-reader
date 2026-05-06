@@ -26,6 +26,7 @@ export function SettingsPanel({ config, onSave, onClose }: SettingsPanelProps) {
   const { t } = useTranslation()
   const [draft, setDraft] = useState(config)
   const [activeSection, setActiveSection] = useState<SectionId>('appearance')
+  const [appVersion, setAppVersion] = useState('')
 
   // ESC 关闭设置面板（阻止冒泡，防止 App 级 ESC 同时触发）
   useEffect(() => {
@@ -54,6 +55,26 @@ export function SettingsPanel({ config, onSave, onClose }: SettingsPanelProps) {
   useEffect(() => {
     setDraft(config)
   }, [config])
+
+  useEffect(() => {
+    let cancelled = false
+
+    void window.api.getAppVersion()
+      .then((version) => {
+        if (!cancelled) {
+          setAppVersion(version)
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setAppVersion('')
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   // Scroll spy
   useEffect(() => {
@@ -138,7 +159,7 @@ export function SettingsPanel({ config, onSave, onClose }: SettingsPanelProps) {
           </nav>
           <div className="settings-panel__sidebar-footer">
             <p className="settings-panel__version-label">Ghost Reader</p>
-            <p className="settings-panel__version">v0.1.0-obsidian</p>
+            <p className="settings-panel__version">{appVersion ? `v${appVersion}` : ''}</p>
           </div>
         </div>
 

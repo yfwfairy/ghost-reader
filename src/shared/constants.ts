@@ -1,4 +1,4 @@
-import type { ColorTheme } from './types'
+import type { AppConfig, ColorTheme } from './types'
 
 export const SUPPORTED_BOOK_FORMATS = ['.txt', '.epub'] as const
 
@@ -20,6 +20,9 @@ export const DEFAULT_APP_CONFIG = {
   language: 'en',
   onboardingCompleted: false,
   noiseTexture: true,
+  fontWeight: 400,
+  pageMargin: 10,
+  opacity: 100,
 } as const
 
 // 主题色定义：bg=背景, text=文字, accent=强调色
@@ -29,7 +32,7 @@ export interface ThemeColors {
   accent: string
 }
 
-export const THEME_MAP: Record<ColorTheme, ThemeColors> = {
+export const THEME_MAP: Record<Exclude<ColorTheme, 'custom'>, ThemeColors> = {
   obsidian: { bg: '#121212', text: '#e7e5e4', accent: '#c6c6c7' },
 
   parchment: {
@@ -81,4 +84,27 @@ export function hexToRgbTriplet(hex: string) {
   const g = parseInt(hex.slice(3, 5), 16)
   const b = parseInt(hex.slice(5, 7), 16)
   return `${r}, ${g}, ${b}`
+}
+
+export function lerpColor(a: string, b: string, t: number): string {
+  const parse = (hex: string) => [
+    parseInt(hex.slice(1, 3), 16),
+    parseInt(hex.slice(3, 5), 16),
+    parseInt(hex.slice(5, 7), 16),
+  ]
+  const ca = parse(a), cb = parse(b)
+  const mix = (x: number, y: number) => Math.round(x + (y - x) * t)
+  return `#${mix(ca[0], cb[0]).toString(16).padStart(2, '0')}${mix(ca[1], cb[1]).toString(16).padStart(2, '0')}${mix(ca[2], cb[2]).toString(16).padStart(2, '0')}`
+}
+
+export function resolveTheme(
+  config: Pick<AppConfig, 'colorTheme' | 'customThemeBg' | 'customThemeText'>
+): ThemeColors {
+  if (config.colorTheme !== 'custom') {
+    return THEME_MAP[config.colorTheme]
+  }
+  const bg = config.customThemeBg ?? '#121212'
+  const text = config.customThemeText ?? '#e7e5e4'
+  const accent = lerpColor(bg, text, 0.4)
+  return { bg, text, accent }
 }

@@ -10,7 +10,7 @@ import ocean from './noise-ocean.png'
 import slate from './noise-slate.png'
 
 // 每个阅读器主题色对应一张噪点纹理图
-export const NOISE_MAP: Record<ColorTheme, string> = {
+export const NOISE_MAP: Partial<Record<ColorTheme, string>> = {
   obsidian,
   parchment,
   midnight,

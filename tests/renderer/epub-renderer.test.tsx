@@ -74,7 +74,8 @@ describe('EpubRenderer', () => {
           fontSize={18}
           lineHeight={1.8}
           fontFamily="Newsreader"
-          colorTheme="obsidian"
+          fontWeight={400}
+          themeTextColor="#e7e5e4"
           onProgressUpdate={vi.fn()}
         />,
       )
@@ -91,7 +92,8 @@ describe('EpubRenderer', () => {
           fontSize={18}
           lineHeight={1.8}
           fontFamily="Newsreader"
-          colorTheme="obsidian"
+          fontWeight={400}
+          themeTextColor="#e7e5e4"
           onProgressUpdate={vi.fn()}
         />,
       )
@@ -113,7 +115,8 @@ describe('EpubRenderer', () => {
           fontSize={18}
           lineHeight={1.8}
           fontFamily="Newsreader"
-          colorTheme="obsidian"
+          fontWeight={400}
+          themeTextColor="#e7e5e4"
           savedCfi="epubcfi(/6/2!/4/2/2)"
           onProgressUpdate={vi.fn()}
         />,
@@ -132,7 +135,8 @@ describe('EpubRenderer', () => {
           fontSize={18}
           lineHeight={1.8}
           fontFamily="Newsreader"
-          colorTheme="obsidian"
+          fontWeight={400}
+          themeTextColor="#e7e5e4"
           savedCfi="epubcfi(/6/2!/4/2/10)"
           onProgressUpdate={vi.fn()}
         />,

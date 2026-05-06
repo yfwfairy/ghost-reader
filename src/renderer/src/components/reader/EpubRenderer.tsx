@@ -1,7 +1,6 @@
 import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import type { Book, Rendition } from 'epubjs'
-import type { ColorTheme, FontFamily, ReadingProgress, TocEntry } from '@shared/types'
-import { THEME_MAP } from '@shared/constants'
+import type { FontFamily, ReadingProgress, TocEntry } from '@shared/types'
 import { useTranslation } from '../../hooks/useTranslation'
 import { loadFontIntoDocument } from '../../utils/font-loader'
 
@@ -11,7 +10,8 @@ type EpubRendererProps = {
   fontSize: number
   lineHeight: number
   fontFamily: FontFamily
-  colorTheme: ColorTheme
+  fontWeight: number
+  themeTextColor: string
   savedCfi?: string
   displayRef?: React.RefObject<((href: string, scrollPct?: number) => void) | null>
   chapterNavRef?: React.RefObject<{ prev: () => void; next: () => void } | null>
@@ -39,7 +39,8 @@ export function EpubRenderer({
   fontSize,
   lineHeight,
   fontFamily,
-  colorTheme,
+  fontWeight,
+  themeTextColor,
   savedCfi,
   displayRef,
   chapterNavRef,
@@ -55,7 +56,8 @@ export function EpubRenderer({
   const fontSizeRef = useRef(fontSize)
   const lineHeightRef = useRef(lineHeight)
   const fontFamilyRef = useRef(fontFamily)
-  const colorThemeRef = useRef(colorTheme)
+  const fontWeightRef = useRef(fontWeight)
+  const themeTextColorRef = useRef(themeTextColor)
   const currentChapterRef = useRef({ href: '', index: 0 })
   // 标记是否正在进行 displayRef 触发的导航，期间 savedCfi effect 不应介入
   const navigatingViaDisplayRef = useRef(false)
@@ -203,9 +205,11 @@ export function EpubRenderer({
         body: {
           'font-family': `'${fontFamilyRef.current}', serif !important`,
           'font-size': `${fontSizeRef.current}px`,
+          'font-weight': String(fontWeightRef.current),
           'line-height': String(lineHeightRef.current),
+          padding: '0 !important',
           background: 'transparent',
-          color: THEME_MAP[colorThemeRef.current].text,
+          color: themeTextColorRef.current,
         },
       })
 
@@ -361,7 +365,8 @@ export function EpubRenderer({
     fontSizeRef.current = fontSize
     lineHeightRef.current = lineHeight
     fontFamilyRef.current = fontFamily
-    colorThemeRef.current = colorTheme
+    fontWeightRef.current = fontWeight
+    themeTextColorRef.current = themeTextColor
     if (!renditionRef.current) {
       return
     }
@@ -369,9 +374,11 @@ export function EpubRenderer({
       body: {
         'font-family': `'${fontFamily}', serif !important`,
         'font-size': `${fontSize}px`,
+        'font-weight': String(fontWeight),
         'line-height': String(lineHeight),
+        padding: '0 !important',
         background: 'transparent',
-        color: THEME_MAP[colorTheme].text,
+        color: themeTextColor,
       },
     })
     // 字体切换后向已存在的 EPUB iframe 注入新字体
@@ -379,7 +386,7 @@ export function EpubRenderer({
     if (iframe?.contentDocument) {
       loadFontIntoDocument(iframe.contentDocument, fontFamily)
     }
-  }, [fontSize, lineHeight, fontFamily, colorTheme])
+  }, [fontSize, lineHeight, fontFamily, fontWeight, themeTextColor])
 
   useEffect(() => {
     // displayRef 导航期间不响应 savedCfi 变化，避免竞争覆盖 fragment 定位
@@ -406,7 +413,8 @@ export function EpubRenderer({
           <button
             type="button"
             className="epub-chapter-nav__btn"
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation()
               chapterRenderedRef.current = false
               void renditionRef.current?.prev()
             }}
@@ -418,7 +426,8 @@ export function EpubRenderer({
           <button
             type="button"
             className="epub-chapter-nav__btn"
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation()
               chapterRenderedRef.current = false
               void renditionRef.current?.next()
             }}

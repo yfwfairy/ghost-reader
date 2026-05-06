@@ -18,6 +18,9 @@ const baseConfig: AppConfig = {
   language: 'en',
   onboardingCompleted: false,
   noiseTexture: true,
+  pageMargin: 10,
+  fontWeight: 400,
+  opacity: 100,
 }
 
 describe('ReaderPage', () => {
@@ -52,6 +55,8 @@ describe('ReaderPage', () => {
         removeBook: vi.fn(),
         setAlwaysOnTop: vi.fn(),
         setMinWindowSize: vi.fn(),
+        setWindowOpacity: vi.fn(),
+        setTrafficLightVisible: vi.fn(),
         readEpubFile: vi.fn().mockResolvedValue(new ArrayBuffer(0)),
       },
     })
@@ -100,6 +105,8 @@ describe('ReaderPage', () => {
         removeBook: vi.fn(),
         setAlwaysOnTop: vi.fn(),
         setMinWindowSize: vi.fn(),
+        setWindowOpacity: vi.fn(),
+        setTrafficLightVisible: vi.fn(),
         readEpubFile: vi.fn().mockResolvedValue(new ArrayBuffer(0)),
       },
     })
@@ -145,6 +152,8 @@ describe('ReaderPage', () => {
         removeBook: vi.fn(),
         setAlwaysOnTop: vi.fn(),
         setMinWindowSize: vi.fn(),
+        setWindowOpacity: vi.fn(),
+        setTrafficLightVisible: vi.fn(),
         readEpubFile: vi.fn().mockResolvedValue(new ArrayBuffer(0)),
       },
     })
@@ -212,6 +221,8 @@ describe('ReaderPage', () => {
         removeBook: vi.fn(),
         setAlwaysOnTop: vi.fn(),
         setMinWindowSize: vi.fn(),
+        setWindowOpacity: vi.fn(),
+        setTrafficLightVisible: vi.fn(),
         readEpubFile: vi.fn().mockResolvedValue(new ArrayBuffer(0)),
       },
     })
@@ -270,6 +281,8 @@ describe('ReaderPage', () => {
         removeBook: vi.fn(),
         setAlwaysOnTop: vi.fn(),
         setMinWindowSize: vi.fn(),
+        setWindowOpacity: vi.fn(),
+        setTrafficLightVisible: vi.fn(),
         readEpubFile: vi.fn().mockResolvedValue(new ArrayBuffer(0)),
       },
     })

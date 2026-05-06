@@ -3,6 +3,7 @@ import type { AppConfig, GhostReaderApi } from '@shared/types'
 
 const api: GhostReaderApi = {
   getConfig: () => ipcRenderer.invoke('config:get'),
+  getAppVersion: () => ipcRenderer.invoke('app:get-version'),
   setConfig: (patch) => ipcRenderer.invoke('config:set', patch),
   onConfigChanged: (listener) => {
     const wrapped = (_event: Electron.IpcRendererEvent, config: AppConfig) => {
@@ -23,7 +24,9 @@ const api: GhostReaderApi = {
   saveProgress: (payload) => ipcRenderer.invoke('progress:set', payload),
   openFileDialog: () => ipcRenderer.invoke('file:open-dialog'),
   setAlwaysOnTop: (value) => ipcRenderer.invoke('window:set-always-on-top', value),
+  setWindowOpacity: (value) => ipcRenderer.invoke('window:set-opacity', value),
   setMinWindowSize: (width, height) => ipcRenderer.invoke('window:set-min-size', width, height),
+  setTrafficLightVisible: (visible) => ipcRenderer.invoke('window:set-traffic-light-visible', visible),
   getLocations: (bookId) => ipcRenderer.invoke('locations:get', bookId),
   saveLocations: (bookId, data) => ipcRenderer.invoke('locations:set', bookId, data),
 }
