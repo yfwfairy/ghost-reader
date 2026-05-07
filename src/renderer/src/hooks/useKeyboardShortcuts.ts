@@ -63,6 +63,20 @@ export function useKeyboardShortcuts({
           readerActionsRef.current?.scrollLine('up')
           break
 
+        case 'ArrowDown':
+          if (!mod) {
+            e.preventDefault()
+            readerActionsRef.current?.scrollLine('down')
+          }
+          break
+
+        case 'ArrowUp':
+          if (!mod) {
+            e.preventDefault()
+            readerActionsRef.current?.scrollLine('up')
+          }
+          break
+
         case 'ArrowLeft':
           if (!mod) {
             readerActionsRef.current?.chapterPrev()
