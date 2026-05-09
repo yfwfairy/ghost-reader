@@ -284,7 +284,7 @@
         </p>
         <div id="download"
           class="flex flex-col md:flex-row justify-center items-center space-y-4 md:space-y-0 md:space-x-6">
-          <a href="https://github.com/yfwfairy/ghost-reader/releases/download/v0.2.0/Ghost.Reader-0.2.0-x64.dmg"
+          <a data-asset="x64.dmg" href="https://github.com/yfwfairy/ghost-reader/releases/download/v0.4.0/Ghost.Reader-0.4.0-x64.dmg"
             class="download-btn glass-jelly group flex items-center space-x-4 min-w-[260px] px-10 py-5 rounded-full border border-outline-variant/20 hover:bg-surface-bright/20 transition-all duration-500 no-underline text-on-surface">
             <span class="material-symbols-outlined text-2xl">desktop_mac</span>
             <div class="text-left">
@@ -292,7 +292,7 @@
               <p class="font-headline font-bold tracking-wide">macOS Intel</p>
             </div>
           </a>
-          <a href="https://github.com/yfwfairy/ghost-reader/releases/download/v0.2.0/Ghost.Reader-0.2.0-arm64.dmg"
+          <a data-asset="arm64.dmg" href="https://github.com/yfwfairy/ghost-reader/releases/download/v0.4.0/Ghost.Reader-0.4.0-arm64.dmg"
             class="download-btn glass-jelly group flex items-center space-x-4 min-w-[260px] px-10 py-5 rounded-full border border-outline-variant/20 hover:bg-surface-bright/20 transition-all duration-500 no-underline text-on-surface">
             <span class="material-symbols-outlined text-2xl text-primary">memory</span>
             <div class="text-left">
@@ -446,13 +446,26 @@
           setTimeout(() => {
             document.querySelectorAll('.download-btn').forEach(btn => {
               btn.classList.remove('glow');
-              void btn.offsetWidth; // 强制重排以重新触发动画
+              void btn.offsetWidth;
               btn.classList.add('glow');
               setTimeout(() => btn.classList.remove('glow'), 3000);
             });
           }, 400);
         });
       }
+
+      // 自动获取最新 release 下载链接
+      fetch('https://api.github.com/repos/yfwfairy/ghost-reader/releases/latest')
+        .then(r => r.json())
+        .then(release => {
+          if (!release.assets) return;
+          document.querySelectorAll('[data-asset]').forEach(btn => {
+            const suffix = btn.dataset.asset;
+            const asset = release.assets.find(a => a.name.endsWith(suffix));
+            if (asset) btn.href = asset.browser_download_url;
+          });
+        })
+        .catch(() => {});
     });
   </script>
 </body>
