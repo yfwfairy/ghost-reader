@@ -31,14 +31,13 @@ describe('SettingsPanel', () => {
     })
   })
 
-  it('renders three navigation tabs: Appearance, Language, Shortcuts', () => {
+  it('renders two navigation tabs: Appearance, Language', () => {
     render(
       <SettingsPanel config={defaultConfig} onSave={vi.fn()} onClose={vi.fn()} />,
     )
 
     expect(screen.getByText('Appearance')).toBeInTheDocument()
     expect(screen.getByText('Language')).toBeInTheDocument()
-    expect(screen.getByText('Shortcuts')).toBeInTheDocument()
   })
 
   it('does not render Font Size, Line Height, or Save button', () => {

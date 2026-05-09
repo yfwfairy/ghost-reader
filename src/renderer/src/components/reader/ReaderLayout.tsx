@@ -14,6 +14,8 @@ type ReaderLayoutProps = PropsWithChildren<{
   immersive?: boolean
   onExitImmersive?: () => void
   onChapterSelect?: (href: string) => void
+  autoScrollActive?: boolean
+  autoScrollPaused?: boolean
 }>
 
 export function ReaderLayout({
@@ -26,6 +28,8 @@ export function ReaderLayout({
   immersive = false,
   onExitImmersive,
   onChapterSelect,
+  autoScrollActive,
+  autoScrollPaused,
   children,
 }: ReaderLayoutProps) {
   const { t } = useTranslation()
@@ -123,7 +127,17 @@ export function ReaderLayout({
 
       {/* 沉浸模式下浮动进度 */}
       {immersive && progress != null && (
-        <span className="reader-immersive-progress">{progress}%</span>
+        <span className="reader-immersive-progress">
+          {progress}%
+          {autoScrollActive && (
+            <span
+              className={[
+                'more-menu__indicator more-menu__indicator--inline',
+                autoScrollPaused ? 'more-menu__indicator--paused' : '',
+              ].join(' ').trim()}
+            />
+          )}
+        </span>
       )}
 
       {/* 沉浸模式下顶部拖拽区域（替代被隐藏的标题栏） */}

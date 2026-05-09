@@ -62,6 +62,7 @@ export function AppFrame({ title, alwaysOnTop, onToggleAlwaysOnTop, onBack, chro
               </span>
             </button>
           )}
+          <div id="more-menu-slot" />
         </div>
       </header>
       <div className="app-frame__content">{children}</div>

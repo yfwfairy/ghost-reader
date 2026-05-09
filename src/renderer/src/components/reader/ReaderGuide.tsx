@@ -33,6 +33,7 @@ type GuideStep = SpotlightStep | ImmersiveExitStep | ShortcutsStep
 const STEPS: GuideStep[] = [
   { target: '.app-frame__pin', titleKey: 'guide.pinTitle', descKey: 'guide.pinDesc', position: 'below' },
   { target: '.app-frame__back', titleKey: 'guide.backTitle', descKey: 'guide.backDesc', position: 'below' },
+  { target: '.more-menu__trigger', titleKey: 'guide.moreTitle', descKey: 'guide.moreDesc', position: 'below' },
   { target: '.app-frame__fullscreen', titleKey: 'guide.fullscreenTitle', descKey: 'guide.fullscreenDesc', position: 'below', interactive: true },
   { special: 'immersive-exit', titleKey: 'guide.immersiveExitTitle', descKey: 'guide.immersiveExitDesc' },
   { target: '.reader-bottom-nav__btn:first-child', titleKey: 'guide.chaptersTitle', descKey: 'guide.chaptersDesc', position: 'above' },
@@ -44,6 +45,7 @@ const STEPS: GuideStep[] = [
 const SHORTCUT_STEPS = [
   { icon: 'swipe_vertical', titleKey: 'guide.step1Title', descKey: 'guide.step1Desc' },
   { icon: 'keyboard', titleKey: 'guide.step2Title', descKey: 'guide.step2Desc' },
+  { icon: 'play_circle', titleKey: 'guide.step3Title', descKey: 'guide.step3Desc' },
 ]
 
 // 将 i18n 文案中 [KEY] 标记解析为内联 <kbd> 元素
@@ -112,18 +114,16 @@ export function ReaderGuide({ immersive, bookFormat, onComplete }: ReaderGuidePr
     }
   }, [updateRect])
 
-  // 步骤 2→3：用户点击全屏按钮 → immersive 变 true → 进入沉浸退出步骤
-  // 步骤 3→4：用户退出沉浸 → immersive 变 false → 进入底部按钮步骤
+  // 步骤 3→4：用户点击全屏按钮 → immersive 变 true → 进入沉浸退出步骤
+  // 步骤 4→5：用户退出沉浸 → immersive 变 false → 进入底部按钮步骤
   useEffect(() => {
     const prev = prevImmersiveRef.current
     prevImmersiveRef.current = immersive
 
-    if (!prev && immersive && step === 2) {
-      // 进入沉浸模式，推进到步骤 3
-      setStep(3)
-    } else if (prev && !immersive && step === 3) {
-      // 退出沉浸模式，推进到步骤 4
+    if (!prev && immersive && step === 3) {
       setStep(4)
+    } else if (prev && !immersive && step === 4) {
+      setStep(5)
     }
   }, [immersive, step])
 

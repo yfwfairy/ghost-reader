@@ -136,6 +136,17 @@ export function useKeyboardShortcuts({
             }
           }
           break
+
+        case ' ':
+          // 空格键：仅在自动播放已开启时有效（暂停/恢复）
+          if (!mod) {
+            const actions = readerActionsRef.current
+            if (actions?.autoScrollEnabled) {
+              e.preventDefault()
+              actions.toggleAutoScroll?.()
+            }
+          }
+          break
       }
     }
 

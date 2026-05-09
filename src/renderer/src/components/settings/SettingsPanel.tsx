@@ -11,7 +11,6 @@ type SettingsPanelProps = {
 const NAV_ITEMS = [
   { id: 'appearance', icon: 'palette' },
   { id: 'language', icon: 'translate' },
-  { id: 'shortcuts', icon: 'keyboard' },
 ] as const
 
 type SectionId = (typeof NAV_ITEMS)[number]['id']
@@ -43,13 +42,11 @@ export function SettingsPanel({ config, onSave, onClose }: SettingsPanelProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const appearanceRef = useRef<HTMLElement>(null)
   const languageRef = useRef<HTMLElement>(null)
-  const shortcutsRef = useRef<HTMLElement>(null)
   const isScrollingRef = useRef(false)
 
   const sectionRefs: Record<SectionId, React.RefObject<HTMLElement | null>> = {
     appearance: appearanceRef,
     language: languageRef,
-    shortcuts: shortcutsRef,
   }
 
   useEffect(() => {
@@ -127,7 +124,6 @@ export function SettingsPanel({ config, onSave, onClose }: SettingsPanelProps) {
   const navLabelKey: Record<SectionId, string> = {
     appearance: 'settings.appearance',
     language: 'settings.language',
-    shortcuts: 'settings.shortcuts',
   }
 
   return (
@@ -239,51 +235,6 @@ export function SettingsPanel({ config, onSave, onClose }: SettingsPanelProps) {
                     <span className="settings-lang-row__native">{lang.native}</span>
                   </button>
                 ))}
-              </div>
-            </section>
-
-            {/* Reading Shortcuts */}
-            <section className="settings-panel__section" ref={shortcutsRef}>
-              <h3>{t('settings.shortcuts.title')}</h3>
-              <div className="settings-shortcut-list">
-                <div className="settings-shortcut-row">
-                  <span>{t('settings.shortcutPage')}</span>
-                  <div className="settings-shortcut-keys">
-                    <kbd>PGUP</kbd>
-                    <kbd>PGDN</kbd>
-                  </div>
-                </div>
-                <div className="settings-shortcut-row">
-                  <span>{t('settings.shortcutChapter')}</span>
-                  <div className="settings-shortcut-keys">
-                    <kbd>←</kbd>
-                    <kbd>→</kbd>
-                  </div>
-                </div>
-                <div className="settings-shortcut-row">
-                  <span>{t('settings.shortcutHide')}</span>
-                  <div className="settings-shortcut-keys">
-                    <kbd>ESC</kbd>
-                  </div>
-                </div>
-                <div className="settings-shortcut-row">
-                  <span>{t('settings.shortcutFullscreen')}</span>
-                  <div className="settings-shortcut-keys">
-                    <kbd>⌘/Ctrl</kbd><span>+</span><kbd>F</kbd>
-                  </div>
-                </div>
-                <div className="settings-shortcut-row">
-                  <span>{t('settings.shortcutBack')}</span>
-                  <div className="settings-shortcut-keys">
-                    <kbd>⌘/Ctrl</kbd><span>+</span><kbd>B</kbd>
-                  </div>
-                </div>
-                <div className="settings-shortcut-row">
-                  <span>{t('settings.shortcutFontSize')}</span>
-                  <div className="settings-shortcut-keys">
-                    <kbd>⌘/Ctrl</kbd><span>+</span><kbd>+</kbd><span>/</span><kbd>-</kbd>
-                  </div>
-                </div>
               </div>
             </section>
 

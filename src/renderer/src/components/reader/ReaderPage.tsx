@@ -3,19 +3,24 @@ import type { BookRecord, ReadingProgress, TocEntry } from '@shared/types'
 import { resolveTheme, hexToRgbTriplet } from '@shared/constants'
 import { useConfig } from '../../hooks/useConfig'
 import { useTranslation } from '../../hooks/useTranslation'
+import { useAutoScroll } from '../../hooks/useAutoScroll'
 import { loadFont } from '../../utils/font-loader'
 import staticTexture from '../../assets/static-texture.png'
 import { NOISE_MAP } from '../../assets/noise'
 import { ReaderLayout } from './ReaderLayout'
+import { MoreMenu } from './MoreMenu'
 
 const EpubRenderer = lazy(() => import('./EpubRenderer').then(m => ({ default: m.EpubRenderer })))
 const TxtRenderer = lazy(() => import('./TxtRenderer').then(m => ({ default: m.TxtRenderer })))
 const ReaderGuide = lazy(() => import('./ReaderGuide').then(m => ({ default: m.ReaderGuide })))
+const UsageGuidePanel = lazy(() => import('./UsageGuidePanel').then(m => ({ default: m.UsageGuidePanel })))
 
 export type ReaderActions = {
   scrollLine: (direction: 'up' | 'down') => void
   chapterPrev: () => void
   chapterNext: () => void
+  toggleAutoScroll?: () => void
+  autoScrollEnabled?: boolean
 }
 
 type ReaderPageProps = {
@@ -40,16 +45,58 @@ export function ReaderPage({ backRef, readerActionsRef, onBack, onTitleChange, i
   const [_isNavigatingBack, setIsNavigatingBack] = useState(false)
   const saveTimer = useRef<number | ReturnType<typeof setTimeout> | null>(null)
   const pendingTxtProgress = useRef<ReadingProgress | null>(null)
+  const lastProgressUpdateRef = useRef<number>(0)
   const mountedRef = useRef(true)
   const backNavigationRef = useRef<Promise<void> | null>(null)
   const epubDisplayRef = useRef<((href: string, scrollPct?: number) => void) | null>(null)
   const epubChapterNavRef = useRef<{ prev: () => void; next: () => void } | null>(null)
   const txtScrollRef = useRef<HTMLDivElement | null>(null)
+  const epubScrollRef = useRef<HTMLElement | null>(null)
   const chapterProgressRef = useRef<Record<string, number>>({})
   const spineHrefsRef = useRef<string[]>([])
   const [currentChapterPercent, setCurrentChapterPercent] = useState<number | null>(null)
   const [currentChapterHref, setCurrentChapterHref] = useState<string | null>(null)
+  const [autoScrollEnabled, setAutoScrollEnabled] = useState(false)
+  const [autoScrollSpeed, setAutoScrollSpeed] = useState(3)
+  const [autoScrollPauseOnHover, setAutoScrollPauseOnHover] = useState(false)
+  const [showUsageGuide, setShowUsageGuide] = useState(false)
   const activeConfig = config ?? fallbackConfig
+
+  // epub 格式加载完成后，找到滚动容器并存入 ref
+  useEffect(() => {
+    if (book?.format === 'epub' && !bookLoading) {
+      // 延迟一点以确保 epub-container 已渲染
+      const timer = setTimeout(() => {
+        epubScrollRef.current = document.querySelector('.epub-container') as HTMLElement | null
+      }, 100)
+      return () => clearTimeout(timer)
+    } else {
+      epubScrollRef.current = null
+    }
+  }, [book?.format, bookLoading])
+
+  // 自动播放 hook
+  const { paused: autoScrollPaused, toggle: toggleAutoScroll } = useAutoScroll({
+    enabled: autoScrollEnabled,
+    speed: autoScrollSpeed,
+    pauseOnHover: autoScrollPauseOnHover,
+    scrollRef: book?.format === 'txt' ? txtScrollRef : epubScrollRef,
+    onChapterEnd: () => {
+      if (book?.format === 'txt') {
+        setAutoScrollEnabled(false)
+      } else {
+        // EPUB：检查是否已到最后一章
+        const spineHrefs = spineHrefsRef.current
+        const currentHref = currentChapterHref?.split('#')[0] ?? ''
+        const isLastChapter = spineHrefs.length > 0 && spineHrefs[spineHrefs.length - 1] === currentHref
+        if (isLastChapter) {
+          setAutoScrollEnabled(false)
+        } else {
+          epubChapterNavRef.current?.next()
+        }
+      }
+    },
+  })
 
   // 从已保存的进度中恢复章节进度 map
   useEffect(() => {
@@ -209,9 +256,17 @@ export function ReaderPage({ backRef, readerActionsRef, onBack, onTitleChange, i
 
     const nextProgress: ReadingProgress = { bookId: book.id, ...patch }
     pendingTxtProgress.current = nextProgress
-    setProgress(nextProgress)
+
+    // 自动滚动期间节流 UI 更新（每 2 秒），避免每帧触发 re-render
+    const now = Date.now()
+    if (!autoScrollEnabled || now - lastProgressUpdateRef.current > 2000) {
+      lastProgressUpdateRef.current = now
+      setProgress(nextProgress)
+    }
+
     saveTimer.current = window.setTimeout(() => {
       pendingTxtProgress.current = null
+      setProgress(nextProgress)
       void window.api.saveProgress(nextProgress)
       saveTimer.current = null
     }, 800)
@@ -291,6 +346,8 @@ export function ReaderPage({ backRef, readerActionsRef, onBack, onTitleChange, i
         },
         chapterPrev: () => epubChapterNavRef.current?.prev(),
         chapterNext: () => epubChapterNavRef.current?.next(),
+        toggleAutoScroll,
+        autoScrollEnabled,
       }
     }
   })
@@ -308,7 +365,7 @@ export function ReaderPage({ backRef, readerActionsRef, onBack, onTitleChange, i
 
   return (
     <>
-      <ReaderLayout title={readerTitle} meta={readerMeta} toc={toc} progress={book?.format === 'epub' ? currentChapterPercent : (progress?.percentage ?? null)} chapterProgressMap={book?.format === 'epub' ? chapterProgressRef.current : undefined} currentChapterHref={currentChapterHref} immersive={immersive} onExitImmersive={onExitImmersive} onChapterSelect={book?.format === 'epub' ? (href: string) => {
+      <ReaderLayout title={readerTitle} meta={readerMeta} toc={toc} progress={book?.format === 'epub' ? currentChapterPercent : (progress?.percentage ?? null)} chapterProgressMap={book?.format === 'epub' ? chapterProgressRef.current : undefined} currentChapterHref={currentChapterHref} immersive={immersive} onExitImmersive={onExitImmersive} autoScrollActive={autoScrollEnabled} autoScrollPaused={autoScrollPaused} onChapterSelect={book?.format === 'epub' ? (href: string) => {
         // 立即更新当前章节 href（包含 fragment），以便目录精确匹配子项
         setCurrentChapterHref(href)
         const savedPct = chapterProgressRef.current[href]
@@ -451,6 +508,23 @@ export function ReaderPage({ backRef, readerActionsRef, onBack, onTitleChange, i
           <ReaderGuide immersive={immersive} bookFormat={book?.format} onComplete={() => void updateConfig({ onboardingCompleted: true })} />
         </Suspense>
       )}
+
+      {showUsageGuide && (
+        <Suspense fallback={null}>
+          <UsageGuidePanel onClose={() => setShowUsageGuide(false)} />
+        </Suspense>
+      )}
+
+      <MoreMenu
+        autoScrollEnabled={autoScrollEnabled}
+        autoScrollSpeed={autoScrollSpeed}
+        autoScrollPaused={autoScrollPaused}
+        pauseOnHover={autoScrollPauseOnHover}
+        onEnabledChange={setAutoScrollEnabled}
+        onSpeedChange={setAutoScrollSpeed}
+        onPauseOnHoverChange={setAutoScrollPauseOnHover}
+        onUsageGuide={() => setShowUsageGuide(true)}
+      />
     </>
   )
 }
